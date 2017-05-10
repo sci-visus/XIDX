@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<!DOCTYPE Xdmf SYSTEM "/Users/steve/Research/SCI/workspace/idx_metadata/examples/Xdmf.dtd" []>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+<Domain>
+ 
+    <Grid Name="Multibox" GridType="Collection" >
+
+        <Grid Name="B1" GridType="Uniform">
+            <Topology TopologyType="3DCoRectMesh"
+                Dimensions="50 50 50">
+            </Topology>
+            <Geometry GeometryType="ORIGIN_DXDYDZ">
+                <!-- Origin -->
+                <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+                0.0 0.0 0.0
+                </DataItem>
+                <!-- DxDyDz -->
+                <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+                0.1 0.1 0.1
+                </DataItem>
+            </Geometry>
+
+            <Attribute Name="data" Center="Node" AttributeType="Scalar">
+                <DataItem Format="Binary" 
+                 NumberType="Float" Precision="4" Endian="Little"
+                 Dimensions="50 50 50">
+                /Users/steve/Research/SCI/workspace/ParallelMergeTree/sample_data/blob2_50_50_50.raw
+                </DataItem>
+            </Attribute>
+            
+        </Grid>
+
+        <Grid Name="B2" GridType="Uniform">
+            <Topology TopologyType="3DCoRectMesh"
+                Dimensions="50 50 50">
+            </Topology>
+            <Geometry GeometryType="ORIGIN_DXDYDZ">
+                <!-- Origin -->
+                <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+                0.0 0.0 4.9
+                </DataItem>
+                <!-- DxDyDz -->
+                <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+                0.1 0.1 0.1
+                </DataItem>
+            </Geometry>
+            <Attribute Name="data" Center="Node" AttributeType="Scalar">
+                <DataItem Format="Binary" 
+                 NumberType="Float" Precision="4" Endian="Little"
+                 Dimensions="50 50 50">
+                /Users/steve/Research/SCI/workspace/ParallelMergeTree/sample_data/blob2_50_50_50.raw
+                </DataItem>
+            </Attribute>
+            
+        </Grid>
+
+    </Grid>
+</Domain>
+</Xdmf>

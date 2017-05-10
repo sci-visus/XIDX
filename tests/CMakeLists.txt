@@ -1,0 +1,10 @@
+
+include_directories(../src)
+
+add_executable(validate validate.cpp)
+
+target_link_libraries(validate ${LIBXML2_LIBRARIES})
+
+add_executable(write write.cpp)
+
+target_link_libraries(write ${LIBXML2_LIBRARIES} idx_metadata)
