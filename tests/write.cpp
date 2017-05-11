@@ -23,5 +23,17 @@ int main(int argc, char** argv){
 
     meta.save();
 
+    for(int i=10; i < 12; i++)
+      meta.add_timestep(i, float(i));
+
+    meta.save();
+
+    // o[0] = 30;
+    // d[0] = 30;
+    // meta.add_grid(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
+    //     dims, GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, o, d);
+
+    // meta.save();
+
     return ret;
 }

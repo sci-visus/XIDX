@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int IDX_Metadata::set_global_topology(TopologyType topologyType, const uint32_t* dimensions){
+int IDX_Metadata::set_topology(TopologyType topologyType, const uint32_t* dimensions, Grid* grid){
   Topology topo;
   topo.topologyType = topologyType;
 
@@ -22,7 +22,12 @@ int IDX_Metadata::set_global_topology(TopologyType topologyType, const uint32_t*
     assert(false);
   }
 
-  return set_global_topology(topo);
+  if(grid == NULL)
+      grid = get_global_main_grid();
+
+  grid->topology = topo;
+
+  return 0;
 };
 
 int IDX_Metadata::add_attribute(const char* name, NumberType numberType, short precision, 

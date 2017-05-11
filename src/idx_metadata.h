@@ -407,15 +407,28 @@ public:
   template<typename T>
   int set_global_grid(TopologyType topologyType, const uint32_t* dimensions, 
                GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz){
-    int r1 = set_global_topology(topologyType, dimensions);
-    int r2 = set_global_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz);
+    int r1 = set_topology(topologyType, dimensions);
+    int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz);
 
     return r1 | r2;
   };
 
-  int set_global_topology(TopologyType topologyType, const uint32_t* dimensions);
+  template<typename T>
+  int add_grid(TopologyType topologyType, const uint32_t* dimensions, 
+               GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz){
+    Grid grid;
+    int r1 = set_topology(topologyType, dimensions, &grid);
+    int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz, &grid);
 
-  int set_global_topology(Topology topology, Grid* grid = NULL){
+    Grid* main_grid = get_global_main_grid();
+    main_grid->grid.push_back(grid);
+
+    return r1 | r2;
+  };
+
+  int set_topology(TopologyType topologyType, const uint32_t* dimensions, Grid* grid=NULL);
+
+  int set_topology(Topology topology, Grid* grid = NULL){
     if(grid == NULL)
       grid = get_global_main_grid();
 
@@ -425,8 +438,8 @@ public:
   }
   
   template<typename T>
-  int set_global_geometry(GeometryType geometryType, const T* ox_oy_oz, 
-                          const T* dx_dy_dz){
+  int set_geometry(GeometryType geometryType, const T* ox_oy_oz, 
+                          const T* dx_dy_dz, Grid* grid=NULL){
     Geometry geo;
     
     geo.geometryType = geometryType;
@@ -459,15 +472,10 @@ public:
     geo.item.push_back(item_o);
     geo.item.push_back(item_d);
 
-    return set_global_geometry(geo);
-  };
-
-
-  int set_global_geometry(Geometry geometry, Grid* grid = NULL){
     if(grid == NULL)
       grid = get_global_main_grid();
 
-    grid->geometry = geometry;
+    grid->geometry = geo;
 
     return 0;
   };
