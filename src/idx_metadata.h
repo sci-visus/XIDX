@@ -206,89 +206,6 @@ inline const char* ToString(AttributeType v)
   }
 }
 
-
-// namespace CollectionType{
-//   const char* SPATIAL_COLLECTION_TYPE = "Spatial";
-//   const char* TEMPORAL_COLLECTION_TYPE = "Temporal";
-// }
-// namespace GridType{
-//   const char* UNIFORM_GRID_TYPE = "Uniform";
-//   const char* COLLECTION_GRID_TYPE = "Collection";
-// }
-
-// namespace TopologyType{
-//   const char* NO_TOPOLOGY_TYPE = "NoTopologyType";
-//   const char* RECT_2D_MESH_TOPOLOGY_TYPE = "2DRectMesh";
-//   const char* CORECT_2D_MESH_TOPOLOGY_TYPE = "2DCoRectMesh";
-//   const char* RECT_3D_MESH_TOPOLOGY_TYPE = "3DRectMesh";
-//   const char* CORECT_3D_MESH_TOPOLOGY_TYPE = "3DCoRectMesh";
-
-//   // Other types to add 
-//   // | Polyvertex | Polyline | Polygon | Triangle | Quadrilateral | 
-//   // Tetrahedron | Wedge | Hexahedron | Edge_3 | Triangle_6 | Quadrilateral_8 
-//   // | Quadrilateral_9 | Tetrahedron_10 | Pyramid_13 | Wedge_15 | Wedge_18 
-//   // | Hexahedron_20 | Hexahedron_24 | Hexahedron_27 | Hexahedron_64 | 
-//   // Hexahedron_125 | Hexahedron_216 | Hexahedron_343 | Hexahedron_512 | 
-//   // Hexahedron_729 | Hexahedron_1000 | Hexahedron_1331 | Hexahedron_Spectral_64 
-//   // Hexahedron_Spectral_125 | Hexahedron_Spectral_216 | Hexahedron_Spectral_343 
-//   //| Hexahedron_Spectral_512 | Hexahedron_Spectral_729 | Hexahedron_Spectral_1000 
-//   // Hexahedron_Spectral_1331 | Mixed | 2DSMesh 
-// }
-
-// namespace GeometryType{
-//   const char* XYZ_GEOMETRY_TYPE = "XYZ";
-//   const char* XY_GEOMETRY_TYPE = "XY";
-//   const char* X_Y_Z_GEOMETRY_TYPE = "X_Y_Z";
-//   const char* VXVYVZ_GEOMETRY_TYPE = "VXVYVZ";
-//   const char* ORIGIN_DXDYDZ_GEOMETRY_TYPE = "ORIGIN_DXDYDZ";
-//   const char* ORIGIN_DXDY_GEOMETRY_TYPE = "ORIGIN_DXDY";
-// }
-
-// namespace ItemType{
-//   const char* UNIFORM_ITEM_TYPE = "Uniform";
-//   const char* HYPER_SLAB_ITEM_TYPE = "HyperSlab";
-//   const char* FUNCTION_ITEM_TYPE = "Function";
-// }
-
-// namespace NumberType{
-//   const char* CHAR_NUMBER_TYPE = "Char";
-//   const char* UCHAR_NUMBER_TYPE = "UChar";
-//   const char* FLOAT_NUMBER_TYPE = "Float";
-//   const char* INT_NUMBER_TYPE = "Int"; 
-//   const char* UINT_NUMBER_TYPE = "UInt";
-// }
-
-// namespace Endian{
-//   const char* LITTLE_ENDIANESS = "Little";
-//   const char* BIG_ENDIANESS = "Big";
-//   const char* NATIVE_ENDIANESS = "Native";
-// }
-
-// namespace Format{
-//   const char* XML_FORMAT = "XML";
-//   const char* HDF_FORMAT = "HDF";
-//   const char* BINARY_FORMAT = "Binary";
-//   const char* TIFF_FORMAT = "TIFF";
-//   const char* IDX_FORMAT = "IDX";
-// }
-
-// namespace Center{
-//   const char* NODE_CENTER = "Node";
-//   const char* CELL_CENTER = "Cell";
-//   const char* GRID_CENTER = "Grid";
-//   const char* FACE_CENTER = "Face";
-//   const char* EDGE_CENTER = "Edge";
-// }
-
-// namespace AttributeType{
-//   const char* SCALAR_ATTRIBUTE_TYPE = "Scalar";
-//   const char* VECTOR_ATTRIBUTE_TYPE = "Vector";
-//   const char* TENSOR_ATTRIBUTE_TYPE = "Tensor";
-
-//   // Other types to add
-//   // Tensor6 | Matrix
-// }
-
 struct Information{
   std::string name;
   std::string value;
@@ -359,12 +276,18 @@ struct Graph{
   std::string numberRows;
 };
 
+enum MetadataLayout{
+  SIMPLE = 0,
+  HPC = 1
+};
+
 class IDX_Metadata{
 
 private:
   std::string file_path;
   std::vector<Information> information;
   std::vector<Domain> domain;
+  MetadataLayout layout;
 
   void initialize_main_grids(){
     domain.resize(1);
@@ -395,8 +318,9 @@ private:
 
 public:
 
-  IDX_Metadata(const char* filename){
+  IDX_Metadata(const char* filename, MetadataLayout _layout=MetadataLayout::SIMPLE){
     file_path = filename;
+    layout = _layout;
     initialize_main_grids();
   };
 
@@ -405,25 +329,26 @@ public:
   int save();
 
   template<typename T>
-  int set_global_grid(TopologyType topologyType, const uint32_t* dimensions, 
-               GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz){
-    int r1 = set_topology(topologyType, dimensions);
-    int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz);
-
-    return r1 | r2;
-  };
-
-  template<typename T>
-  int add_grid(TopologyType topologyType, const uint32_t* dimensions, 
-               GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz){
+  int add_grid(const char* name, TopologyType topologyType, const uint32_t* dimensions, 
+               GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz, 
+               const char* dataset=NULL){
     Grid grid;
+    grid.name = name;
     int r1 = set_topology(topologyType, dimensions, &grid);
     int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz, &grid);
+
+    if(dataset != NULL){
+      Information data_info;
+      data_info.name = "Dataset";
+      data_info.value = dataset;
+      grid.information.push_back(data_info);
+    }
 
     Grid* main_grid = get_global_main_grid();
     main_grid->grid.push_back(grid);
 
     return r1 | r2;
+    
   };
 
   int set_topology(TopologyType topologyType, const uint32_t* dimensions, Grid* grid=NULL);

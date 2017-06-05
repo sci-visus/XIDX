@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<!DOCTYPE Xdmf SYSTEM "/Users/steve/Research/SCI/workspace/idx_metadata/examples/Xdmf.dtd" [<!ENTITY prefix "/Users/steve/Research/SCI/workspace/idx_metadata/examples/data">]>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+  <Domain>
+
+    <Grid Name="Grids" GridType="Collection" CollectionType="Spatial" >
+
+      <!-- Multiple grids can be defined here, 
+           as well as multiple sets of variables -->
+
+      <Attribute Name="data" Center="Node" AttributeType="Scalar">
+        <DataItem Format="Binary" 
+         NumberType="Float" Precision="4" Endian="Little"
+         Dimensions="50 50 50">
+         &prefix;/blob2_50_50_50.raw
+       </DataItem>
+     </Attribute>
+
+     <Grid Name="main" GridType="Uniform">
+      <Topology TopologyType="3DCoRectMesh"
+        Dimensions="50 50 50">
+      </Topology>
+      <Geometry GeometryType="ORIGIN_DXDYDZ">
+        <!-- Origin -->
+        <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+          0.0 0.0 4.9
+        </DataItem>
+        <!-- DxDyDz -->
+        <DataItem Format="XML" Dimensions="3" NumberType="Float" Precision="4">
+          0.1 0.1 0.1
+        </DataItem>
+      </Geometry>
+
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/>
+    </Grid>
+
+  </Grid>
+
+  <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.0"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.1"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.2"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.3"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.4"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+
+    <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="0.5"/>
+      <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
+    </Grid>
+  </Grid>
+
+</Domain>
+</Xdmf>

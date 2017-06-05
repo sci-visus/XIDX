@@ -3,21 +3,7 @@
 <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
 <Domain>
 
-    <Grid Name="MainGrid">
-        <Topology TopologyType="3DCoRectMesh"
-            Dimensions="50 50 50">
-        </Topology>
-        <Geometry GeometryType="ORIGIN_DXDYDZ">
-            <!-- Origin -->
-            <DataItem Format="XML" Dimensions="3">
-            0.0 0.0 0.0
-            </DataItem>
-            <!-- DxDyDz -->
-            <DataItem Format="XML" Dimensions="3">
-            1.0 1.0 1.0
-            </DataItem>
-        </Geometry>
-
+    <Grid Name="Grids" GridType="Collection" CollectionType="Spatial" >
         <Attribute Name="data" Center="Node" AttributeType="Scalar">
                 <DataItem Format="Binary" 
                  NumberType="Float" Precision="4" Endian="Little"
@@ -32,50 +18,49 @@
                 /Users/steve/Research/SCI/workspace/ParallelMergeTree/sample_data/blob2_50_50_50.raw
                 </DataItem>
         </Attribute>
+
+        <Grid Name="MainGrid" GridType="Uniform">
+            <Topology TopologyType="3DCoRectMesh"
+                Dimensions="50 50 50">
+            </Topology>
+            <Geometry GeometryType="ORIGIN_DXDYDZ">
+                <!-- Origin -->
+                <DataItem Format="XML" Dimensions="3">
+                0.0 0.0 0.0
+                </DataItem>
+                <!-- DxDyDz -->
+                <DataItem Format="XML" Dimensions="3">
+                1.0 1.0 1.0
+                </DataItem>
+            </Geometry>
+            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/>
+        </Grid>
     </Grid>
  
     <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
 
-        <Grid Name="T0" GridType="Uniform">
+        <Grid Name="T0" GridType="Collection" CollectionType="Spatial">
             <Information Name="LogicalTime" Value="0"/>
-
             <Time Value="0.0"/>
-
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Topology[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Geometry[1])"/>
-            
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/> 
-
+            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
         </Grid>
 
-        <Grid Name="T1" GridType="Uniform">
+        <Grid Name="T1" GridType="Collection" CollectionType="Spatial">
             <Information Name="LogicalTime" Value="1"/>
-
             <Time Value="0.1"/>
-
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Topology[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Geometry[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/> 
+            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/> 
         </Grid>
 
-        <Grid Name="T2" GridType="Uniform">
+        <Grid Name="T2" GridType="Collection" CollectionType="Spatial">
             <Information Name="LogicalTime" Value="2"/>
-
             <Time Value="0.3"/>
-
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Topology[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Geometry[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/> 
+            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
         </Grid>
 
-        <Grid Name="T3" GridType="Uniform">
+        <Grid Name="T3" GridType="Collection" CollectionType="Spatial">
             <Information Name="LogicalTime" Value="3"/>
-
             <Time Value="0.5"/>
-            
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Topology[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Geometry[1])"/>
-            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/> 
+            <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
         </Grid>
 
     </Grid>
