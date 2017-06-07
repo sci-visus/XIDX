@@ -6,6 +6,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <memory>
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args){
@@ -281,61 +282,20 @@ enum MetadataLayout{
   HPC = 1
 };
 
-class IDX_Metadata{
+namespace idx_metadata{
 
+class DataGrid{
 private:
-  std::string file_path;
-  std::vector<Information> information;
-  std::vector<Domain> domain;
-  MetadataLayout layout;
-
-  void initialize_main_grids(){
-    domain.resize(1);
-
-    if(domain[0].grid.size() < 1){
-      domain[0].grid.resize(2);
-      domain[0].grid[0].name = "MainGrid";
-      //domain[0].grid[0].gridType = GridType::UNIFORM_GRID_TYPE;
-
-      // Set the Time Grid
-      domain[0].grid[1].name = "TimeSeries";
-      domain[0].grid[1].gridType = GridType::COLLECTION_GRID_TYPE;
-      domain[0].grid[1].collectionType = CollectionType::TEMPORAL_COLLECTION_TYPE;
-    }
-  }
-
-  Grid* get_global_main_grid(){
-    initialize_main_grids();
-
-    return &(domain[0].grid[0]);
-  };
-
-  Grid* get_global_time_grid(){
-    initialize_main_grids();
-
-    return &(domain[0].grid[1]);
-  };
+  Grid grid;
 
 public:
-
-  IDX_Metadata(const char* filename, MetadataLayout _layout=MetadataLayout::SIMPLE){
-    file_path = filename;
-    layout = _layout;
-    initialize_main_grids();
-  };
-
-  int load();
-
-  int save();
-
   template<typename T>
-  int add_grid(const char* name, TopologyType topologyType, const uint32_t* dimensions, 
+  int set_grid(const char* name, TopologyType topologyType, const uint32_t* dimensions, 
                GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz, 
                const char* dataset=NULL){
-    Grid grid;
     grid.name = name;
-    int r1 = set_topology(topologyType, dimensions, &grid);
-    int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz, &grid);
+    int r1 = set_topology(topologyType, dimensions);
+    int r2 = set_geometry<T>(geometryType, ox_oy_oz, dx_dy_dz);
 
     if(dataset != NULL){
       Information data_info;
@@ -344,28 +304,33 @@ public:
       grid.information.push_back(data_info);
     }
 
-    Grid* main_grid = get_global_main_grid();
-    main_grid->grid.push_back(grid);
-
     return r1 | r2;
-    
-  };
+  }
 
-  int set_topology(TopologyType topologyType, const uint32_t* dimensions, Grid* grid=NULL);
+  int set_topology(TopologyType topologyType, const uint32_t* dimensions)
+  {
+    Topology& topology = grid.topology;
 
-  int set_topology(Topology topology, Grid* grid = NULL){
-    if(grid == NULL)
-      grid = get_global_main_grid();
+    topology.topologyType = topologyType;
 
-    grid->topology = topology;
+    if(topologyType == TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE)
+      topology.dimensions = string_format("%d %d %d", dimensions[0],dimensions[1],dimensions[2]);
+    else if(topologyType == TopologyType::CORECT_2D_MESH_TOPOLOGY_TYPE)
+      topology.dimensions = string_format("%d %d", dimensions[0],dimensions[1]);
+    else{
+      fprintf(stderr, "TopologyType not supported\n");
+      assert(false);
+    }
 
     return 0;
-  }
+  };
+
+  int set_topology(Topology topology) { grid.topology = topology; return 0; }
   
   template<typename T>
   int set_geometry(GeometryType geometryType, const T* ox_oy_oz, 
-                          const T* dx_dy_dz, Grid* grid=NULL){
-    Geometry geo;
+                          const T* dx_dy_dz){
+    Geometry& geo = grid.geometry;
     
     geo.geometryType = geometryType;
     DataItem item_o;
@@ -382,7 +347,6 @@ public:
    
     }
     else if(geometryType == GeometryType::ORIGIN_DXDY_GEOMETRY_TYPE){
-      
       item_o.dimensions = "2";
       item_o.text = string_format("%f %f", ox_oy_oz[0], ox_oy_oz[1]);
 
@@ -397,29 +361,105 @@ public:
     geo.item.push_back(item_o);
     geo.item.push_back(item_d);
 
-    if(grid == NULL)
-      grid = get_global_main_grid();
-
-    grid->geometry = geo;
-
     return 0;
   };
 
-  int add_timestep(uint32_t log_time, double phy_time);
+  int set_geometry(Geometry geometry){ grid.geometry = geometry; return 0; }
 
   int add_attribute(const char* name, NumberType numberType, short precision, 
                    AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
                    CenterType center=CenterType::CELL_CENTER, 
-                   EndianType endian=EndianType::LITTLE_ENDIANESS, Grid* grid = NULL);
+                   EndianType endian=EndianType::LITTLE_ENDIANESS){
+    Attribute att;
 
-  int add_attribute(Attribute attribute, Grid* grid = NULL){
-    if(grid == NULL)
-      grid = get_global_main_grid();
+    att.name = name;
+    att.attributeType = attributeType;
+    att.centerType = center;
+    
+    DataItem di;
+    di.numberType = numberType;
+    di.precision = string_format("%d", precision);
+    di.endianType = endian;
+    di.dimensions = grid.topology.dimensions; // Use same dimensions of topology
+    di.formatType = FormatType::IDX_FORMAT;
 
-    grid->attribute.push_back(attribute);
+    att.data = di;
 
+    return add_attribute(att);
+  }
+
+  int add_attribute(Attribute attribute){
+    grid.attribute.push_back(attribute);
     return 0;
   };
+
+  int get_n_attributes() { return grid.attribute.size(); }
+
+};
+
+class Level{
+private:
+  std::vector<std::shared_ptr<DataGrid> > grids;
+
+public:
+  int add_datagrid(std::shared_ptr<DataGrid> level){ grids.push_back(level); return 0; }
+
+  std::shared_ptr<DataGrid> get_datagrid(int g){ return grids[g]; }
+
+  int clear(){ grids.clear(); return 0; }
+
+  int get_n_datagrids() { return grids.size(); }
+};
+
+class TimeStep{
+private:
+  std::vector<std::shared_ptr<Level> > levels;
+  Information info_time;
+  Time time;
+
+public:
+  int set_timestep(uint32_t log_time, double phy_time){
+    info_time.name = "LogicalTime";
+    info_time.value = string_format("%d", log_time);
+    time.value = string_format("%f", phy_time);
+    return 0;
+  }
+
+  int add_level(std::shared_ptr<Level> level){ levels.push_back(level); return 0; }
+
+  std::shared_ptr<Level> get_level(int l){ return levels[l]; }
+
+  int clear(){ levels.clear(); return 0;}
+
+  int get_n_levels() { return levels.size(); }
+};
+
+class IDX_Metadata{
+
+private:
+  std::vector<std::shared_ptr<TimeStep> > timesteps;
+  MetadataLayout layout;
+  std::string file_path;
+
+public:
+
+  IDX_Metadata(const char* path, MetadataLayout _layout=MetadataLayout::SIMPLE){
+    file_path = path;
+    layout = _layout;
+  };
+
+  int load();
+
+  int save();
+
+  int add_timestep(std::shared_ptr<TimeStep> ts){ timesteps.push_back(ts); return 0;}
+
+  std::shared_ptr<TimeStep> get_timestep(int t){ return timesteps[t]; }
+
+  int clear(){ timesteps.clear(); return 0; }
+
+  int get_n_timesteps() { return timesteps.size(); }
+};
 
 };
 

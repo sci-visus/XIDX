@@ -8,66 +8,10 @@
 #define MY_ENCODING "ISO-8859-1"
 
 using namespace std;
-
-int IDX_Metadata::set_topology(TopologyType topologyType, const uint32_t* dimensions, Grid* grid){
-  Topology topo;
-  topo.topologyType = topologyType;
-
-  if(topologyType == TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE)
-    topo.dimensions = string_format("%d %d %d", dimensions[0],dimensions[1],dimensions[2]);
-  else if(topologyType == TopologyType::CORECT_2D_MESH_TOPOLOGY_TYPE)
-    topo.dimensions = string_format("%d %d", dimensions[0],dimensions[1]);
-  else{
-    fprintf(stderr, "TopologyType not supported\n");
-    assert(false);
-  }
-
-  if(grid == NULL)
-      grid = get_global_main_grid();
-
-  grid->topology = topo;
-
-  return 0;
-};
-
-int IDX_Metadata::add_attribute(const char* name, NumberType numberType, short precision, 
-                   AttributeType attributeType, CenterType center, EndianType endian, Grid* grid){
-  Attribute att;
-
-  att.name = name;
-  att.attributeType = attributeType;
-  att.centerType = center;
-  
-  DataItem di;
-  di.numberType = numberType;
-  di.precision = string_format("%d", precision);
-  di.endianType = endian;
-  di.dimensions = get_global_main_grid()->topology.dimensions; // Use same dimensions of topology
-  di.formatType = FormatType::IDX_FORMAT;
-
-  att.data = di;
-
-  return add_attribute(att, grid);
-
-}
-
-int IDX_Metadata::add_timestep(uint32_t log_time, double phy_time){
-  Grid* time_grid = get_global_time_grid();
-
-  Grid nt;
-  Information info_log_time;
-  info_log_time.name = "LogicalTime";
-  info_log_time.value = string_format("%d", log_time);
-  nt.information.push_back(info_log_time);
-
-  nt.time.value = string_format("%f", phy_time);
-
-  time_grid->grid.push_back(nt);
-
-  return 0;
-}
+using namespace idx_metadata;
 
 int IDX_Metadata::save(){
+#if 0
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
   char buff[256];
@@ -189,6 +133,6 @@ int IDX_Metadata::save(){
    * this is to debug memory for regression tests
    */
   xmlMemoryDump();
-
+#endif
   return 0; 
 }
