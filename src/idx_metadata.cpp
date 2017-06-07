@@ -10,8 +10,8 @@
 using namespace std;
 using namespace idx_metadata;
 
-int IDX_Metadata::save(){
-#if 0
+int IDX_Metadata::save_simple(){
+
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
   char buff[256];
@@ -45,8 +45,11 @@ int IDX_Metadata::save(){
   xmlNewProp(main_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(main_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
-  Grid* grid = get_global_main_grid();
-  for(auto& curr_attribute : grid->attribute){
+  std::shared_ptr<Level> level = get_timestep(0)->get_level(0);
+
+  Grid grid = level->get_datagrid(0)->get_grid();
+
+  for(auto& curr_attribute : grid.attribute){
     xmlNodePtr attribute_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Attribute", NULL);
     xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST curr_attribute.name.c_str());
     xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
@@ -60,8 +63,8 @@ int IDX_Metadata::save(){
     xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST curr_attribute.data.dimensions.c_str());
   }
 
-  for(int i=0; i<grid->grid.size(); i++){
-    Grid& curr_grid = grid->grid[i];
+  for(int i=0; i<level->get_n_datagrids(); i++){
+    Grid& curr_grid = level->get_datagrid(i)->get_grid();
     xmlNodePtr curr_grid_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Grid", NULL);
     xmlNewProp(curr_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::UNIFORM_GRID_TYPE));
     xmlNewProp(curr_grid_node, BAD_CAST "Name", BAD_CAST curr_grid.name.c_str());
@@ -93,11 +96,9 @@ int IDX_Metadata::save(){
   xmlNewProp(time_grid_node, BAD_CAST "Name", BAD_CAST "TimeSeries");
   xmlNewProp(time_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
-
-  Grid* time_grid = get_global_time_grid();
   
-  for(int i=0; i<time_grid->grid.size(); i++){
-    Grid& curr_grid = time_grid->grid[i];
+  for(int i=0; i<get_n_timesteps(); i++){
+    shared_ptr<TimeStep> curr_grid = get_timestep(i);
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
     xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format("t_%09d",i).c_str());
@@ -105,11 +106,11 @@ int IDX_Metadata::save(){
     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
     xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
-    xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid.information[0].name.c_str());
-    xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid.information[0].value.c_str());
+    xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->log_time_info.name.c_str());
+    xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->log_time_info.value.c_str());
 
     xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-    xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid.time.value.c_str());
+    xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->time.value.c_str());
 
     xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
@@ -133,6 +134,6 @@ int IDX_Metadata::save(){
    * this is to debug memory for regression tests
    */
   xmlMemoryDump();
-#endif
+
   return 0; 
 }

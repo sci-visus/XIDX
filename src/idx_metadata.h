@@ -393,8 +393,7 @@ public:
     return 0;
   };
 
-  int get_n_attributes() { return grid.attribute.size(); }
-
+  Grid& get_grid(){ return grid; }
 };
 
 class Level{
@@ -414,13 +413,14 @@ public:
 class TimeStep{
 private:
   std::vector<std::shared_ptr<Level> > levels;
-  Information info_time;
-  Time time;
 
 public:
+  Information log_time_info;
+  Time time;
+
   int set_timestep(uint32_t log_time, double phy_time){
-    info_time.name = "LogicalTime";
-    info_time.value = string_format("%d", log_time);
+    log_time_info.name = "LogicalTime";
+    log_time_info.value = string_format("%d", log_time);
     time.value = string_format("%f", phy_time);
     return 0;
   }
@@ -450,7 +450,19 @@ public:
 
   int load();
 
-  int save();
+  int save(){
+    switch(layout){
+      case MetadataLayout::SIMPLE:
+        save_simple();
+        break;
+      default:
+        assert(false);
+        break;
+    }
+    return 0;
+  }
+
+  int save_simple();
 
   int add_timestep(std::shared_ptr<TimeStep> ts){ timesteps.push_back(ts); return 0;}
 
