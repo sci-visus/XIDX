@@ -366,6 +366,8 @@ public:
     return 0;
   };
 
+  std::vector<Attribute>& get_attributes(){ return grid.attribute; }
+
   int set_geometry(Geometry geometry){ grid.geometry = geometry; return 0; }
 
   int add_attribute(const char* name, NumberType numberType, short precision, 

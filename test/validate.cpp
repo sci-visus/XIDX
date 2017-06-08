@@ -63,5 +63,11 @@ int validate_xmf(char *filename, bool keep_validate_file) {
 
 int main(int argc, char** argv){
 
+    if(argc < 2){
+        fprintf(stderr, "Usage: validate file_path [keep_processed_file]\n");
+
+        return 1;
+    }
+    
     return validate_xmf(argv[1], argc > 2);
 }
