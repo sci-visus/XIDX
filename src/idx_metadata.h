@@ -465,6 +465,9 @@ public:
       case MetadataLayout::SIMPLE:
         load_simple();
         break;
+      case MetadataLayout::HPC:
+        load_hpc();
+        break;
       default:
         assert(false);
         break;
@@ -477,6 +480,9 @@ public:
       case MetadataLayout::SIMPLE:
         save_simple();
         break;
+      case MetadataLayout::HPC:
+        save_hpc();
+        break;
       default:
         assert(false);
         break;
@@ -486,6 +492,9 @@ public:
 
   int load_simple();
   int save_simple();
+
+  int load_hpc();
+  int save_hpc();
 
   int set_path(const char* new_path){ file_path = new_path; return 0; }
 

@@ -141,21 +141,173 @@ int IDX_Metadata::save_simple(){
   return 0; 
 }
 
-map<string, string> get_attributes(xmlNode* node){
-  xmlAttr* attribute = node->properties;
-  map<string, string> atts;
-  while(attribute)
-  {
-    xmlChar* value = xmlNodeListGetString(node->doc, attribute->children, 1);
+int save_hpc_level(shared_ptr<Level> lvl, int n, const char* time_path){
+  xmlDocPtr doc = NULL;       /* document pointer */
+  xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+  char buff[256];
+  int i, j;
 
-    atts[string(reinterpret_cast<const char*>(attribute->name))] = string(reinterpret_cast<const char*>(value));
+  LIBXML_TEST_VERSION;
 
-    //do something with value
-    xmlFree(value); 
-    attribute = attribute->next;
+  doc = xmlNewDoc(BAD_CAST "1.0");
+  root_node = xmlNewNode(NULL, BAD_CAST "Xdmf");
+  xmlDocSetRootElement(doc, root_node);
+  xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
+  xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+
+  xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
+
+  xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
+
+  xmlNodePtr domain_node = xmlNewChild(root_node, NULL, BAD_CAST "Domain", NULL);
+
+  xmlNodePtr curr_time_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
+
+  char level_name[128];
+  sprintf(level_name,"l%04d", n);
+
+  char mkdir_cmd[150];
+  sprintf(mkdir_cmd,"mkdir -p %s/%s", time_path, level_name);
+  const int dir_err = system(mkdir_cmd);
+  if (-1 == dir_err){
+      fprintf(stderr, "Error creating directory %s!\n", level_name);
+      exit(1);
   }
 
-  return atts;
+  for(int g=0; g < lvl->get_n_datagrids(); g++){
+    shared_ptr<DataGrid> datagrid = lvl->get_datagrid(g);
+    for(auto att : datagrid->get_attributes()){
+
+    }
+  }
+  
+
+  char level_path[128];
+  sprintf(level_path,"%s/l%04d/meta.xmf", time_path, n);
+  xmlSaveFormatFileEnc(level_path, doc, "UTF-8", 1);
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
+  xmlMemoryDump();
+
+  return 0;
+}
+
+
+int save_hpc_timestep(shared_ptr<TimeStep> ts){
+  xmlDocPtr doc = NULL;       /* document pointer */
+  xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+  char buff[256];
+  int i, j;
+
+  LIBXML_TEST_VERSION;
+
+  doc = xmlNewDoc(BAD_CAST "1.0");
+  root_node = xmlNewNode(NULL, BAD_CAST "Xdmf");
+  xmlDocSetRootElement(doc, root_node);
+  xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
+  xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+
+  xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
+
+  xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
+
+  xmlNodePtr domain_node = xmlNewChild(root_node, NULL, BAD_CAST "Domain", NULL);
+
+  xmlNodePtr curr_time_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
+
+  char time_name[128];
+  sprintf(time_name,"t%09d", ts->get_logical_time());
+
+  char mkdir_cmd[150];
+  sprintf(mkdir_cmd,"mkdir -p %s", time_name);
+  const int dir_err = system(mkdir_cmd);
+  if (-1 == dir_err){
+      fprintf(stderr, "Error creating directory %s!\n", time_name);
+      exit(1);
+  }
+
+  xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST time_name);
+  xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
+  xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
+
+  xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
+  xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST ts->get_log_time_info().name.c_str());
+  xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST ts->get_log_time_info().value.c_str());
+
+  xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
+  xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_time().value.c_str());
+
+  xmlNodePtr levels_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
+  xmlNewProp(levels_node, BAD_CAST "Name", BAD_CAST "Grids");
+  xmlNewProp(levels_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
+  xmlNewProp(levels_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
+
+  for(int l=0; l < ts->get_n_levels(); l++){
+    char lname[128];
+    sprintf(lname, "l%04d/meta.xmf",l);
+    xmlNodePtr level_node = xmlNewChild(levels_node, NULL, BAD_CAST "xi:include", NULL);
+    xmlNewProp(level_node, BAD_CAST "href", BAD_CAST lname);
+    xmlNewProp(level_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1])");
+
+    shared_ptr<Level> level = ts->get_level(l);
+    save_hpc_level(level, l, time_name);
+  }
+
+  char time_path[128];
+  sprintf(time_path,"t%09d/meta.xmf", ts->get_logical_time());
+  xmlSaveFormatFileEnc(time_path, doc, "UTF-8", 1);
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
+  xmlMemoryDump();
+
+  return 0;
+
+}
+
+int IDX_Metadata::save_hpc(){
+
+  xmlDocPtr doc = NULL;       /* document pointer */
+  xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+  char buff[256];
+  int i, j;
+
+  LIBXML_TEST_VERSION;
+
+  doc = xmlNewDoc(BAD_CAST "1.0");
+  root_node = xmlNewNode(NULL, BAD_CAST "Xdmf");
+  xmlDocSetRootElement(doc, root_node);
+  xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
+  xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+
+  xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
+
+  xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
+
+  xmlNodePtr domain_node = xmlNewChild(root_node, NULL, BAD_CAST "Domain", NULL);
+
+  xmlNodePtr main_time_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
+
+  xmlNewProp(main_time_node, BAD_CAST "Name", BAD_CAST "TimeSeries");
+  xmlNewProp(main_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
+  xmlNewProp(main_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
+
+  for(int t=0; t<get_n_timesteps(); t++){
+    char tname[128];
+    sprintf(tname, "t%09d/meta.xmf",t);
+    xmlNodePtr xgrids_node = xmlNewChild(main_time_node, NULL, BAD_CAST "xi:include", NULL);
+    xmlNewProp(xgrids_node, BAD_CAST "href", BAD_CAST tname);
+    xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid)");
+  
+    shared_ptr<TimeStep> ts = get_timestep(t);
+    save_hpc_timestep(ts);
+  }
+
+  xmlSaveFormatFileEnc(file_path.c_str(), doc, "UTF-8", 1);
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
+  xmlMemoryDump();
+
+  return 0; 
 }
 
 const char* getProp(xmlNode* node, string propName){
