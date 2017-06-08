@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <map>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
@@ -25,6 +26,8 @@ int IDX_Metadata::save_simple(){
   doc = xmlNewDoc(BAD_CAST "1.0");
   root_node = xmlNewNode(NULL, BAD_CAST "Xdmf");
   xmlDocSetRootElement(doc, root_node);
+  xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
+  xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
 
   /*
    * Creates a DTD declaration. Isn't mandatory. 
@@ -106,11 +109,11 @@ int IDX_Metadata::save_simple(){
     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
     xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
-    xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->log_time_info.name.c_str());
-    xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->log_time_info.value.c_str());
+    xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
+    xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
 
     xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-    xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->time.value.c_str());
+    xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_time().value.c_str());
 
     xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
@@ -136,4 +139,181 @@ int IDX_Metadata::save_simple(){
   xmlMemoryDump();
 
   return 0; 
+}
+
+map<string, string> get_attributes(xmlNode* node){
+  xmlAttr* attribute = node->properties;
+  map<string, string> atts;
+  while(attribute)
+  {
+    xmlChar* value = xmlNodeListGetString(node->doc, attribute->children, 1);
+
+    atts[string(reinterpret_cast<const char*>(attribute->name))] = string(reinterpret_cast<const char*>(value));
+
+    //do something with value
+    xmlFree(value); 
+    attribute = attribute->next;
+  }
+
+  return atts;
+}
+
+const char* getProp(xmlNode* node, string propName){
+  return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
+}
+
+
+int IDX_Metadata::load_simple(){
+
+  LIBXML_TEST_VERSION;
+
+  xmlDocPtr doc; /* the resulting document tree */
+
+  doc = xmlReadFile(file_path.c_str(), NULL, 0);
+  if (doc == NULL) {
+    fprintf(stderr, "Failed to parse %s\n", file_path.c_str());
+    return 1;
+  }
+
+  xmlNode* root_element = xmlDocGetRootElement(doc);
+
+  if(!root_element || !(root_element->children) || !(root_element->children->next))
+    return 1;
+
+  xmlNode *space_grid = root_element->children->next->children->next->children;
+
+  xmlNode *time_grid = root_element->children->next->children->next->next->next->children;
+
+  std::shared_ptr<Level> lvl(new Level());
+
+  for (xmlNode* cur_node = space_grid; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
+      if(strcmp(reinterpret_cast<const char*>(cur_node->name), "Grid")==0){
+        std::shared_ptr<DataGrid> dgrid(new DataGrid());
+        Grid grid;
+
+        grid.name = getProp(cur_node, "Name");
+
+        xmlNode* topo_node = cur_node->children->next;
+
+        const char* topo_type = getProp(topo_node, "TopologyType");
+
+        for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
+          if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
+              grid.topology.topologyType = static_cast<TopologyType>(t);
+
+        grid.topology.dimensions = getProp(topo_node, "Dimensions");
+
+        xmlNode* geo_node = cur_node->children->next->next->next;
+        
+        const char* geo_type = getProp(geo_node, "GeometryType");
+
+        for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= ORIGIN_DXDY_GEOMETRY_TYPE; t++)
+          if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
+              grid.geometry.geometryType = static_cast<GeometryType>(t);
+
+        xmlNode* item_o_node = geo_node->children->next;
+        xmlNode* item_d_node = geo_node->children->next->next->next;
+
+        DataItem item_o;
+        item_o.formatType = FormatType::XML_FORMAT;
+        DataItem item_d;
+        item_d.formatType = FormatType::XML_FORMAT;
+
+        item_o.dimensions = getProp(item_o_node, "Dimensions");
+        item_o.text = reinterpret_cast<const char*>(item_o_node->children->content);
+
+        item_d.dimensions = getProp(item_d_node, "Dimensions");
+        item_d.text = reinterpret_cast<const char*>(item_d_node->children->content);
+
+        // printf("add geometry type %s dim %s O %s D %s topo type %s dim %s\n", 
+        //   ToString(grid.geometry.geometryType), item_o.dimensions.c_str(), item_o.text.c_str(), item_d.text.c_str(), ToString(grid.topology.topologyType),
+        //   grid.topology.dimensions.c_str());
+
+        grid.geometry.item.push_back(item_o);
+        grid.geometry.item.push_back(item_d);
+
+        dgrid->set_grid(grid);
+        lvl->add_datagrid(dgrid);
+      }
+    }
+  }
+
+  for (xmlNode* cur_node = space_grid; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
+      
+      if(strcmp(reinterpret_cast<const char*>(cur_node->name), "Attribute")==0){
+        Attribute att;
+
+        att.name = getProp(cur_node, "Name");
+
+        const char* center_type = getProp(cur_node, "Center");
+        for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
+          if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
+              att.centerType = static_cast<CenterType>(t);
+
+        const char* att_type = getProp(cur_node, "AttributeType");
+        for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
+          if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
+              att.attributeType = static_cast<AttributeType>(t);
+
+        xmlNode* item = cur_node->children->next;
+
+        att.data.formatType = FormatType::IDX_FORMAT;
+        
+        const char* num_type = getProp(item, "NumberType");
+        for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
+          if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0)
+              att.data.numberType = static_cast<NumberType>(t);
+        
+        att.data.precision = getProp(item, "Precision");
+        att.data.dimensions = getProp(item, "Dimensions");
+
+        const char* end_type = getProp(item, "Endian");
+        for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
+          if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0)
+              att.data.endianType = static_cast<EndianType>(t);
+
+        // printf("add attribute %s cent %s type %s num_type %s prec %s dim %s endian %s\n",
+        //   att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
+        //   ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
+        //   ToString(att.data.endianType));
+
+        for(int i=0; i < lvl->get_n_datagrids(); i++){
+          lvl->get_datagrid(i)->add_attribute(att);
+        }
+      }
+
+    }
+  }
+
+  // Time
+  for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
+      std::shared_ptr<TimeStep> ts(new TimeStep());
+
+      xmlNode* log_time_node = cur_node->children->next;
+      const char* att_name = getProp(log_time_node, "Name");
+
+      int log_time = -1;
+      if(strcmp(att_name,"LogicalTime")==0)
+        log_time = atoi(getProp(log_time_node, "Value"));
+      else
+        fprintf(stderr, "LogicalTime attribute not found\n");
+
+      xmlNode* phy_time_node = log_time_node->next->next;
+
+      double phy_time = stod(getProp(phy_time_node, "Value"));
+
+      //printf("timestep %d %f\n", log_time, phy_time);
+      ts->set_timestep(log_time, phy_time);
+
+      ts->add_level(lvl);
+      add_timestep(ts);
+    }
+  }
+
+  xmlFreeDoc(doc);
+
+  return 0;
 }

@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     std::shared_ptr<TimeStep> ts(new TimeStep());
     ret = ts->add_level(level);
 
-    ts->set_timestep(i, float(i));
+    ts->set_timestep(i, float(i+10));
     meta.add_timestep(ts);
   }
 

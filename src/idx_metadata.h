@@ -307,6 +307,8 @@ public:
     return r1 | r2;
   }
 
+  int set_grid(Grid _grid){ grid = _grid; return 0; }
+
   int set_topology(TopologyType topologyType, const uint32_t* dimensions)
   {
     Topology& topology = grid.topology;
@@ -413,10 +415,10 @@ public:
 class TimeStep{
 private:
   std::vector<std::shared_ptr<Level> > levels;
-
-public:
   Information log_time_info;
   Time time;
+
+public:
 
   int set_timestep(uint32_t log_time, double phy_time){
     log_time_info.name = "LogicalTime";
@@ -432,6 +434,14 @@ public:
   int clear(){ levels.clear(); return 0;}
 
   int get_n_levels() { return levels.size(); }
+
+  Information get_log_time_info(){ return log_time_info; }
+
+  Time get_time(){ return time; }
+
+  int get_logical_time(){ return stoi(log_time_info.value); }
+
+  double get_physical_time(){ return stod(time.value); }
 };
 
 class IDX_Metadata{
@@ -448,7 +458,17 @@ public:
     layout = _layout;
   };
 
-  int load();
+  int load(){
+    switch(layout){
+      case MetadataLayout::SIMPLE:
+        load_simple();
+        break;
+      default:
+        assert(false);
+        break;
+    }
+    return 0;
+  }
 
   int save(){
     switch(layout){
@@ -462,7 +482,10 @@ public:
     return 0;
   }
 
+  int load_simple();
   int save_simple();
+
+  int set_path(const char* new_path){ file_path = new_path; return 0; }
 
   int add_timestep(std::shared_ptr<TimeStep> ts){ timesteps.push_back(ts); return 0;}
 
