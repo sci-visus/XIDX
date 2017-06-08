@@ -5,7 +5,7 @@
 using namespace idx_metadata;
 
 int main(int argc, char** argv){
-  IDX_Metadata meta("test.xmf");
+  IDX_Metadata meta("test.xmf"); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};
   float o[3] = {0, 0, 0};
@@ -34,6 +34,7 @@ int main(int argc, char** argv){
   }
 
   meta.save();
+
 
   return ret;
 }

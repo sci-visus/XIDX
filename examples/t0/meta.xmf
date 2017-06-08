@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!DOCTYPE Xdmf SYSTEM "/Users/steve/Research/SCI/workspace/idx_metadata/examples/Xdmf.dtd" >
+<!DOCTYPE Xdmf SYSTEM "../../Xdmf.dtd" >
 <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
 <Domain>
  

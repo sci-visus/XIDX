@@ -23,7 +23,7 @@
            
           <Attribute Center="Node" Name="ImageFile" AttributeType="Scalar">
             <DataItem NumberType="Float" Dimensions="50 400 2" Format="Binary" Precision="4">
-            ../../datasets/2D-cylinder-Weinkauf/Cyl_Wein_X_400_Y_50_15000.raw
+            /Users/steve/Research/SCI/workspace/2D-cylinder-Weinkauf/Cyl_Wein_X_400_Y_50_15000.raw
             </DataItem>
           </Attribute>
           
@@ -39,7 +39,7 @@
            
           <Attribute Center="Node" Name="ImageFile" AttributeType="Scalar">
             <DataItem NumberType="Float" Dimensions="50 400 2" Format="Binary" Precision="4">
-            ../../datasets/2D-cylinder-Weinkauf/Cyl_Wein_X_400_Y_50_15008.raw
+            /Users/steve/Research/SCI/workspace/2D-cylinder-Weinkauf/Cyl_Wein_X_400_Y_50_15008.raw
             </DataItem>
           </Attribute>
           

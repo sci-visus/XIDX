@@ -29,7 +29,7 @@ int IDX_Metadata::save_simple(){
   /*
    * Creates a DTD declaration. Isn't mandatory. 
    */
-  xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../examples/Xdmf.dtd");
+  xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
 
   xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
 
