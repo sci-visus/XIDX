@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <set>
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args){
@@ -453,11 +454,18 @@ private:
   MetadataLayout layout;
   std::string file_path;
 
+  bool loaded;
+  std::set<int> touched_ts;
+
+  int load_timestep(int t);
+  int save_timestep(int t);
+
 public:
 
   IDX_Metadata(const char* path, MetadataLayout _layout=MetadataLayout::SIMPLE){
     file_path = path;
     layout = _layout;
+    loaded = false;
   };
 
   int load(){
@@ -472,6 +480,8 @@ public:
         assert(false);
         break;
     }
+
+    loaded = true;
     return 0;
   }
 
@@ -493,12 +503,18 @@ public:
   int load_simple();
   int save_simple();
 
-  int load_hpc();
+  int load_hpc(){};
   int save_hpc();
 
   int set_path(const char* new_path){ file_path = new_path; return 0; }
 
-  int add_timestep(std::shared_ptr<TimeStep> ts){ timesteps.push_back(ts); return 0;}
+  int add_timestep(std::shared_ptr<TimeStep> ts){ 
+    timesteps.push_back(ts); 
+
+    if(loaded)
+      touched_ts.insert(ts->get_logical_time());
+    return 0;
+  }
 
   std::shared_ptr<TimeStep> get_timestep(int t){ return timesteps[t]; }
 
