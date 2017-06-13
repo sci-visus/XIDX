@@ -460,6 +460,10 @@ private:
   int load_timestep(int t);
   int save_timestep(int t);
 
+  int parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl);
+  int load_hpc_timestep(std::string& tpath);
+  int load_hpc_grid(std::string gpath, std::shared_ptr<TimeStep> ts);
+
 public:
 
   IDX_Metadata(const char* path, MetadataLayout _layout=MetadataLayout::SIMPLE){
@@ -503,7 +507,7 @@ public:
   int load_simple();
   int save_simple();
 
-  int load_hpc(){};
+  int load_hpc();
   int save_hpc();
 
   int set_path(const char* new_path){ file_path = new_path; return 0; }

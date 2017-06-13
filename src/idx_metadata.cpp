@@ -11,6 +11,10 @@
 using namespace std;
 using namespace idx_metadata;
 
+const char* getProp(xmlNode* node, string propName){
+  return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
+}
+
 int IDX_Metadata::save_simple(){
 
   xmlDocPtr doc = NULL;       /* document pointer */
@@ -371,16 +375,95 @@ int IDX_Metadata::save_hpc(){
   return 0; 
 }
 
-const char* getProp(xmlNode* node, string propName){
-  return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
-}
-
-
-int IDX_Metadata::load_simple(){
-
+int IDX_Metadata::load_hpc_grid(string gpath, shared_ptr<TimeStep> ts){
   LIBXML_TEST_VERSION;
 
   xmlDocPtr doc; /* the resulting document tree */
+  int ret = 0;
+
+  doc = xmlReadFile(gpath.c_str(), NULL, 0);
+  if (doc == NULL) {
+    fprintf(stderr, "Failed to parse %s\n", gpath.c_str());
+    return 1;
+  }
+
+  xmlNode* root_element = xmlDocGetRootElement(doc);
+  if(!root_element || !(root_element->children))
+    return 1;
+
+  xmlNode *grid_node = root_element->children->next->children->next;
+
+  shared_ptr<Level> lvl(new Level());
+
+  parse_level(grid_node, lvl);
+  
+  ts->add_level(lvl);
+  
+}
+
+int IDX_Metadata::load_hpc_timestep(string& tpath){
+  LIBXML_TEST_VERSION;
+
+  xmlDocPtr doc; /* the resulting document tree */
+  int ret = 0;
+
+  doc = xmlReadFile(tpath.c_str(), NULL, 0);
+  if (doc == NULL) {
+    fprintf(stderr, "Failed to parse %s\n", tpath.c_str());
+    return 1;
+  }
+
+  xmlNode* root_element = xmlDocGetRootElement(doc);
+  if(!root_element || !(root_element->children))
+    return 1;
+
+  xmlNode *time_grid_node = root_element->children->next->children->next;
+  
+  std::shared_ptr<TimeStep> ts(new TimeStep());
+
+  xmlNode* log_time_node = time_grid_node->children->next;
+  const char* att_name = getProp(log_time_node, "Name");
+
+  int log_time = -1;
+  if(strcmp(att_name,"LogicalTime")==0)
+    log_time = atoi(getProp(log_time_node, "Value"));
+  else
+    fprintf(stderr, "LogicalTime attribute not found\n");
+
+  xmlNode* phy_time_node = log_time_node->next->next;
+
+  double phy_time = stod(getProp(phy_time_node, "Value"));
+
+  printf("load timestep %d %f\n", log_time, phy_time);
+  ts->set_timestep(log_time, phy_time);
+
+  xmlNode* grids_node = phy_time_node->next->next;
+  printf("node name %s\n", grids_node->name);
+
+  for (xmlNode* cur_node = grids_node; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
+      const char* href = getProp(cur_node, "href");
+
+      size_t found=tpath.find_last_of("/\\");
+
+      string path=tpath.substr(0,found+1) + string(href);
+      ret += load_hpc_grid(path, ts);
+
+    }
+  }
+
+  add_timestep(ts);
+
+  xmlFreeDoc(doc);
+
+  return ret;
+}
+
+int IDX_Metadata::load_hpc(){
+  LIBXML_TEST_VERSION;
+
+  xmlDocPtr doc; /* the resulting document tree */
+  int ret = 0;
 
   doc = xmlReadFile(file_path.c_str(), NULL, 0);
   if (doc == NULL) {
@@ -393,12 +476,26 @@ int IDX_Metadata::load_simple(){
   if(!root_element || !(root_element->children) || !(root_element->children->next))
     return 1;
 
-  xmlNode *space_grid = root_element->children->next->children->next->children;
+  xmlNode *time_grid = root_element->children->next->children->next->children;
 
-  xmlNode *time_grid = root_element->children->next->children->next->next->next->children;
+  for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
 
-  std::shared_ptr<Level> lvl(new Level());
+      const char* href = getProp(cur_node, "href");
 
+      size_t found=file_path.find_last_of("/\\");
+
+      string path=file_path.substr(0,found+1) + string(href);
+      ret += load_hpc_timestep(path);
+    }
+  }
+
+  xmlFreeDoc(doc);
+
+  return ret;
+}
+
+int IDX_Metadata::parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl){
   for (xmlNode* cur_node = space_grid; cur_node; cur_node = cur_node->next) {
     if (cur_node->type == XML_ELEMENT_NODE) {
       if(strcmp(reinterpret_cast<const char*>(cur_node->name), "Grid")==0){
@@ -439,9 +536,9 @@ int IDX_Metadata::load_simple(){
         item_d.dimensions = getProp(item_d_node, "Dimensions");
         item_d.text = reinterpret_cast<const char*>(item_d_node->children->content);
 
-        // printf("add geometry type %s dim %s O %s D %s topo type %s dim %s\n", 
-        //   ToString(grid.geometry.geometryType), item_o.dimensions.c_str(), item_o.text.c_str(), item_d.text.c_str(), ToString(grid.topology.topologyType),
-        //   grid.topology.dimensions.c_str());
+        printf("add geometry type %s dim %s O %s D %s topo type %s dim %s\n", 
+          ToString(grid.geometry.geometryType), item_o.dimensions.c_str(), item_o.text.c_str(), item_d.text.c_str(), ToString(grid.topology.topologyType),
+          grid.topology.dimensions.c_str());
 
         grid.geometry.item.push_back(item_o);
         grid.geometry.item.push_back(item_d);
@@ -451,6 +548,32 @@ int IDX_Metadata::load_simple(){
       }
     }
   }
+}
+
+int IDX_Metadata::load_simple(){
+
+  LIBXML_TEST_VERSION;
+
+  xmlDocPtr doc; /* the resulting document tree */
+
+  doc = xmlReadFile(file_path.c_str(), NULL, 0);
+  if (doc == NULL) {
+    fprintf(stderr, "Failed to parse %s\n", file_path.c_str());
+    return 1;
+  }
+
+  xmlNode* root_element = xmlDocGetRootElement(doc);
+
+  if(!root_element || !(root_element->children) || !(root_element->children->next))
+    return 1;
+
+  xmlNode *space_grid = root_element->children->next->children->next->children;
+
+  xmlNode *time_grid = root_element->children->next->children->next->next->next->children;
+
+  std::shared_ptr<Level> lvl(new Level());
+
+  parse_level(space_grid, lvl);
 
   for (xmlNode* cur_node = space_grid; cur_node; cur_node = cur_node->next) {
     if (cur_node->type == XML_ELEMENT_NODE) {

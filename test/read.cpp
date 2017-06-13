@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
 
-  IDX_Metadata meta(argv[1]); // default: use simple layout
+  IDX_Metadata meta(argv[1], MetadataLayout::HPC); // default: use simple layout
 
   int ret = meta.load();
 
