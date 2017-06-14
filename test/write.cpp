@@ -44,7 +44,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps){
 }
 
 int write_hpc(const char* filepath, int n_attributes, int n_timesteps){
-  IDX_Metadata meta(filepath, MetadataLayout::HPC); // default: use simple layout
+  IDX_Metadata meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
   float o[3] = {0, 0, 0};         // origin x y z

@@ -9,6 +9,9 @@
 #include <memory>
 #include <set>
 
+#include "idx_metadata_simple_layout.h"
+#include "idx_metadata_hpc_layout.h"
+
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args){
     size_t size = 1 + snprintf(nullptr, 0, format.c_str(), args ...);
@@ -278,7 +281,7 @@ struct Graph{
   std::string numberRows;
 };
 
-enum MetadataLayout{
+enum MetadataLayoutType{
   SIMPLE = 0,
   HPC = 1
 };
@@ -451,66 +454,47 @@ class IDX_Metadata{
 
 private:
   std::vector<std::shared_ptr<TimeStep> > timesteps;
-  MetadataLayout layout;
+  MetadataLayoutType layoutType;
   std::string file_path;
+  std::unique_ptr<idx_metadata::IDX_Metadata_Layout> layout;
 
   bool loaded;
   std::set<int> touched_ts;
 
-  int load_timestep(int t);
-  int save_timestep(int t);
-
-  int parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl);
-  int load_hpc_timestep(std::string& tpath);
-  int load_hpc_grid(std::string gpath, std::shared_ptr<TimeStep> ts);
-
 public:
 
-  IDX_Metadata(const char* path, MetadataLayout _layout=MetadataLayout::SIMPLE){
+  IDX_Metadata(const char* path, MetadataLayoutType _layout=MetadataLayoutType::SIMPLE){
     file_path = path;
-    layout = _layout;
+    layoutType = _layout;
     loaded = false;
-  };
 
-  int load(){
-    switch(layout){
-      case MetadataLayout::SIMPLE:
-        load_simple();
+    switch(layoutType){
+      case MetadataLayoutType::SIMPLE:
+        layout = std::unique_ptr<IDX_Metadata_Simple_Layout>(new IDX_Metadata_Simple_Layout(this));
         break;
-      case MetadataLayout::HPC:
-        load_hpc();
+      case MetadataLayoutType::HPC:
+        layout = std::unique_ptr<IDX_Metadata_HPC_Layout>(new IDX_Metadata_HPC_Layout(this));
         break;
       default:
         assert(false);
         break;
     }
+  };
 
+  int load(){
+    layout->load();
     loaded = true;
     return 0;
   }
 
   int save(){
-    switch(layout){
-      case MetadataLayout::SIMPLE:
-        save_simple();
-        break;
-      case MetadataLayout::HPC:
-        save_hpc();
-        break;
-      default:
-        assert(false);
-        break;
-    }
+    layout->save();
     return 0;
   }
 
-  int load_simple();
-  int save_simple();
-
-  int load_hpc();
-  int save_hpc();
-
   int set_path(const char* new_path){ file_path = new_path; return 0; }
+
+  std::string get_path(){ return file_path; }
 
   int add_timestep(std::shared_ptr<TimeStep> ts){ 
     timesteps.push_back(ts); 
