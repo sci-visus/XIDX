@@ -2,13 +2,13 @@
 <!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
 
 <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
-<Domain>
+  <Domain>
 
     <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
 
-      <xi:include href="t0/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid)"/>
-      <xi:include href="t1/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid)"/> 
+      <xi:include href="t000000000/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid)"/>
+      <xi:include href="t000000001/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid)"/> 
 
     </Grid>
-</Domain>
+  </Domain>
 </Xdmf>

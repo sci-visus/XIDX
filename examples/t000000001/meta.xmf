@@ -9,8 +9,8 @@
       <Time Value="0.1"/>
       <Grid Name="Grids" GridType="Collection" CollectionType="Spatial" >
 
-        <xi:include href="l0/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
-        <xi:include href="l1/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
+        <xi:include href="l0000/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
+        <xi:include href="l0001/meta.xmf" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
 
       </Grid>
     </Grid>

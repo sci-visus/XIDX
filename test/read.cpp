@@ -52,13 +52,13 @@ int main(int argc, char** argv){
   }
 
   // add a timestep to the current metadata
-  std::shared_ptr<TimeStep> ts(new TimeStep());
-  std::shared_ptr<Level> level = meta.get_timestep(0)->get_level(0);
+  // std::shared_ptr<TimeStep> ts(new TimeStep());
+  // std::shared_ptr<Level> level = meta.get_timestep(0)->get_level(0);
 
-  ret = ts->add_level(level);
+  // ret = ts->add_level(level);
 
-  ts->set_timestep(777, float(7777));
-  meta.add_timestep(ts);
+  // ts->set_timestep(777, float(7777));
+  // meta.add_timestep(ts);
 
   // write the metadata to compare with original
   meta.set_path("load_test.xmf");
