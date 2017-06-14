@@ -9,11 +9,10 @@
 using namespace std;
 using namespace idx_metadata;
 
-int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared_ptr<TimeStep> ts, const char* time_path){
+int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared_ptr<TimeStep> ts, const char* time_path ){
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
   char buff[256];
-  int i, j;
 
   LIBXML_TEST_VERSION;
 
@@ -29,7 +28,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
 
   xmlNodePtr domain_node = xmlNewChild(root_node, NULL, BAD_CAST "Domain", NULL);
 
-   xmlNodePtr main_grid_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
+  xmlNodePtr main_grid_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
 
   xmlNewProp(main_grid_node, BAD_CAST "Name", BAD_CAST "Grids");
   xmlNewProp(main_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
@@ -97,7 +96,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
   
   xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-  xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format("t_%09d",i).c_str());
+  xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format("t_%09d",ts->get_logical_time()).c_str());
   xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
@@ -144,11 +143,18 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
 
   xmlNodePtr curr_time_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
 
+  size_t found=metadata->get_path().find_last_of("/\\");
+
+  string path=metadata->get_path().substr(0,found+1);
+
   char time_name[128];
   sprintf(time_name,"t%09d", ts->get_logical_time());
 
+  char time_path[256];
+  sprintf(time_path,"%st%09d", path.c_str(), ts->get_logical_time());
+
   char mkdir_cmd[150];
-  sprintf(mkdir_cmd,"mkdir -p %s", time_name);
+  sprintf(mkdir_cmd,"mkdir -p %s", time_path);
   const int dir_err = system(mkdir_cmd);
   if (-1 == dir_err){
       fprintf(stderr, "Error creating directory %s!\n", time_name);
@@ -179,12 +185,12 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
     xmlNewProp(level_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1])");
 
     shared_ptr<Level> level = ts->get_level(l);
-    save_hpc_level(level, l, ts, time_name);
+    save_hpc_level(level, l, ts, time_path);
   }
 
-  char time_path[128];
-  sprintf(time_path,"t%09d/meta.xmf", ts->get_logical_time());
-  xmlSaveFormatFileEnc(time_path, doc, "UTF-8", 1);
+  char time_metadata_path[256];
+  sprintf(time_metadata_path,"%s/meta.xmf", time_path);
+  xmlSaveFormatFileEnc(time_metadata_path, doc, "UTF-8", 1);
   xmlFreeDoc(doc);
   xmlCleanupParser();
   xmlMemoryDump();

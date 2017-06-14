@@ -43,7 +43,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps){
   return 0;
 }
 
-int write_hpc(const char* filepath, int n_attributes, int n_timesteps){
+int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_levels){
   IDX_Metadata meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
@@ -64,14 +64,16 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps){
     grid->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
   }
 
-  // Create one level that contains the grid
-  std::shared_ptr<Level> level(new Level());
-  ret = level->add_datagrid(grid);
-
   // Create timesteps that contains the level
   for(int i=0; i < n_timesteps; i++){
     std::shared_ptr<TimeStep> ts(new TimeStep());
-    ret = ts->add_level(level);
+
+    for(int l=0; l < n_levels; l++){
+      // Create one level that contains the grid
+      std::shared_ptr<Level> level(new Level());
+      ret = level->add_datagrid(grid);
+      ret = ts->add_level(level);
+    }
 
     ts->set_timestep(i, float(i+10));
     meta.add_timestep(ts);
@@ -79,19 +81,20 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps){
 
   meta.save();
 
-  return 0;
+  return ret;
 }
 
 int main(int argc, char** argv){
 
   if(argc < 2){
-    fprintf(stderr, "Usage: write file_path [n_attributes] [n_timesteps]\n");
+    fprintf(stderr, "Usage: write file_path [n_attributes] [n_timesteps] [n_levels]\n");
 
     return 1;
   }
 
   int n_attributes = 4;
   int n_timesteps = 5;
+  int n_levels = 1;
 
   if(argc > 2)
     n_attributes = atoi(argv[2]);
@@ -99,11 +102,14 @@ int main(int argc, char** argv){
   if(argc > 3)
     n_timesteps = atoi(argv[3]);
 
+  if(argc > 4)
+    n_levels = atoi(argv[4]);
+
   clock_t start, finish;
   start = clock();
   
   //int ret = write_simple(argc, argv);
-  int ret = write_hpc(argv[1], n_attributes, n_timesteps);
+  int ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
 
   finish = clock();
 
