@@ -3,7 +3,12 @@
 #ifndef IDX_METADATA_PARSE_UTILS_H_
 #define IDX_METADATA_PARSE_UTILS_H_
 
-#include "idx_metadata.h"
+#include <cassert>
+#include <string>
+#include <libxml/encoding.h>
+#include <libxml/xmlwriter.h>
+
+#include "idx_metadata_datatypes.h"
 
 static const char* getProp(xmlNode* node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));

@@ -4,18 +4,21 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
+#include "idx_metadata.h"
 #include "idx_metadata_simple_layout.h"
 #include "idx_metadata_parse_utils.h"
 
 using namespace std;
 using namespace idx_metadata;
 
+std::string IDX_Metadata_Simple_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
+    return metadata->get_path()+generate_vars_filename(ctype);
+}
+
 int IDX_Metadata_Simple_Layout::save(){
 
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
-  char buff[256];
-  int i, j;
 
   LIBXML_TEST_VERSION;
 
@@ -32,8 +35,6 @@ int IDX_Metadata_Simple_Layout::save(){
    * Creates a DTD declaration. Isn't mandatory. 
    */
   xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
-
-  xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
 
   /* 
    * xmlNewChild() creates a new node, which is "attached" as child node
@@ -57,7 +58,7 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
     xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(curr_attribute.attributeType));
 
-    xmlNodePtr data_node = xmlNewChild(attribute_node, NULL, BAD_CAST "DataItem", BAD_CAST "&main_idx_file;");
+    xmlNodePtr data_node = xmlNewChild(attribute_node, NULL, BAD_CAST "DataItem", BAD_CAST generate_vars_filename(curr_attribute.centerType).c_str());
     xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(curr_attribute.data.formatType));
     xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(curr_attribute.data.numberType));
     xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST curr_attribute.data.precision.c_str());
@@ -103,7 +104,7 @@ int IDX_Metadata_Simple_Layout::save(){
     shared_ptr<TimeStep> curr_grid = metadata->get_timestep(i);
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format("t_%09d",i).c_str());
+    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,i).c_str());
     xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 

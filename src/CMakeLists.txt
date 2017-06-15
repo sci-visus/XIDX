@@ -1,7 +1,14 @@
 
 include_directories(./)
 
-file(GLOB SRCS "*.cpp")
+#file(GLOB SRCS "*.cpp")
+
+set(SRCS
+    idx_metadata.cpp
+    idx_metadata_parse_utils.cpp
+    idx_metadata_simple_layout.cpp
+    idx_metadata_hpc_layout.cpp
+)
 
 add_library(idx_metadata ${SRCS})
 

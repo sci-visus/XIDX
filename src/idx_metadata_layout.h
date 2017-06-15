@@ -5,10 +5,12 @@
 
 #include <string>
 
+#include "idx_metadata.h"
+#include "idx_metadata_datatypes.h"
+
 namespace idx_metadata{
 
 class IDX_Metadata;
-
 class IDX_Metadata_Layout{
 
 public:
@@ -20,6 +22,7 @@ public:
 
   virtual int load() = 0;
   virtual int save() = 0;
+  virtual std::string get_idx_file_path(int timestep, int level, CenterType ctype) = 0;
 
 };
 
