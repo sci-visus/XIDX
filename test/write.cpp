@@ -25,6 +25,13 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps){
     grid->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
   }
 
+  std::vector<Information> cf_info;
+  cf_info.push_back(Information("unit", "Kelvin"));
+  cf_info.push_back(Information("valid_min", "0"));
+  cf_info.push_back(Information("valid_max", "10000"));
+
+  grid->add_attribute("temperature", NumberType::FLOAT_NUMBER_TYPE, 4, cf_info);
+
   // Create one level that contains the grid
   std::shared_ptr<Level> level(new Level());
   ret = level->add_datagrid(grid);
@@ -108,8 +115,8 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
   
-  //int ret = write_simple(argc, argv);
-  int ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
+  int ret = write_simple(argv[1], n_attributes, n_timesteps);
+  //int ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
 
   finish = clock();
 

@@ -206,7 +206,12 @@ inline const char* ToString(AttributeType v)
   }
 }
 
-struct Information{
+class Information{
+public:
+  Information(){};
+  Information(std::string _name, std::string _value)
+  { name=_name; value=_value; };
+
   std::string name;
   std::string value;
 };
@@ -243,23 +248,23 @@ struct Topology{
 };
 
 struct Attribute{
-  std::vector<Information> information;
-  DataItem data;
   std::string name;
+  DataItem data;
   CenterType centerType;
   AttributeType attributeType;
+  std::vector<Information> information;
 };
 
 struct Grid{
-  std::vector<Information> information;
-  Time time;
-  std::vector<Grid> grid;
-  Topology topology;
-  Geometry geometry;
-  std::vector<Attribute> attribute;
   std::string name;
   GridType gridType;
   CollectionType collectionType;
+  Topology topology;
+  Geometry geometry;
+  std::vector<Attribute> attribute;
+  Time time;
+  std::vector<Grid> grid;
+  std::vector<Information> information;
 };
 
 struct Domain{
@@ -380,10 +385,11 @@ public:
 
   int set_geometry(Geometry geometry){ grid.geometry = geometry; return 0; }
 
-  int add_attribute(const char* name, NumberType numberType, short precision, 
-                   AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
-                   CenterType center=CenterType::CELL_CENTER, 
-                   EndianType endian=EndianType::LITTLE_ENDIANESS){
+  int add_attribute(const char* name, NumberType numberType, const short precision, 
+                   const std::vector<Information>& info=std::vector<Information>(),
+                   const AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
+                   const CenterType center=CenterType::CELL_CENTER, 
+                   const EndianType endian=EndianType::LITTLE_ENDIANESS){
     Attribute att;
 
     att.name = name;
@@ -398,6 +404,8 @@ public:
     di.formatType = FormatType::IDX_FORMAT;
 
     att.data = di;
+
+    att.information = info;
 
     return add_attribute(att);
   }

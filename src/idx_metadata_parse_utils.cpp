@@ -124,6 +124,9 @@ int parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl){
             //   ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
             //   ToString(att.data.endianType));
 
+          }else if(is_node_name(inner_node, "Information")){
+            xmlNode* item = inner_node;
+            att.information.push_back(Information(getProp(item, "Name"),getProp(item, "Value")));
           }
         }
 

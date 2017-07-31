@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
 
-  IDX_Metadata meta(argv[1], MetadataLayoutType::HPC); // default: use simple layout
+  IDX_Metadata meta(argv[1]);//, MetadataLayoutType::HPC); // default: use simple layout
 
   int ret = meta.load();
 
@@ -40,6 +40,10 @@ int main(int argc, char** argv){
           att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
           ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
           ToString(att.data.endianType));
+
+        for(auto info: att.information){
+          printf("\t Info %s = %s \n", info.name.c_str(), info.value.c_str());
+        }
       }
 
       Grid& grid = datagrid->get_grid();

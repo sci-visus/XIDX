@@ -70,6 +70,12 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
     xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST curr_attribute.data.precision.c_str());
     xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(curr_attribute.data.endianType));
     xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST curr_attribute.data.dimensions.c_str());
+
+    for(auto& curr_info : curr_attribute.information){
+      xmlNodePtr info_node = xmlNewChild(attribute_node, NULL, BAD_CAST "Information", NULL);
+      xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_info.name.c_str());
+      xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_info.value.c_str());
+    }
   }
 
   for(int i=0; i<lvl->get_n_datagrids(); i++){
