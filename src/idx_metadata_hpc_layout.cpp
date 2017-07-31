@@ -9,7 +9,7 @@
 using namespace std;
 using namespace idx_metadata;
 
-std::string IDX_Metadata_HPC_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
+std::string IDX_Metadata_HPC_Layout::get_file_path(int timestep, int level, CenterType ctype){
   char file_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
 
   char time_name[32];
@@ -152,9 +152,9 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
 
   xmlNodePtr curr_time_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
 
-  size_t found=metadata->get_path().find_last_of("/\\");
+  size_t found=metadata->get_file_path().find_last_of("/\\");
 
-  string path=metadata->get_path().substr(0,found+1);
+  string path=metadata->get_file_path().substr(0,found+1);
 
   char time_name[32];
   sprintf(time_name,IDX_METADATA_TIME_FORMAT, ts->get_logical_time());
@@ -250,7 +250,7 @@ int IDX_Metadata_HPC_Layout::save(){
     save_hpc_timestep(ts);
   }
 
-  xmlSaveFormatFileEnc(metadata->get_path().c_str(), doc, "UTF-8", 1);
+  xmlSaveFormatFileEnc(metadata->get_file_path().c_str(), doc, "UTF-8", 1);
   xmlFreeDoc(doc);
   xmlCleanupParser();
   xmlMemoryDump();
@@ -348,9 +348,9 @@ int IDX_Metadata_HPC_Layout::load(){
   xmlDocPtr doc; /* the resulting document tree */
   int ret = 0;
 
-  doc = xmlReadFile(metadata->get_path().c_str(), NULL, 0);
+  doc = xmlReadFile(metadata->get_file_path().c_str(), NULL, 0);
   if (doc == NULL) {
-    fprintf(stderr, "Failed to parse %s\n", metadata->get_path().c_str());
+    fprintf(stderr, "Failed to parse %s\n", metadata->get_file_path().c_str());
     return 1;
   }
 
@@ -366,9 +366,9 @@ int IDX_Metadata_HPC_Layout::load(){
 
       const char* href = getProp(cur_node, "href");
 
-      size_t found=metadata->get_path().find_last_of("/\\");
+      size_t found=metadata->get_file_path().find_last_of("/\\");
 
-      string path=metadata->get_path().substr(0,found+1) + string(href);
+      string path=metadata->get_file_path().substr(0,found+1) + string(href);
       ret += load_hpc_timestep(path);
     }
   }

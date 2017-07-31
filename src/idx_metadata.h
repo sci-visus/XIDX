@@ -40,11 +40,10 @@ public:
 
   int load();
   int save();
-  std::string get_idx_file_path(int timestep, int level, CenterType ctype);
 
+  std::string get_file_path(int timestep, int level, CenterType ctype);
+  std::string get_file_path(){ return file_path; }
   int set_file_path(const char* new_path){ set_correct_path(new_path); return 0; }
-
-  std::string get_path(){ return file_path; }
 
   int add_timestep(std::shared_ptr<TimeStep> ts);
 

@@ -21,7 +21,7 @@ public:
 
   virtual int load();
   virtual int save();
-  virtual std::string get_idx_file_path(int timestep, int level, CenterType ctype);
+  virtual std::string get_file_path(int timestep, int level, CenterType ctype);
 
 };
 

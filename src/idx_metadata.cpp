@@ -34,12 +34,12 @@ IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
 };
 
 int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){ 
-    timesteps.push_back(ts); 
+  timesteps.push_back(ts); 
 
-    if(loaded)
-      touched_ts.insert(ts->get_logical_time());
-    return 0;
-  }
+  if(loaded)
+    touched_ts.insert(ts->get_logical_time());
+  return 0;
+}
 
 int IDX_Metadata::load(){
     layout->load();
@@ -52,7 +52,7 @@ int IDX_Metadata::save(){
   return 0;
 }
 
-std::string IDX_Metadata::get_idx_file_path(int timestep, int level, CenterType ctype){
-  return layout->get_idx_file_path(timestep, level, ctype);
+std::string IDX_Metadata::get_file_path(int timestep, int level, CenterType ctype){
+  return layout->get_file_path(timestep, level, ctype);
 }
 
