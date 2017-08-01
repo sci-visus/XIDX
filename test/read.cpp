@@ -32,6 +32,7 @@ int main(int argc, char** argv){
 
     std::shared_ptr<Level> level = ts->get_level(0);
 
+    printf("> Time %s -> %s\n", ts->get_log_time_info().value.c_str(), ts->get_time().value.c_str());
     for(int g=0; g < level->get_n_datagrids(); g++){
       std::shared_ptr<DataGrid> datagrid = level->get_datagrid(g);
 

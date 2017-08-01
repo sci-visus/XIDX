@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
-<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0" Layout="HPC-2">
   <Domain>
     <Grid Name="Grids" GridType="Collection" CollectionType="Spatial">
       <Attribute Name="var_0" Center="Cell" AttributeType="Scalar">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
-<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0" Layout="Simple">
   <Domain>
     <Grid Name="Grids" GridType="Collection" CollectionType="Spatial">
       <Attribute Name="var_0" Center="Cell" AttributeType="Scalar">
@@ -44,16 +44,6 @@
       <Grid Name="t000000002" GridType="Collection" CollectionType="Spatial">
         <Information Name="LogicalTime" Value="2"/>
         <Time Value="12.000000"/>
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
-      </Grid>
-      <Grid Name="t000000003" GridType="Collection" CollectionType="Spatial">
-        <Information Name="LogicalTime" Value="3"/>
-        <Time Value="13.000000"/>
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
-      </Grid>
-      <Grid Name="t000000004" GridType="Collection" CollectionType="Spatial">
-        <Information Name="LogicalTime" Value="4"/>
-        <Time Value="14.000000"/>
         <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
       </Grid>
     </Grid>

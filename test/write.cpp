@@ -94,29 +94,37 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_lev
 int main(int argc, char** argv){
 
   if(argc < 2){
-    fprintf(stderr, "Usage: write file_path [n_attributes] [n_timesteps] [n_levels]\n");
+    fprintf(stderr, "Usage: write file_path [layout_type] [n_attributes] [n_timesteps] [n_levels]\n");
 
     return 1;
   }
 
+  int layout_type = 0;
   int n_attributes = 4;
-  int n_timesteps = 5;
-  int n_levels = 1;
+  int n_timesteps = 3;
+  int n_levels = 2;
 
   if(argc > 2)
-    n_attributes = atoi(argv[2]);
+    layout_type = atoi(argv[2]);
 
   if(argc > 3)
-    n_timesteps = atoi(argv[3]);
+    n_attributes = atoi(argv[3]);
 
   if(argc > 4)
-    n_levels = atoi(argv[4]);
+    n_timesteps = atoi(argv[4]);
+
+  if(argc > 5)
+    n_levels = atoi(argv[5]);
 
   clock_t start, finish;
   start = clock();
   
-  int ret = write_simple(argv[1], n_attributes, n_timesteps);
-  //int ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
+  int ret = -1;
+
+  if(layout_type == 0)
+    ret = write_simple(argv[1], n_attributes, n_timesteps);
+  else 
+    ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
 
   finish = clock();
 

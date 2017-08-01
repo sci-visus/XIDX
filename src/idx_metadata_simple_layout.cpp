@@ -30,6 +30,7 @@ int IDX_Metadata_Simple_Layout::save(){
   xmlDocSetRootElement(doc, root_node);
   xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
   xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+  xmlNewProp(root_node, BAD_CAST "Layout", BAD_CAST "Simple");
 
   /*
    * Creates a DTD declaration. Isn't mandatory. 

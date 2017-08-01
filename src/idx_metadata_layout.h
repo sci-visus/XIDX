@@ -24,6 +24,7 @@ public:
   virtual int save() = 0;
   virtual std::string get_file_path(int timestep, int level, CenterType ctype) = 0;
 
+  std::string read_layout_type();
 };
 
 };

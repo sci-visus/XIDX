@@ -33,6 +33,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlDocSetRootElement(doc, root_node);
   xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
   xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+  xmlNewProp(root_node, BAD_CAST "Layout", BAD_CAST "HPC-2");
 
   xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
 
@@ -149,6 +150,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
   xmlDocSetRootElement(doc, root_node);
   xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
   xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+  xmlNewProp(root_node, BAD_CAST "Layout", BAD_CAST "HPC-1");
 
   xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
 
@@ -187,7 +189,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
   xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
   xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_time().value.c_str());
 
-  xmlNodePtr levels_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
+  xmlNodePtr levels_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Grid", NULL);
   xmlNewProp(levels_node, BAD_CAST "Name", BAD_CAST "Grids");
   xmlNewProp(levels_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(levels_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
@@ -230,6 +232,7 @@ int IDX_Metadata_HPC_Layout::save(){
   xmlDocSetRootElement(doc, root_node);
   xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
   xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+  xmlNewProp(root_node, BAD_CAST "Layout", BAD_CAST "HPC-0");
 
   xmlCreateIntSubset(doc, BAD_CAST "Xdmf", NULL, BAD_CAST "../Xdmf.dtd");
   //xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
@@ -324,7 +327,7 @@ int IDX_Metadata_HPC_Layout::load_hpc_timestep(string& tpath){
 
   double phy_time = stod(getProp(phy_time_node, "Value"));
 
-  printf("load timestep %d %f\n", log_time, phy_time);
+  //printf("load timestep %d %f\n", log_time, phy_time);
   ts->set_timestep(log_time, phy_time);
 
   xmlNode* grids_node = phy_time_node->next->next->children->next;
@@ -365,18 +368,83 @@ int IDX_Metadata_HPC_Layout::load(){
   if(!root_element || !(root_element->children) || !(root_element->children->next))
     return 1;
 
+  string layout_type = string(getProp(root_element,"Layout"));
+  size_t found=layout_type.find_last_of("-\\");
+
+  int hpc_level = 0;
+
+  if(found > 0) // HPC layout
+    hpc_level=std::stoi(layout_type.substr(found+1)); 
+
   xmlNode *time_grid = root_element->children->next->children->next->children;
 
+  if(hpc_level == 0) {
   for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
-    if (cur_node->type == XML_ELEMENT_NODE) {
+    if (cur_node->type == XML_ELEMENT_NODE){
+        const char* href = getProp(cur_node, "href");
 
-      const char* href = getProp(cur_node, "href");
+        size_t found=metadata->get_file_path().find_last_of("/\\");
 
-      size_t found=metadata->get_file_path().find_last_of("/\\");
-
-      string path=metadata->get_file_path().substr(0,found+1) + string(href);
-      ret += load_hpc_timestep(path);
+        string path=metadata->get_file_path().substr(0,found+1) + string(href);
+        ret += load_hpc_timestep(path);
+      }
     }
+  }
+  else if(hpc_level == 1){
+    std::shared_ptr<TimeStep> ts(new TimeStep());
+
+    bool ltime_found = false;
+    bool ptime_found = false;
+    int log_time = -1;
+    double phy_time = -1.0;
+
+    for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
+      if (cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Information")){
+        
+          xmlNode* log_time_node = cur_node;
+          const char* att_name = getProp(log_time_node, "Name");
+
+          
+          if(strcmp(att_name,"LogicalTime")==0){
+            log_time = atoi(getProp(log_time_node, "Value"));
+            ltime_found = true;
+          }
+      }
+      else if (cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Time")){
+          xmlNode* phy_time_node = cur_node;
+
+          phy_time = stod(getProp(phy_time_node, "Value"));
+          ptime_found = true;
+      }
+    }
+
+    if(ltime_found && ptime_found)
+      ts->set_timestep(log_time, phy_time);
+    else{
+      fprintf(stderr, "Invalid Time information\n");
+      assert(false);
+      return -1;
+    }
+
+    for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
+      if (cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Grid")){
+      
+        for (xmlNode* lvl_node = cur_node->children->next; lvl_node; lvl_node = lvl_node->next) {
+          if (lvl_node->type == XML_ELEMENT_NODE && is_node_name(lvl_node,"include")) {
+            const char* href = getProp(lvl_node, "href");
+
+            size_t found=metadata->get_file_path().find_last_of("/\\");
+            string path=metadata->get_file_path().substr(0,found+1) + string(href);
+            
+            ret += load_hpc_grid(path, ts);
+
+          }
+        }
+      }
+    }
+
+    metadata->add_timestep(ts);
+ 
   }
 
   xmlFreeDoc(doc);

@@ -6,6 +6,7 @@ include_directories(./)
 set(SRCS
     idx_metadata.cpp
     idx_metadata_parse_utils.cpp
+    idx_metadata_layout.cpp
     idx_metadata_simple_layout.cpp
     idx_metadata_hpc_layout.cpp
 )
