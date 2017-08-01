@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+  <Domain>
+    <Grid Name="t000000000" GridType="Collection" CollectionType="Spatial">
+      <Information Name="LogicalTime" Value="0"/>
+      <Time Value="10.000000"/>
+      <Time Name="Grids" GridType="Collection" CollectionType="Spatial">
+        <xi:include href="l0000/meta.xidx" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
+        <xi:include href="l0001/meta.xidx" xpointer="xpointer(//Xdmf/Domain/Grid[1])"/>
+      </Time>
+    </Grid>
+  </Domain>
+</Xdmf>
