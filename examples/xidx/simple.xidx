@@ -2,8 +2,12 @@
 <!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
 <Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0" Layout="Simple">
   <Domain>
+
+    <!-- Spatial grids -->
     <Grid Name="Grids" GridType="Collection" CollectionType="Spatial">
+
       <Attribute Name="var_0" Center="Cell" AttributeType="Scalar">
+        <!--  -->
         <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
       </Attribute>
       <Attribute Name="var_1" Center="Cell" AttributeType="Scalar">
@@ -17,19 +21,30 @@
       </Attribute>
       <Attribute Name="temperature" Center="Cell" AttributeType="Scalar">
         <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
+        <!-- Additional information (e.g. climate) -->
         <Information Name="unit" Value="Kelvin"/>
         <Information Name="valid_min" Value="0"/>
         <Information Name="valid_max" Value="10000"/>
       </Attribute>
+
+      <!-- One uniform rectilinear 3D grid -->
       <Grid GridType="Uniform" Name="l0">
+        <!-- Logical dimension of the grid -->
         <Topology TopologyType="3DCoRectMesh" Dimensions="10 20 30"/>
+
+        <!-- Define the geometry as Origin and Delta vectors -->
         <Geometry GeometryType="ORIGIN_DXDYDZ">
           <DataItem Format="XML" Dimensions="3">0.000000 0.000000 0.000000</DataItem>
           <DataItem Format="XML" Dimensions="3">1.000000 1.000000 1.000000</DataItem>
         </Geometry>
+
+        <!-- Attributes of this grid -->
         <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/>
       </Grid>
+
     </Grid>
+
+    <!-- Timesteps collection -->
     <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
       <Grid Name="t000000000" GridType="Collection" CollectionType="Spatial">
         <Information Name="LogicalTime" Value="0"/>

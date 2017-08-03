@@ -11,8 +11,8 @@
 using namespace std;
 using namespace idx_metadata;
 
-std::string IDX_Metadata_Simple_Layout::get_file_path(int timestep, int level, CenterType ctype){
-    return metadata->get_file_path()+generate_vars_filename(ctype);
+std::string IDX_Metadata_Simple_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
+    return metadata->get_md_file_path()+generate_vars_filename(ctype);
 }
 
 int IDX_Metadata_Simple_Layout::save(){
@@ -130,7 +130,7 @@ int IDX_Metadata_Simple_Layout::save(){
   /* 
    * Dumping document to stdio or file
    */
-  xmlSaveFormatFileEnc(metadata->get_file_path().c_str(), doc, "UTF-8", 1);
+  xmlSaveFormatFileEnc(metadata->get_md_file_path().c_str(), doc, "UTF-8", 1);
 
   /*free the document */
   xmlFreeDoc(doc);
@@ -155,9 +155,9 @@ int IDX_Metadata_Simple_Layout::load(){
 
   xmlDocPtr doc; /* the resulting document tree */
 
-  doc = xmlReadFile(metadata->get_file_path().c_str(), NULL, 0);
+  doc = xmlReadFile(metadata->get_md_file_path().c_str(), NULL, 0);
   if (doc == NULL) {
-    fprintf(stderr, "Failed to parse %s\n", metadata->get_file_path().c_str());
+    fprintf(stderr, "Failed to parse %s\n", metadata->get_md_file_path().c_str());
     return 1;
   }
 

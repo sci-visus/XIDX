@@ -18,9 +18,9 @@ std::string IDX_Metadata_Layout::read_layout_type(){
   xmlDocPtr doc; /* the resulting document tree */
   int ret = 0;
 
-  doc = xmlReadFile(metadata->get_file_path().c_str(), NULL, 0);
+  doc = xmlReadFile(metadata->get_md_file_path().c_str(), NULL, 0);
   if (doc == NULL) {
-    fprintf(stderr, "Failed to parse %s\n", metadata->get_file_path().c_str());
+    fprintf(stderr, "Failed to parse %s\n", metadata->get_md_file_path().c_str());
     return NULL;
   }
 

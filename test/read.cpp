@@ -66,7 +66,7 @@ int main(int argc, char** argv){
   // meta.add_timestep(ts);
 
   // write the metadata to compare with original
-  meta.set_file_path("load/test_hpc.xmf");
+  meta.set_md_file_path("load/test_hpc.xmf");
   meta.save();
 
   return ret;

@@ -22,7 +22,7 @@ public:
 
   virtual int load() = 0;
   virtual int save() = 0;
-  virtual std::string get_file_path(int timestep, int level, CenterType ctype) = 0;
+  virtual std::string get_idx_file_path(int timestep, int level, CenterType ctype) = 0;
 
   std::string read_layout_type();
 };

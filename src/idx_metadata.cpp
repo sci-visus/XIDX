@@ -67,7 +67,7 @@ int IDX_Metadata::save(){
   return 0;
 }
 
-std::string IDX_Metadata::get_file_path(int timestep, int level, CenterType ctype){
-  return layout->get_file_path(timestep, level, ctype);
+std::string IDX_Metadata::get_idx_file_path(int timestep, int level, CenterType ctype){
+  return layout->get_idx_file_path(timestep, level, ctype);
 }
 
