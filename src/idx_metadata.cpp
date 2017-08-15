@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <memory>
 #include <set>
@@ -20,12 +21,12 @@ IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
   layoutType = _layout;
   loaded = false;
 
+  time.type = TimeType::SINGLE_TIME_TYPE;
+
 };
 
 int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){ 
   timesteps.push_back(ts); 
-
-  time.type = TimeType::SINGLE_TIME_TYPE;
 
   if(loaded)
     touched_ts.insert(ts->get_logical_time());
@@ -56,6 +57,39 @@ int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::
   timesteps.push_back(ts); 
 
   return 0;
+}
+
+// TODO use logical timestep? Or array index?
+std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){ 
+  if(time.type == TimeType::SINGLE_TIME_TYPE) 
+    return timesteps[t]; 
+  else if(time.type == TimeType::HYPER_SLAB_TIME_TYPE){
+    std::istringstream iss(time.items[0].text);
+    std::string token;
+    std::getline(iss, token, ' ');
+    double start = stod(token);
+    std::getline(iss, token, ' ');
+    double stride = stod(token);
+
+    std::shared_ptr<TimeStep> ts = timesteps[0];
+    ts->set_timestep(t, start+stride*t);
+    return ts;
+  }
+}
+
+int IDX_Metadata::get_n_timesteps() { 
+  if(time.type == TimeType::SINGLE_TIME_TYPE) 
+    return timesteps.size(); 
+  else if(time.type == TimeType::HYPER_SLAB_TIME_TYPE){
+    std::string ntime = std::string(time.items[0].text);
+    size_t found=ntime.find_last_of(" \\");
+
+    ntime=ntime.substr(found+1);
+    return stoi(ntime);
+  }
+  else
+    return -1;
+
 }
 
 int IDX_Metadata::load(){

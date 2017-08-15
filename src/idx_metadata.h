@@ -50,13 +50,14 @@ public:
 
   int add_time_hyperslab(uint32_t* log_time, double* phy_time, std::shared_ptr<Level> level);
 
-  const Time get_time() { return time; }
-
-  std::shared_ptr<TimeStep> get_timestep(int t){ return timesteps[t]; }
+  Time& get_time() { return time; }
 
   int clear(){ timesteps.clear(); return 0; }
 
-  int get_n_timesteps() { return timesteps.size(); }
+  // TODO use logical timestep? Or array index?
+  std::shared_ptr<TimeStep> get_timestep(int t);
+
+  int get_n_timesteps();
 };
 
 };

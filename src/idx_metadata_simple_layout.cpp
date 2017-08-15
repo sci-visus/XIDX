@@ -213,27 +213,61 @@ int IDX_Metadata_Simple_Layout::load(){
 
   // Time
   for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
-    if (cur_node->type == XML_ELEMENT_NODE) {
+    if (cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Grid")) {
       std::shared_ptr<TimeStep> ts(new TimeStep());
 
-      xmlNode* log_time_node = cur_node->children->next;
-      const char* att_name = getProp(log_time_node, "Name");
-
       int log_time = -1;
-      if(strcmp(att_name,"LogicalTime")==0)
-        log_time = atoi(getProp(log_time_node, "Value"));
-      else
-        fprintf(stderr, "LogicalTime attribute not found\n");
+      double phy_time = -1.0;
 
-      xmlNode* phy_time_node = log_time_node->next->next;
+      for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
+        if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Information")) {
+          const char* att_name = getProp(cur_time_node, "Name");
 
-      double phy_time = stod(getProp(phy_time_node, "Value"));
-
+          if(strcmp(att_name,"LogicalTime")==0)
+            log_time = atoi(getProp(cur_time_node, "Value"));
+          else
+            fprintf(stderr, "LogicalTime attribute not found\n");
+        }
+        else if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
+          phy_time = stod(getProp(cur_time_node, "Value"));
+        }
+      }
       //printf("timestep %d %f\n", log_time, phy_time);
       ts->set_timestep(log_time, phy_time);
 
       ts->add_level(lvl);
       metadata->add_timestep(ts);
+    }
+    else if(cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Time")){
+      const char* timeType = getProp(cur_node, "TimeType");
+      if(timeType == NULL || strcmp(timeType, ToString(static_cast<TimeType>(TimeType::SINGLE_TIME_TYPE)))==0){
+        metadata->get_time().type = TimeType::SINGLE_TIME_TYPE;
+      }
+      else if(strcmp(timeType, ToString(static_cast<TimeType>(TimeType::HYPER_SLAB_TIME_TYPE)))==0){
+
+        for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
+          if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"DataItem")){
+            metadata->get_time().type = TimeType::HYPER_SLAB_TIME_TYPE;
+
+            DataItem phy_time_dataitem;
+            phy_time_dataitem.formatType = FormatType::XML_FORMAT;
+            phy_time_dataitem.dimensions = "3";
+            phy_time_dataitem.numberType = NumberType::FLOAT_NUMBER_TYPE;
+            phy_time_dataitem.precision = "8";
+
+            phy_time_dataitem.text = reinterpret_cast<const char*>(cur_time_node->children->content);
+          
+            Information log_info;
+            log_info.name = "LogicalTime";
+            log_info.value = getProp(cur_time_node->children->next, "Value");
+
+            phy_time_dataitem.information.push_back(log_info);
+
+            metadata->get_time().items.push_back(phy_time_dataitem);
+          }
+        }
+
+      }
     }
   }
 

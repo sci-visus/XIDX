@@ -37,7 +37,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   ret = level->add_datagrid(grid);
 
   if(time_hyperslab){
-    uint32_t log_time[3] = {2,1,static_cast<uint32_t>(n_timesteps)};
+    uint32_t log_time[3] = {0,1,static_cast<uint32_t>(n_timesteps)};
     double phy_time[3] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
     meta.add_time_hyperslab(log_time, phy_time, level);
   }else{
@@ -52,6 +52,8 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   }
 
   meta.save();
+
+  printf("%d timeteps written in %s\n", meta.get_n_timesteps(), filepath);
 
   return 0;
 }
