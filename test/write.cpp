@@ -4,7 +4,7 @@
 
 using namespace idx_metadata;
 
-int write_simple(const char* filepath, int n_attributes, int n_timesteps){
+int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool time_hyperslab=false){
   IDX_Metadata meta(filepath); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
@@ -36,13 +36,19 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps){
   std::shared_ptr<Level> level(new Level());
   ret = level->add_datagrid(grid);
 
-  // Create timesteps that contains the level
-  for(int i=0; i < n_timesteps; i++){
-    std::shared_ptr<TimeStep> ts(new TimeStep());
-    ret = ts->add_level(level);
+  if(time_hyperslab){
+    uint32_t log_time[3] = {2,1,static_cast<uint32_t>(n_timesteps)};
+    double phy_time[3] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
+    meta.add_time_hyperslab(log_time, phy_time, level);
+  }else{
+    // Create timesteps that contains the level
+    for(int i=0; i < n_timesteps; i++){
+      std::shared_ptr<TimeStep> ts(new TimeStep());
+      ret = ts->add_level(level);
 
-    ts->set_timestep(i, float(i+10));
-    meta.add_timestep(ts);
+      ts->set_timestep(i, float(i+10));
+      meta.add_timestep(ts);
+    }
   }
 
   meta.save();
@@ -121,8 +127,10 @@ int main(int argc, char** argv){
   
   int ret = -1;
 
-  if(layout_type == 0)
+  if(layout_type == 0){
     ret = write_simple(argv[1], n_attributes, n_timesteps);
+    ret = write_simple(std::string(std::string(argv[1])+"_hyper").c_str(), n_attributes, n_timesteps, true);
+  }
   else 
     ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
 

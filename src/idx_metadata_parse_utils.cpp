@@ -26,7 +26,7 @@ int parse_geometry(xmlNode *geo_node, Geometry& geometry){
       item_o.dimensions = getProp(item_o_node, "Dimensions");
       item_o.text = reinterpret_cast<const char*>(item_o_node->children->content);
 
-      geometry.item.push_back(item_o);
+      geometry.items.push_back(item_o);
       data_items_count++;
     }
   }

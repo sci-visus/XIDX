@@ -23,6 +23,7 @@ private:
   MetadataLayoutType layoutType;
   std::string file_path;
   std::unique_ptr<idx_metadata::IDX_Metadata_Layout> layout;
+  Time time;
 
   bool loaded;
   std::set<int> touched_ts;
@@ -46,6 +47,10 @@ public:
   int set_md_file_path(const char* new_path){ set_correct_path(new_path); return 0; }
 
   int add_timestep(std::shared_ptr<TimeStep> ts);
+
+  int add_time_hyperslab(uint32_t* log_time, double* phy_time, std::shared_ptr<Level> level);
+
+  const Time get_time() { return time; }
 
   std::shared_ptr<TimeStep> get_timestep(int t){ return timesteps[t]; }
 

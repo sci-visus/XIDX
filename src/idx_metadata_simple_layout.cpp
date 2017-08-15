@@ -88,13 +88,13 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNodePtr geometry_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Geometry", NULL);
     xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(curr_grid.geometry.geometryType));
     
-    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.item[0].text.c_str());
-    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.item[0].formatType));
-    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.item[0].dimensions.c_str());
+    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[0].text.c_str());
+    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[0].formatType));
+    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[0].dimensions.c_str());
 
-    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.item[1].text.c_str());
-    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.item[1].formatType));
-    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.item[1].dimensions.c_str());
+    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[1].text.c_str());
+    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[1].formatType));
+    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[1].dimensions.c_str());
 
     xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
@@ -108,23 +108,60 @@ int IDX_Metadata_Simple_Layout::save(){
   xmlNewProp(time_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
   
-  for(int i=0; i < metadata->get_n_timesteps(); i++){
-    shared_ptr<TimeStep> curr_grid = metadata->get_timestep(i);
+  const Time& metadata_time = metadata->get_time();
+
+  if(metadata_time.type == TimeType::SINGLE_TIME_TYPE){
+    for(int i=0; i < metadata->get_n_timesteps(); i++){
+      shared_ptr<TimeStep> curr_grid = metadata->get_timestep(i);
+
+      xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
+      xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,i).c_str());
+      xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
+      xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
+
+      xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
+      xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
+      xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
+
+      xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
+      xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_physical_time_str());
+
+      xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
+      xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
+    }
+  }else if(metadata_time.type == TimeType::HYPER_SLAB_TIME_TYPE){
+    xmlNodePtr time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Time", NULL);
+    xmlNewProp(time_node, BAD_CAST "TimeType", BAD_CAST "HyperSlab");
+
+    for(auto item : metadata_time.items){
+      xmlNodePtr data_node = xmlNewChild(time_node, NULL, BAD_CAST "DataItem", BAD_CAST BAD_CAST item.text.c_str());
+      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(item.formatType));
+      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(item.numberType));
+      xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST item.precision.c_str());
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST item.dimensions.c_str());
+
+      for(auto info: item.information){
+        xmlNodePtr info_node = xmlNewChild(data_node, NULL, BAD_CAST "Information", NULL);
+        xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST info.name.c_str());
+        xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST info.value.c_str());
+      }
+    }
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,i).c_str());
+    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,0).c_str());
     xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
-    xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
-    xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
-    xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
+    xmlNodePtr single_time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
+    std::string init_time = std::string(metadata_time.items[0].text);
+    size_t found=init_time.find_first_of(" \\");
 
-    xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-    xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_time().value.c_str());
+    init_time=init_time.substr(0,found);
+    xmlNewProp(single_time_node, BAD_CAST "Value", BAD_CAST init_time.c_str());
 
     xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
+
   }
 
   /* 

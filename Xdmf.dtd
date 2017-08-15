@@ -34,8 +34,9 @@
         NumberRows CDATA #REQUIRED
 >
 <!-- Described Temporal Relationship -->
-<!ELEMENT Time (Information*)>
+<!ELEMENT Time (Information*, DataItem*)>
 <!ATTLIST Time
+    TimeType (Single | HyperSlab | List | Range) "Single"
     Value CDATA #IMPLIED
 >
 <!--Describes the general organization of the data-->

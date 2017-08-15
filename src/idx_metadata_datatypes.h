@@ -216,9 +216,25 @@ public:
   std::string value;
 };
 
-struct Time{
-  std::string value;
+// Supported in XDMF 2
+enum TimeType{
+  SINGLE_TIME_TYPE = 0,
+  HYPER_SLAB_TIME_TYPE = 1,
+  LIST_TIME_TYPE = 2,
+  RANGE_TIME_TYPE = 3
 };
+
+inline const char* ToString(TimeType v)
+{
+  switch (v)
+  {
+    case SINGLE_TIME_TYPE:   return "Single";
+    case HYPER_SLAB_TIME_TYPE:   return "HyperSlab";
+    case LIST_TIME_TYPE:   return "List";
+    case RANGE_TIME_TYPE:   return "Range";
+    default:      return "[Unknown]";
+  }
+}
 
 struct DataItem{
   std::string name;
@@ -230,17 +246,25 @@ struct DataItem{
   EndianType endianType;
   FormatType formatType;
   std::string text;
+  std::vector<Information> information;
+};
+
+struct Time{
+  std::string value;
+  TimeType type;
+  std::vector<DataItem> items;
+  std::vector<Information> information;
 };
 
 struct Geometry{
   std::string name;
   GeometryType geometryType;
-  std::vector<DataItem> item;
+  std::vector<DataItem> items;
 };
 
 struct Topology{
   std::vector<Information> information;
-  std::vector<Information> dataItem;
+  std::vector<DataItem> items;
   TopologyType topologyType;
   std::string dimensions;
   std::string order;
@@ -375,8 +399,8 @@ public:
       assert(false);
     }
 
-    geo.item.push_back(item_o);
-    geo.item.push_back(item_d);
+    geo.items.push_back(item_o);
+    geo.items.push_back(item_d);
 
     return 0;
   };
@@ -436,14 +460,16 @@ class TimeStep{
 private:
   std::vector<std::shared_ptr<Level> > levels;
   Information log_time_info;
-  Time time;
+  double time;
+  std::string time_str;
 
 public:
 
   int set_timestep(uint32_t log_time, double phy_time){
     log_time_info.name = "LogicalTime";
     log_time_info.value = string_format("%d", log_time);
-    time.value = string_format("%f", phy_time);
+    time = phy_time;
+    time_str = string_format("%f", time);
     return 0;
   }
 
@@ -457,11 +483,11 @@ public:
 
   Information get_log_time_info(){ return log_time_info; }
 
-  Time get_time(){ return time; }
-
   int get_logical_time(){ return stoi(log_time_info.value); }
 
-  double get_physical_time(){ return stod(time.value); }
+  double get_physical_time(){ return time; }
+
+  const char* get_physical_time_str() { return time_str.c_str();}
 };
 
 };

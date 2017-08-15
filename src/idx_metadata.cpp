@@ -25,8 +25,36 @@ IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
 int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){ 
   timesteps.push_back(ts); 
 
+  time.type = TimeType::SINGLE_TIME_TYPE;
+
   if(loaded)
     touched_ts.insert(ts->get_logical_time());
+  return 0;
+}
+
+int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::shared_ptr<Level> level){
+  time.type = TimeType::HYPER_SLAB_TIME_TYPE;
+  
+  DataItem phy_item;
+  phy_item.formatType = FormatType::XML_FORMAT;
+  phy_item.dimensions = "3";
+  phy_item.numberType = NumberType::FLOAT_NUMBER_TYPE;
+  phy_item.precision = "8";
+  phy_item.text = string_format("%f %f %f", phy_time[0],phy_time[1],phy_time[2]);
+
+  Information log_info;
+  log_info.name = "LogicalTime";
+  log_info.value = string_format("%d %d %d", log_time[0],log_time[1],log_time[2]);
+
+  phy_item.information.push_back(log_info);
+
+  time.items.push_back(phy_item);
+
+  std::shared_ptr<TimeStep> ts(new TimeStep());
+  ts->set_timestep(log_time[0], phy_time[0]);
+  ts->add_level(level);
+  timesteps.push_back(ts); 
+
   return 0;
 }
 

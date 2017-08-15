@@ -93,13 +93,13 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
     xmlNodePtr geometry_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Geometry", NULL);
     xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(curr_grid.geometry.geometryType));
     
-    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.item[0].text.c_str());
-    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.item[0].formatType));
-    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.item[0].dimensions.c_str());
+    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[0].text.c_str());
+    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[0].formatType));
+    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[0].dimensions.c_str());
 
-    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.item[1].text.c_str());
-    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.item[1].formatType));
-    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.item[1].dimensions.c_str());
+    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[1].text.c_str());
+    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[1].formatType));
+    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[1].dimensions.c_str());
 
     xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
@@ -123,7 +123,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST ts->get_log_time_info().value.c_str());
 
   xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-  xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_time().value.c_str());
+  xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_physical_time_str());
 
   xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
   xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
@@ -187,7 +187,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
   xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST ts->get_log_time_info().value.c_str());
 
   xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-  xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_time().value.c_str());
+  xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST ts->get_physical_time_str());
 
   xmlNodePtr levels_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Grid", NULL);
   xmlNewProp(levels_node, BAD_CAST "Name", BAD_CAST "Grids");

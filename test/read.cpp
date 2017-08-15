@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 
     std::shared_ptr<Level> level = ts->get_level(0);
 
-    printf("> Time %s -> %s\n", ts->get_log_time_info().value.c_str(), ts->get_time().value.c_str());
+    printf("> Time %s -> %s\n", ts->get_log_time_info().value.c_str(), ts->get_physical_time_str());
     for(int g=0; g < level->get_n_datagrids(); g++){
       std::shared_ptr<DataGrid> datagrid = level->get_datagrid(g);
 
@@ -48,8 +48,8 @@ int main(int argc, char** argv){
       }
 
       Grid& grid = datagrid->get_grid();
-      DataItem& item_o = grid.geometry.item[0];
-      DataItem& item_d = grid.geometry.item[1];
+      DataItem& item_o = grid.geometry.items[0];
+      DataItem& item_d = grid.geometry.items[1];
       printf("Geometry type %s dim %s O %s D %s topo type %s dim %s\n", 
           ToString(grid.geometry.geometryType), item_o.dimensions.c_str(), item_o.text.c_str(), item_d.text.c_str(), ToString(grid.topology.topologyType),
           grid.topology.dimensions.c_str());
