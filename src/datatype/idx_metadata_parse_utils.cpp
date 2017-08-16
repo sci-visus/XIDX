@@ -3,6 +3,7 @@
 #include <libxml/xmlwriter.h>
 
 #include "idx_metadata_parse_utils.h"
+#include "idx_metadata_attribute.h"
 
 #define MY_ENCODING "ISO-8859-1"
 
@@ -87,48 +88,50 @@ int parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl){
       if(is_node_name(cur_node, "Attribute")){
         Attribute att;
 
-        att.name = getProp(cur_node, "Name");
+        att.XMLToObj(cur_node);
 
-        const char* center_type = getProp(cur_node, "Center");
-        for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
-          if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
-              att.centerType = static_cast<CenterType>(t);
+        // att.name = getProp(cur_node, "Name");
 
-        const char* att_type = getProp(cur_node, "AttributeType");
-        for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
-          if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
-              att.attributeType = static_cast<AttributeType>(t);
+        // const char* center_type = getProp(cur_node, "Center");
+        // for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
+        //   if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
+        //       att.centerType = static_cast<CenterType>(t);
 
-        for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
+        // const char* att_type = getProp(cur_node, "AttributeType");
+        // for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
+        //   if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
+        //       att.attributeType = static_cast<AttributeType>(t);
+
+        // for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
           
-          if(is_node_name(inner_node, "DataItem")){
-            xmlNode* item = inner_node;
+        //   if(is_node_name(inner_node, "DataItem")){
+        //     xmlNode* item = inner_node;
 
-            att.data.formatType = FormatType::IDX_FORMAT;
+        //     att.data.formatType = FormatType::IDX_FORMAT;
             
-            const char* num_type = getProp(item, "NumberType");
-            for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
-              if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0)
-                  att.data.numberType = static_cast<NumberType>(t);
+        //     const char* num_type = getProp(item, "NumberType");
+        //     for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
+        //       if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0)
+        //           att.data.numberType = static_cast<NumberType>(t);
             
-            att.data.precision = getProp(item, "Precision");
-            att.data.dimensions = getProp(item, "Dimensions");
+        //     att.data.precision = getProp(item, "Precision");
+        //     att.data.dimensions = getProp(item, "Dimensions");
 
-            const char* end_type = getProp(item, "Endian");
-            for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
-              if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0)
-                  att.data.endianType = static_cast<EndianType>(t);
+        //     const char* end_type = getProp(item, "Endian");
+        //     for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
+        //       if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0)
+        //           att.data.endianType = static_cast<EndianType>(t);
 
-            // printf("add attribute %s cent %s type %s num_type %s prec %s dim %s endian %s\n",
-            //   att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
-            //   ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
-            //   ToString(att.data.endianType));
+        //     // printf("add attribute %s cent %s type %s num_type %s prec %s dim %s endian %s\n",
+        //     //   att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
+        //     //   ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
+        //     //   ToString(att.data.endianType));
 
-          }else if(is_node_name(inner_node, "Information")){
-            xmlNode* item = inner_node;
-            att.information.push_back(Information(getProp(item, "Name"),getProp(item, "Value")));
-          }
-        }
+        //   }else if(is_node_name(inner_node, "Information")){
+        //     xmlNode* item = inner_node;
+        //     att.information.push_back(Information(getProp(item, "Name"),getProp(item, "Value")));
+        //   }
+        // }
 
         // TODO do not assume every grid has same attributes, resolve xpointers
         for(int i=0; i < lvl->get_n_datagrids(); i++){

@@ -54,16 +54,18 @@ int IDX_Metadata_Simple_Layout::save(){
   Grid grid = level->get_datagrid(0)->get_grid();
 
   for(auto& curr_attribute : grid.attribute){
-    xmlNodePtr attribute_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Attribute", NULL);
-    xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST curr_attribute.name.c_str());
-    xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
-    xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(curr_attribute.attributeType));
+    xmlNodePtr attribute_node = curr_attribute.objToXML(main_grid_node);
 
-    xmlNodePtr data_node = curr_attribute.data.objToXML(attribute_node);
+    // xmlNodePtr attribute_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Attribute", NULL);
+    // xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST curr_attribute.name.c_str());
+    // xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
+    // xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(curr_attribute.attributeType));
 
-    for(auto& curr_info : curr_attribute.information){
-      xmlNodePtr info_node = curr_info.objToXML(attribute_node);
-    }
+    // xmlNodePtr data_node = curr_attribute.data.objToXML(attribute_node);
+
+    // for(auto& curr_info : curr_attribute.information){
+    //   xmlNodePtr info_node = curr_info.objToXML(attribute_node);
+    // }
 
   }
 

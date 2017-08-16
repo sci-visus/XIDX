@@ -9,6 +9,7 @@
 #include "idx_metadata_enums.h"
 #include "idx_metadata_information.h"
 #include "idx_metadata_dataitem.h"
+#include "idx_metadata_attribute.h"
 
 template<typename ... Args>
 static std::string string_format(const std::string& format, Args ... args){
@@ -22,14 +23,6 @@ struct Time{
   std::string value;
   TimeType type;
   std::vector<DataItem> items;
-  std::vector<Information> information;
-};
-
-struct Attribute{
-  std::string name;
-  DataItem data;
-  CenterType centerType;
-  AttributeType attributeType;
   std::vector<Information> information;
 };
 
@@ -199,6 +192,7 @@ public:
     di.endianType = endian;
     di.dimensions = grid.topology.dimensions; // Use same dimensions of topology
     di.formatType = FormatType::IDX_FORMAT;
+    di.text = generate_vars_filename(att.centerType);
 
     att.data = di;
 
