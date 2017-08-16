@@ -10,9 +10,9 @@
 #include <map>
 #include <set>
 
-#include "idx_metadata_layout.h"
+#include "layout/idx_metadata_layout.h"
+#include "datatype/idx_metadata_datatypes.h"
 #include "idx_metadata_config.h"
-#include "idx_metadata_datatypes.h"
 
 namespace idx_metadata{
 

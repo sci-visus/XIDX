@@ -70,7 +70,7 @@ std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){
     std::getline(iss, token, ' ');
     double stride = stod(token);
 
-    std::shared_ptr<TimeStep> ts = timesteps[0];
+    std::shared_ptr<TimeStep> ts = timesteps.begin()->second;
     ts->set_timestep(t, start+stride*t);
     return ts;
   }

@@ -10,6 +10,12 @@
 
 #include "idx_metadata_datatypes.h"
 
+namespace idx_metadata{
+class Level;
+class Topology;
+class Geometry;
+}
+
 static const char* getProp(xmlNode* node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
 }

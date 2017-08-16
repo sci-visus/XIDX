@@ -67,9 +67,11 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST curr_attribute.data.dimensions.c_str());
 
     for(auto& curr_info : curr_attribute.information){
-      xmlNodePtr info_node = xmlNewChild(attribute_node, NULL, BAD_CAST "Information", NULL);
-      xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_info.name.c_str());
-      xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_info.value.c_str());
+      xmlNodePtr info_node = curr_info.objToXML(attribute_node);
+
+      // xmlNodePtr info_node = xmlNewChild(attribute_node, NULL, BAD_CAST "Information", NULL);
+      // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_info.name.c_str());
+      // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_info.value.c_str());
     }
 
   }
@@ -119,9 +121,10 @@ int IDX_Metadata_Simple_Layout::save(){
       xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
       xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
-      xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
-      xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
-      xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
+      xmlNodePtr info_node = curr_grid->get_log_time_info().objToXML(curr_time_node);
+      // xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
+      // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
+      // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
 
       xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
       xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_physical_time_str());
@@ -141,9 +144,10 @@ int IDX_Metadata_Simple_Layout::save(){
       xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST item.dimensions.c_str());
 
       for(auto info: item.information){
-        xmlNodePtr info_node = xmlNewChild(data_node, NULL, BAD_CAST "Information", NULL);
-        xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST info.name.c_str());
-        xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST info.value.c_str());
+        xmlNodePtr info_node = info.objToXML(data_node);
+        // xmlNodePtr info_node = xmlNewChild(data_node, NULL, BAD_CAST "Information", NULL);
+        // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST info.name.c_str());
+        // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST info.value.c_str());
       }
     }
 
@@ -221,12 +225,20 @@ int IDX_Metadata_Simple_Layout::load(){
 
       for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
         if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Information")) {
-          const char* att_name = getProp(cur_time_node, "Name");
+          Information info; 
+          info.XMLToObj(cur_time_node);
 
-          if(strcmp(att_name,"LogicalTime")==0)
-            log_time = atoi(getProp(cur_time_node, "Value"));
+          if(strcmp(info.name.c_str(),"LogicalTime")==0)
+            log_time = stoi(info.value);
           else
             fprintf(stderr, "LogicalTime attribute not found\n");
+
+          // const char* att_name = getProp(cur_time_node, "Name");
+
+          // if(strcmp(att_name,"LogicalTime")==0)
+          //   log_time = atoi(getProp(cur_time_node, "Value"));
+          // else
+          //   fprintf(stderr, "LogicalTime attribute not found\n");
         }
         else if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
           phy_time = stod(getProp(cur_time_node, "Value"));
@@ -258,8 +270,9 @@ int IDX_Metadata_Simple_Layout::load(){
             phy_time_dataitem.text = reinterpret_cast<const char*>(cur_time_node->children->content);
           
             Information log_info;
-            log_info.name = "LogicalTime";
-            log_info.value = getProp(cur_time_node->children->next, "Value");
+            log_info.XMLToObj(cur_time_node->children->next);
+            // log_info.name = "LogicalTime";
+            // log_info.value = getProp(cur_time_node->children->next, "Value");
 
             phy_time_dataitem.information.push_back(log_info);
 
