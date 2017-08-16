@@ -1,6 +1,11 @@
 #ifndef IDX_METADATA_PARSABLE_INTERFACE_H_
 #define IDX_METADATA_PARSABLE_INTERFACE_H_
 
+#include <libxml/encoding.h>
+#include <libxml/xmlwriter.h>
+
+#include "idx_metadata_parse_utils.h"
+
 namespace idx_metadata{
 
 static const char* getProp2(xmlNode* node, std::string propName){
@@ -14,7 +19,7 @@ inline bool is_node_name2(xmlNode* node, std::string name){
 class Parsable{
 
 public:
-  virtual xmlNode* objToXML(xmlNode* parent) = 0;
+  virtual xmlNode* objToXML(xmlNode* parent, const char* text=NULL) = 0;
   virtual int XMLToObj(xmlNode* node) = 0;
 
 };

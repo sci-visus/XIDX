@@ -41,6 +41,7 @@ int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::
   phy_item.dimensions = "3";
   phy_item.numberType = NumberType::FLOAT_NUMBER_TYPE;
   phy_item.precision = "8";
+  phy_item.endianType = EndianType::LITTLE_ENDIANESS;
   phy_item.text = string_format("%f %f %f", phy_time[0],phy_time[1],phy_time[2]);
 
   Information log_info;

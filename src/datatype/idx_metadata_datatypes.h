@@ -8,6 +8,7 @@
 #include "idx_metadata_config.h"
 #include "idx_metadata_enums.h"
 #include "idx_metadata_information.h"
+#include "idx_metadata_dataitem.h"
 
 template<typename ... Args>
 static std::string string_format(const std::string& format, Args ... args){
@@ -16,19 +17,6 @@ static std::string string_format(const std::string& format, Args ... args){
     snprintf(buf.get(), size, format.c_str(), args ...);
     return std::string(buf.get(), buf.get() + size);
 }
-
-struct DataItem{
-  std::string name;
-  ItemType itemType;
-  std::string dimensions;
-  NumberType numberType;
-  std::string precision;
-  std::string reference;
-  EndianType endianType;
-  FormatType formatType;
-  std::string text;
-  std::vector<Information> information;
-};
 
 struct Time{
   std::string value;
@@ -155,8 +143,14 @@ public:
     geo.geometryType = geometryType;
     DataItem item_o;
     item_o.formatType = FormatType::XML_FORMAT;
+    item_o.numberType = NumberType::FLOAT_NUMBER_TYPE;
+    item_o.precision = "4";
+    item_o.endianType = EndianType::LITTLE_ENDIANESS;
     DataItem item_d;
     item_d.formatType = FormatType::XML_FORMAT;
+    item_d.numberType = NumberType::FLOAT_NUMBER_TYPE;
+    item_d.precision = "4";
+    item_d.endianType = EndianType::LITTLE_ENDIANESS;
 
     if(geometryType == GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE){
       item_o.dimensions = "3";

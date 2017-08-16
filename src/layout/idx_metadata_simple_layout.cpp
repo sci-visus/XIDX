@@ -59,19 +59,10 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
     xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(curr_attribute.attributeType));
 
-    xmlNodePtr data_node = xmlNewChild(attribute_node, NULL, BAD_CAST "DataItem", BAD_CAST generate_vars_filename(curr_attribute.centerType).c_str());
-    xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(curr_attribute.data.formatType));
-    xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(curr_attribute.data.numberType));
-    xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST curr_attribute.data.precision.c_str());
-    xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(curr_attribute.data.endianType));
-    xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST curr_attribute.data.dimensions.c_str());
+    xmlNodePtr data_node = curr_attribute.data.objToXML(attribute_node);
 
     for(auto& curr_info : curr_attribute.information){
       xmlNodePtr info_node = curr_info.objToXML(attribute_node);
-
-      // xmlNodePtr info_node = xmlNewChild(attribute_node, NULL, BAD_CAST "Information", NULL);
-      // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_info.name.c_str());
-      // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_info.value.c_str());
     }
 
   }
@@ -90,13 +81,8 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNodePtr geometry_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Geometry", NULL);
     xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(curr_grid.geometry.geometryType));
     
-    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[0].text.c_str());
-    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[0].formatType));
-    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[0].dimensions.c_str());
-
-    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[1].text.c_str());
-    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[1].formatType));
-    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[1].dimensions.c_str());
+    xmlNodePtr item_o = curr_grid.geometry.items[0].objToXML(geometry_node, curr_grid.geometry.items[0].text.c_str());
+    xmlNodePtr item_d = curr_grid.geometry.items[1].objToXML(geometry_node, curr_grid.geometry.items[1].text.c_str());
 
     xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
@@ -122,9 +108,6 @@ int IDX_Metadata_Simple_Layout::save(){
       xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
       xmlNodePtr info_node = curr_grid->get_log_time_info().objToXML(curr_time_node);
-      // xmlNodePtr info_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Information", NULL);
-      // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_grid->get_log_time_info().name.c_str());
-      // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_grid->get_log_time_info().value.c_str());
 
       xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
       xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_physical_time_str());
@@ -137,18 +120,7 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(time_node, BAD_CAST "TimeType", BAD_CAST "HyperSlab");
 
     for(auto item : metadata_time.items){
-      xmlNodePtr data_node = xmlNewChild(time_node, NULL, BAD_CAST "DataItem", BAD_CAST BAD_CAST item.text.c_str());
-      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(item.formatType));
-      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(item.numberType));
-      xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST item.precision.c_str());
-      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST item.dimensions.c_str());
-
-      for(auto info: item.information){
-        xmlNodePtr info_node = info.objToXML(data_node);
-        // xmlNodePtr info_node = xmlNewChild(data_node, NULL, BAD_CAST "Information", NULL);
-        // xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST info.name.c_str());
-        // xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST info.value.c_str());
-      }
+      xmlNodePtr data_node = item.objToXML(time_node, item.text.c_str());
     }
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
@@ -233,12 +205,6 @@ int IDX_Metadata_Simple_Layout::load(){
           else
             fprintf(stderr, "LogicalTime attribute not found\n");
 
-          // const char* att_name = getProp(cur_time_node, "Name");
-
-          // if(strcmp(att_name,"LogicalTime")==0)
-          //   log_time = atoi(getProp(cur_time_node, "Value"));
-          // else
-          //   fprintf(stderr, "LogicalTime attribute not found\n");
         }
         else if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
           phy_time = stod(getProp(cur_time_node, "Value"));
@@ -262,19 +228,7 @@ int IDX_Metadata_Simple_Layout::load(){
             metadata->get_time().type = TimeType::HYPER_SLAB_TIME_TYPE;
 
             DataItem phy_time_dataitem;
-            phy_time_dataitem.formatType = FormatType::XML_FORMAT;
-            phy_time_dataitem.dimensions = "3";
-            phy_time_dataitem.numberType = NumberType::FLOAT_NUMBER_TYPE;
-            phy_time_dataitem.precision = "8";
-
-            phy_time_dataitem.text = reinterpret_cast<const char*>(cur_time_node->children->content);
-          
-            Information log_info;
-            log_info.XMLToObj(cur_time_node->children->next);
-            // log_info.name = "LogicalTime";
-            // log_info.value = getProp(cur_time_node->children->next, "Value");
-
-            phy_time_dataitem.information.push_back(log_info);
+            phy_time_dataitem.XMLToObj(cur_time_node);
 
             metadata->get_time().items.push_back(phy_time_dataitem);
           }
