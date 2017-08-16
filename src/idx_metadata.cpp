@@ -26,7 +26,7 @@ IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
 };
 
 int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){ 
-  timesteps.push_back(ts); 
+  timesteps[ts->get_logical_time()] = ts; 
 
   if(loaded)
     touched_ts.insert(ts->get_logical_time());
@@ -54,12 +54,11 @@ int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::
   std::shared_ptr<TimeStep> ts(new TimeStep());
   ts->set_timestep(log_time[0], phy_time[0]);
   ts->add_level(level);
-  timesteps.push_back(ts); 
+  timesteps[ts->get_logical_time()] = ts;
 
   return 0;
 }
 
-// TODO use logical timestep? Or array index?
 std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){ 
   if(time.type == TimeType::SINGLE_TIME_TYPE) 
     return timesteps[t]; 
@@ -75,6 +74,8 @@ std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){
     ts->set_timestep(t, start+stride*t);
     return ts;
   }
+  else 
+    return NULL;
 }
 
 int IDX_Metadata::get_n_timesteps() { 

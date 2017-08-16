@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 #include <set>
 
 #include "idx_metadata_layout.h"
@@ -19,7 +20,7 @@ class IDX_Metadata_Layout;
 class IDX_Metadata{
 
 private:
-  std::vector<std::shared_ptr<TimeStep> > timesteps;
+  std::map<int, std::shared_ptr<TimeStep> > timesteps;
   MetadataLayoutType layoutType;
   std::string file_path;
   std::unique_ptr<idx_metadata::IDX_Metadata_Layout> layout;
