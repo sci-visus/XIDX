@@ -21,11 +21,11 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name2(node,"Information"))
+    if(!idx_metadata::is_node_name(node,"Information"))
       return -1;
 
-    name = idx_metadata::getProp2(node, "Name");
-    value = idx_metadata::getProp2(node, "Value");
+    name = idx_metadata::getProp(node, "Name");
+    value = idx_metadata::getProp(node, "Value");
 
     return 0;
   };

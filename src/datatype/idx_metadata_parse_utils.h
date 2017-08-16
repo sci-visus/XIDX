@@ -16,15 +16,15 @@ class Topology;
 class Geometry;
 }
 
-static const char* getProp(xmlNode* node, std::string propName){
+static const char* getProp2(xmlNode* node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
 }
 
 static void print_node(xmlNode* node){
-  printf("node name %s Name=%s\n", node->name, getProp(node,"Name"));
+  printf("node name %s Name=%s\n", node->name, getProp2(node,"Name"));
 }
 
-inline bool is_node_name(xmlNode* node, std::string name){
+inline bool is_node_name2(xmlNode* node, std::string name){
   return strcmp(reinterpret_cast<const char*>(node->name), name.c_str())==0;
 }
 

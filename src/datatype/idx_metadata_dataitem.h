@@ -33,12 +33,12 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name2(node,"DataItem"))
+    if(!idx_metadata::is_node_name(node,"DataItem"))
       return -1;
 
     formatType = FormatType::IDX_FORMAT; // TODO remove this hardcoded
             
-    const char* num_type = idx_metadata::getProp2(node, "NumberType");
+    const char* num_type = idx_metadata::getProp(node, "NumberType");
     if(num_type != NULL){
       for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
         if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0){
@@ -47,10 +47,10 @@ public:
         }
     }
     
-    precision = idx_metadata::getProp2(node, "Precision");
-    dimensions = idx_metadata::getProp2(node, "Dimensions");
+    precision = idx_metadata::getProp(node, "Precision");
+    dimensions = idx_metadata::getProp(node, "Dimensions");
 
-    const char* end_type = idx_metadata::getProp2(node, "Endian");
+    const char* end_type = idx_metadata::getProp(node, "Endian");
     if (end_type != NULL){
       for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
         if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0){

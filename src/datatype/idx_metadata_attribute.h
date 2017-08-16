@@ -28,26 +28,26 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name2(node,"Attribute"))
+    if(!idx_metadata::is_node_name(node,"Attribute"))
       return -1;
 
-    name = idx_metadata::getProp2(node, "Name");
+    name = idx_metadata::getProp(node, "Name");
 
-    const char* center_type = idx_metadata::getProp2(node, "Center");
+    const char* center_type = idx_metadata::getProp(node, "Center");
     for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
       if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
           centerType = static_cast<CenterType>(t);
 
-    const char* att_type = idx_metadata::getProp2(node, "AttributeType");
+    const char* att_type = idx_metadata::getProp(node, "AttributeType");
     for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
       if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
           attributeType = static_cast<AttributeType>(t);
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
-      if(idx_metadata::is_node_name2(inner_node, "DataItem")){
+      if(idx_metadata::is_node_name(inner_node, "DataItem")){
         data.XMLToObj(inner_node);
       }
-      else if(idx_metadata::is_node_name2(inner_node, "Information")){
+      else if(idx_metadata::is_node_name(inner_node, "Information")){
         Information info;
         info.XMLToObj(inner_node);
         information.push_back(info);
