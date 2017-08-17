@@ -55,8 +55,8 @@ public:
 
   int clear(){ timesteps.clear(); return 0; }
 
-  // TODO use logical timestep? Or array index?
   std::shared_ptr<TimeStep> get_timestep(int t);
+  const std::map<int, std::shared_ptr<TimeStep> > get_timesteps(){ return timesteps; };
 
   int get_n_timesteps();
 };

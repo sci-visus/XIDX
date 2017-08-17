@@ -22,6 +22,22 @@ static std::string string_format(const std::string& format, Args ... args){
     return std::string(buf.get(), buf.get() + size);
 }
 
+// Not used yet
+// struct Domain{
+//   std::vector<Information> information;
+//   std::vector<Grid> grid;
+// };
+
+// Not used yet
+// struct Graph{
+//   std::vector<Information> information;
+//   Time time;
+//   std::vector<Attribute> attribute;
+//   std::string name;
+//   std::string numberColumns;
+//   std::string numberRows;
+// };
+
 namespace idx_metadata{
 
 struct Grid{
@@ -35,35 +51,6 @@ struct Grid{
   std::vector<Grid> grid;
   std::vector<Information> information;
 };
-
-struct Domain{
-  std::vector<Information> information;
-  std::vector<Grid> grid;
-};
-
-// Not used yet
-// struct Graph{
-//   std::vector<Information> information;
-//   Time time;
-//   std::vector<Attribute> attribute;
-//   std::string name;
-//   std::string numberColumns;
-//   std::string numberRows;
-// };
-
-}
-namespace idx_metadata{
-
-static std::string generate_vars_filename(CenterType ctype){
-  switch(ctype){
-    case NODE_CENTER:   return std::string("NCVars").append(IDX_FILE_EXTENSION);
-    case CELL_CENTER:   return std::string("CCVars").append(IDX_FILE_EXTENSION);
-    case GRID_CENTER:   return std::string("GCVars").append(IDX_FILE_EXTENSION);
-    case FACE_CENTER:   return std::string("FCVars").append(IDX_FILE_EXTENSION);
-    case EDGE_CENTER:   return std::string("EGVars").append(IDX_FILE_EXTENSION);
-    default:            return std::string("UNKVars").append(IDX_FILE_EXTENSION);
-  }
-}
 
 class DataGrid{
 private:

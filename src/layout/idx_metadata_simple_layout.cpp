@@ -49,7 +49,7 @@ int IDX_Metadata_Simple_Layout::save(){
   xmlNewProp(main_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(main_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
-  std::shared_ptr<Level> level = metadata->get_timestep(0)->get_level(0);
+  std::shared_ptr<Level> level = metadata->get_timesteps().begin()->second->get_level(0);
 
   Grid grid = level->get_datagrid(0)->get_grid();
 
@@ -82,11 +82,11 @@ int IDX_Metadata_Simple_Layout::save(){
   Time& metadata_time = metadata->get_time();
 
   if(metadata_time.type == TimeType::SINGLE_TIME_TYPE){
-    for(int i=0; i < metadata->get_n_timesteps(); i++){
-      shared_ptr<TimeStep> curr_grid = metadata->get_timestep(i);
+    for(auto it_ts : metadata->get_timesteps()){
+      shared_ptr<TimeStep> curr_grid = it_ts.second;
 
       xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-      xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,i).c_str());
+      xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,it_ts.first).c_str());
       xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
       xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
