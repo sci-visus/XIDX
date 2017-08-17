@@ -7,6 +7,13 @@
 
 namespace idx_metadata{
 
+namespace defaults{
+  const FormatType DATAITEM_FORMAT_TYPE = FormatType::XML_FORMAT;
+  const NumberType DATAITEM_NUMBER_TYPE = NumberType::FLOAT_NUMBER_TYPE;
+  const std::string DATAITEM_PRECISION = "4";
+  const EndianType DATAITEM_ENDIAN_TYPE = EndianType::LITTLE_ENDIANESS;
+}
+
 class DataItem : public idx_metadata::Parsable{
 
 public:
@@ -23,10 +30,15 @@ public:
 
   xmlNodePtr objToXML(xmlNode* parent, const char* text=NULL){
     xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST text);
-    xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(formatType));
-    xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(numberType));
-    xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST precision.c_str());
-    xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endianType));
+    if(formatType != defaults::DATAITEM_FORMAT_TYPE)
+      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(formatType));
+    if(numberType != defaults::DATAITEM_NUMBER_TYPE)
+      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(numberType));
+    if(strcmp(precision.c_str(), defaults::DATAITEM_PRECISION.c_str()) != 0)
+      xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST precision.c_str());
+    if(endianType != defaults::DATAITEM_ENDIAN_TYPE)
+      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endianType));
+
     xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
 
     for(auto info: information){
@@ -50,9 +62,20 @@ public:
           break;
         }
     }
+    else{
+      numberType = defaults::DATAITEM_NUMBER_TYPE;
+    }
     
-    precision = idx_metadata::getProp(node, "Precision");
-    dimensions = idx_metadata::getProp(node, "Dimensions");
+    const char* val_precision = idx_metadata::getProp(node, "Precision");
+    if(val_precision == NULL)
+      precision = defaults::DATAITEM_PRECISION;
+
+
+    const char* val_dimensions = idx_metadata::getProp(node, "Dimensions");
+    if(val_dimensions == NULL){
+      assert(false);
+      fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
+    }
 
     const char* end_type = idx_metadata::getProp(node, "Endian");
     if (end_type != NULL){
@@ -62,6 +85,8 @@ public:
           break;
         }
     }
+    else
+      endianType = defaults::DATAITEM_ENDIAN_TYPE;
 
     text = reinterpret_cast<const char*>(node->children->content);
 
