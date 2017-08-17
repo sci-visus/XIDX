@@ -2,6 +2,8 @@
 #define IDX_METADATA_TOPOLOGY_H_
 
 #include "idx_metadata_parsable.h"
+#include "idx_metadata_information.h"
+#include "idx_metadata_dataitem.h"
 
 namespace idx_metadata{
 

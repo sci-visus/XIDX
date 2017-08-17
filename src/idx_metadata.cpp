@@ -6,7 +6,6 @@
 #include <memory>
 #include <set>
 
-#include "idx_metadata_datatypes.h"
 #include "idx_metadata_simple_layout.h"
 #include "idx_metadata_hpc_layout.h"
 #include "idx_metadata.h"

@@ -2,6 +2,7 @@
 #ifndef IDX_METADATA_ENUMS_H_
 #define IDX_METADATA_ENUMS_H_
 
+#include "idx_metadata_config.h"
 
 enum MetadataLayoutType{
   SIMPLE = 0,

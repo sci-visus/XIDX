@@ -3,6 +3,8 @@
 
 #include "idx_metadata_parsable.h"
 
+namespace idx_metadata{
+
 class Information: public idx_metadata::Parsable{
 public:
   Information(){};
@@ -31,6 +33,6 @@ public:
   };
 
 };
-
+}
 
 #endif

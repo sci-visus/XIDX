@@ -6,7 +6,7 @@
 #include <string>
 
 #include "idx_metadata.h"
-#include "datatype/idx_metadata_datatypes.h"
+#include "datatype/idx_metadata_enums.h"
 
 namespace idx_metadata{
 

@@ -4,7 +4,6 @@
 #define IDX_METADATA_HPC_LAYOUT_H_
 
 #include "idx_metadata_layout.h"
-#include "idx_metadata_datatypes.h"
 
 namespace idx_metadata{
 

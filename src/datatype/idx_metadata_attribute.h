@@ -2,6 +2,9 @@
 #define IDX_METADATA_ATTRIBUTE_H_
 
 #include "idx_metadata_parsable.h"
+#include "idx_metadata_dataitem.h"
+
+namespace idx_metadata{
 
 class Attribute : public idx_metadata::Parsable{
 
@@ -58,5 +61,6 @@ public:
   };
 
 };
+}
 
 #endif

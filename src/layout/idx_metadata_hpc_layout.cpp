@@ -57,26 +57,13 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   }
 
   // TODO here we assume that all the grids of this level share the same attributes
-  Grid grid = lvl->get_datagrid(0)->get_grid();
+  // Grid grid = lvl->get_datagrid(0)->get_grid();
 
-  for(auto& curr_attribute : grid.attribute){
-    xmlNodePtr attribute_node = curr_attribute.objToXML(main_grid_node);
-  }
+  // for(auto& curr_attribute : grid.attribute){
+  //   xmlNodePtr attribute_node = curr_attribute.objToXML(main_grid_node);
+  // }
 
-  for(int i=0; i<lvl->get_n_datagrids(); i++){
-    Grid& curr_grid = lvl->get_datagrid(i)->get_grid();
-    xmlNodePtr curr_grid_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Grid", NULL);
-    xmlNewProp(curr_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::UNIFORM_GRID_TYPE));
-    xmlNewProp(curr_grid_node, BAD_CAST "Name", BAD_CAST curr_grid.name.c_str());
-
-    xmlNodePtr topology_node = curr_grid.topology.objToXML(curr_grid_node);
-
-    xmlNodePtr geometry_node = curr_grid.geometry.objToXML(curr_grid_node);
-
-    xmlNodePtr xattributes_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
-    xmlNewProp(xattributes_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
-
-  }
+  lvl->objToXML(main_grid_node);
   
   // Set Time series
   xmlNodePtr time_grid_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
@@ -259,7 +246,7 @@ int IDX_Metadata_HPC_Layout::load_hpc_grid(string gpath, shared_ptr<TimeStep> ts
   
   shared_ptr<Level> lvl(new Level());
 
-  ret = parse_level(grid_node, lvl);
+  ret = lvl->XMLToObj(grid_node);
   
   ts->add_level(lvl);
 

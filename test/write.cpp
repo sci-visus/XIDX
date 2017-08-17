@@ -69,7 +69,7 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_lev
   std::shared_ptr<DataGrid> grid(new DataGrid());
 
   // Set grid metadata
-  int ret = grid->set_grid("l0", TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
+  int ret = grid->set_grid("g0", TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
       dims, GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, o, d);
 
   // Set attributes
@@ -87,6 +87,61 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_lev
       // Create one level that contains the grid
       std::shared_ptr<Level> level(new Level());
       ret = level->add_datagrid(grid);
+      ret = ts->add_level(level);
+    }
+
+    ts->set_timestep(i, float(i+10));
+    meta.add_timestep(ts);
+  }
+
+  meta.save();
+
+  return ret;
+}
+
+int write_hpc_multigrid(const char* filepath, int n_attributes, int n_timesteps, int n_levels){
+  IDX_Metadata meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
+
+  uint32_t dims[3] = {10, 20, 30};// logical dims
+  float o1[3] = {0, 0, 0};         // origin x y z
+  float d1[3] = {1.f, 1.f, 1.f};   // dx dy dz
+  float o2[3] = {10.0, 20.0, 30.0};         // origin x y z
+  float d2[3] = {1.f, 1.f, 1.f};   // dx dy dz
+
+  // Create a grid
+  std::shared_ptr<DataGrid> grid1(new DataGrid());
+  std::shared_ptr<DataGrid> grid2(new DataGrid());
+
+  // Set grid metadata
+  int ret = grid1->set_grid("g0", TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
+      dims, GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, o1, d1);
+
+  ret = grid2->set_grid("g1", TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
+      dims, GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, o2, d2);
+
+  // Set attributes
+  for(int i=0; i < n_attributes; i++){
+    char name[32];
+    sprintf(name, "var_%d", i);
+    grid1->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
+  }
+
+  for(int i=0; i < n_attributes+2; i++){
+    char name[32];
+    sprintf(name, "var_%d", i);
+    grid2->unset_reference_attributes();
+    grid2->add_attribute(name, NumberType::INT_NUMBER_TYPE, 4);
+  }
+
+  // Create timesteps that contains the level
+  for(int i=0; i < n_timesteps; i++){
+    std::shared_ptr<TimeStep> ts(new TimeStep());
+
+    for(int l=0; l < n_levels; l++){
+      // Create one level that contains the grid
+      std::shared_ptr<Level> level(new Level());
+      ret = level->add_datagrid(grid1);
+      ret = level->add_datagrid(grid2);
       ret = ts->add_level(level);
     }
 
@@ -134,7 +189,7 @@ int main(int argc, char** argv){
     ret = write_simple(std::string(std::string(argv[1])+"_hyper").c_str(), n_attributes, n_timesteps, true);
   }
   else 
-    ret = write_hpc(argv[1], n_attributes, n_timesteps, n_levels);
+    ret = write_hpc_multigrid(argv[1], n_attributes, n_timesteps, n_levels);
 
   finish = clock();
 

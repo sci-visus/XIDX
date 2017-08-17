@@ -1,42 +1,12 @@
 
-#ifndef IDX_METADATA_DATATYPES_H_
-#define IDX_METADATA_DATATYPES_H_
+#ifndef IDX_METADATA_DATAGRID_H_
+#define IDX_METADATA_DATAGRID_H_
 
-#include <string>
-#include <vector>
-
-#include "idx_metadata_config.h"
 #include "idx_metadata_enums.h"
-#include "idx_metadata_information.h"
-#include "idx_metadata_dataitem.h"
+#include "idx_metadata_topology.h"
+#include "idx_metadata_geometry.h"
 #include "idx_metadata_attribute.h"
 #include "idx_metadata_time.h"
-#include "idx_metadata_geometry.h"
-#include "idx_metadata_topology.h"
-
-template<typename ... Args>
-static std::string string_format(const std::string& format, Args ... args){
-    size_t size = 1 + snprintf(nullptr, 0, format.c_str(), args ...);
-    std::unique_ptr<char[]> buf(new char[size]);
-    snprintf(buf.get(), size, format.c_str(), args ...);
-    return std::string(buf.get(), buf.get() + size);
-}
-
-// Not used yet
-// struct Domain{
-//   std::vector<Information> information;
-//   std::vector<Grid> grid;
-// };
-
-// Not used yet
-// struct Graph{
-//   std::vector<Information> information;
-//   Time time;
-//   std::vector<Attribute> attribute;
-//   std::string name;
-//   std::string numberColumns;
-//   std::string numberRows;
-// };
 
 namespace idx_metadata{
 
@@ -55,8 +25,13 @@ struct Grid{
 class DataGrid{
 private:
   Grid grid;
+  int ref_attributes;
 
 public:
+  DataGrid(){
+    ref_attributes = 1; // default: refer attributes to the first grid
+  }
+
   template<typename T>
   int set_grid(const char* name, TopologyType topologyType, const uint32_t* dimensions, 
                GeometryType geometryType, const T* ox_oy_oz, const T* dx_dy_dz, 
@@ -144,6 +119,12 @@ public:
 
   int set_geometry(Geometry geometry){ grid.geometry = geometry; return 0; }
 
+  int set_reference_attributes(int grid_id){ ref_attributes = grid_id; return 0;}
+
+  int get_reference_attributes(){ return ref_attributes; }
+
+  int unset_reference_attributes(){ ref_attributes = 0; return 0;}
+
   int add_attribute(const char* name, NumberType numberType, const short precision, 
                    const std::vector<Information>& info=std::vector<Information>(),
                    const AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
@@ -178,54 +159,6 @@ public:
   Grid& get_grid(){ return grid; }
 };
 
-class Level{
-private:
-  std::vector<std::shared_ptr<DataGrid> > grids;
-
-public:
-  int add_datagrid(std::shared_ptr<DataGrid> level){ grids.push_back(level); return 0; }
-
-  std::shared_ptr<DataGrid> get_datagrid(int g){ return grids[g]; }
-
-  int clear(){ grids.clear(); return 0; }
-
-  int get_n_datagrids() { return grids.size(); }
-};
-
-class TimeStep{
-private:
-  std::vector<std::shared_ptr<Level> > levels;
-  Information log_time_info;
-  double time;
-  std::string time_str;
-
-public:
-
-  int set_timestep(uint32_t log_time, double phy_time){
-    log_time_info.name = "LogicalTime";
-    log_time_info.value = string_format("%d", log_time);
-    time = phy_time;
-    time_str = string_format("%f", time);
-    return 0;
-  }
-
-  int add_level(std::shared_ptr<Level> level){ levels.push_back(level); return 0; }
-
-  std::shared_ptr<Level> get_level(int l){ return levels[l]; }
-
-  int clear(){ levels.clear(); return 0;}
-
-  int get_n_levels() { return levels.size(); }
-
-  Information& get_log_time_info(){ return log_time_info; }
-
-  int get_logical_time(){ return stoi(log_time_info.value); }
-
-  double get_physical_time(){ return time; }
-
-  const char* get_physical_time_str() { return time_str.c_str();}
-};
-
-};
+}
 
 #endif

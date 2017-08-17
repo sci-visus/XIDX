@@ -3,6 +3,8 @@
 
 #include "idx_metadata_parsable.h"
 
+namespace idx_metadata{
+
 class Time : public idx_metadata::Parsable{
 
 public:
@@ -58,5 +60,7 @@ public:
   };
 
 };
+
+}
 
 #endif

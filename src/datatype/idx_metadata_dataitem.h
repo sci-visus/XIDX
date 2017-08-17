@@ -2,6 +2,10 @@
 #define IDX_METADATA_DATAITEM_H_
 
 #include "idx_metadata_parsable.h"
+#include "idx_metadata_enums.h"
+#include "idx_metadata_information.h"
+
+namespace idx_metadata{
 
 class DataItem : public idx_metadata::Parsable{
 
@@ -65,5 +69,7 @@ public:
   };
 
 };
+
+}
 
 #endif

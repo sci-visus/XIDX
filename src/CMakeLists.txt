@@ -7,7 +7,6 @@ include_directories(./datatype)
 
 set(SRCS
     idx_metadata.cpp
-    datatype/idx_metadata_parse_utils.cpp
     layout/idx_metadata_layout.cpp
     layout/idx_metadata_simple_layout.cpp
     layout/idx_metadata_hpc_layout.cpp
