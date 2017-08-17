@@ -60,23 +60,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   Grid grid = lvl->get_datagrid(0)->get_grid();
 
   for(auto& curr_attribute : grid.attribute){
-    xmlNodePtr attribute_node = xmlNewChild(main_grid_node, NULL, BAD_CAST "Attribute", NULL);
-    xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST curr_attribute.name.c_str());
-    xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(curr_attribute.centerType));
-    xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(curr_attribute.attributeType));
-
-    xmlNodePtr data_node = xmlNewChild(attribute_node, NULL, BAD_CAST "DataItem", BAD_CAST generate_vars_filename(curr_attribute.centerType).c_str());
-    xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(curr_attribute.data.formatType));
-    xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(curr_attribute.data.numberType));
-    xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST curr_attribute.data.precision.c_str());
-    xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(curr_attribute.data.endianType));
-    xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST curr_attribute.data.dimensions.c_str());
-
-    for(auto& curr_info : curr_attribute.information){
-      xmlNodePtr info_node = xmlNewChild(attribute_node, NULL, BAD_CAST "Information", NULL);
-      xmlNewProp(info_node, BAD_CAST "Name", BAD_CAST curr_info.name.c_str());
-      xmlNewProp(info_node, BAD_CAST "Value", BAD_CAST curr_info.value.c_str());
-    }
+    xmlNodePtr attribute_node = curr_attribute.objToXML(main_grid_node);
   }
 
   for(int i=0; i<lvl->get_n_datagrids(); i++){
@@ -85,24 +69,12 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
     xmlNewProp(curr_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::UNIFORM_GRID_TYPE));
     xmlNewProp(curr_grid_node, BAD_CAST "Name", BAD_CAST curr_grid.name.c_str());
 
-    xmlNodePtr topology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Topology", NULL);
+    xmlNodePtr topology_node = curr_grid.topology.objToXML(curr_grid_node);
 
-    xmlNewProp(topology_node, BAD_CAST "TopologyType", BAD_CAST ToString(curr_grid.topology.topologyType));
-    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST curr_grid.topology.dimensions.c_str());
+    xmlNodePtr geometry_node = curr_grid.geometry.objToXML(curr_grid_node);
 
-    xmlNodePtr geometry_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Geometry", NULL);
-    xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(curr_grid.geometry.geometryType));
-    
-    xmlNodePtr item_o = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[0].text.c_str());
-    xmlNewProp(item_o, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[0].formatType));
-    xmlNewProp(item_o, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[0].dimensions.c_str());
-
-    xmlNodePtr item_d = xmlNewChild(geometry_node, NULL, BAD_CAST "DataItem", BAD_CAST curr_grid.geometry.items[1].text.c_str());
-    xmlNewProp(item_d, BAD_CAST "Format", BAD_CAST ToString(curr_grid.geometry.items[1].formatType));
-    xmlNewProp(item_d, BAD_CAST "Dimensions", BAD_CAST curr_grid.geometry.items[1].dimensions.c_str());
-
-    xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
-    xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
+    xmlNodePtr xattributes_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
+    xmlNewProp(xattributes_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
 
   }
   
@@ -350,6 +322,7 @@ int IDX_Metadata_HPC_Layout::load_hpc_timestep(string& tpath){
 
   return ret;
 }
+
 
 int IDX_Metadata_HPC_Layout::load(){
   LIBXML_TEST_VERSION;

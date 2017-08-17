@@ -1,6 +1,5 @@
 
 #include <libxml/encoding.h>
-#include "idx_metadata_parse_utils.h"
 #include "idx_metadata_layout.h"
 
 using namespace idx_metadata;
