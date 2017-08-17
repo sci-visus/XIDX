@@ -37,10 +37,9 @@ int main(int argc, char** argv){
       std::shared_ptr<DataGrid> datagrid = level->get_datagrid(g);
 
       for(auto att : datagrid->get_attributes()){
-        printf("Attribute %s cent %s type %s num_type %s prec %s dim %s endian %s\n",
+        printf("Attribute %s cent %s type %s num_type %s prec %s endian %s\n",
           att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
-          ToString(att.data.numberType), att.data.precision.c_str(), att.data.dimensions.c_str(),
-          ToString(att.data.endianType));
+          ToString(att.data.numberType), att.data.precision.c_str(), ToString(att.data.endianType));
 
         for(auto info: att.information){
           printf("\t Info %s = %s \n", info.name.c_str(), info.value.c_str());

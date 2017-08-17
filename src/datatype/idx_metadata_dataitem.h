@@ -39,7 +39,8 @@ public:
     if(endianType != defaults::DATAITEM_ENDIAN_TYPE)
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endianType));
 
-    xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
+    if(formatType != FormatType::IDX_FORMAT) // Ignore dimensions for IDX datasets
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
 
     for(auto info: information){
       xmlNodePtr info_node = info.objToXML(data_node);
@@ -71,10 +72,12 @@ public:
       precision = defaults::DATAITEM_PRECISION;
 
 
-    const char* val_dimensions = idx_metadata::getProp(node, "Dimensions");
-    if(val_dimensions == NULL){
-      assert(false);
-      fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
+    if(formatType != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
+      const char* val_dimensions = idx_metadata::getProp(node, "Dimensions");
+      if(val_dimensions == NULL){
+        assert(false);
+        fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
+      }
     }
 
     const char* end_type = idx_metadata::getProp(node, "Endian");
