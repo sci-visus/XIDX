@@ -68,11 +68,7 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(topology_node, BAD_CAST "TopologyType", BAD_CAST ToString(curr_grid.topology.topologyType));
     xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST curr_grid.topology.dimensions.c_str());
 
-    xmlNodePtr geometry_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Geometry", NULL);
-    xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(curr_grid.geometry.geometryType));
-    
-    xmlNodePtr item_o = curr_grid.geometry.items[0].objToXML(geometry_node, curr_grid.geometry.items[0].text.c_str());
-    xmlNodePtr item_d = curr_grid.geometry.items[1].objToXML(geometry_node, curr_grid.geometry.items[1].text.c_str());
+    xmlNodePtr geometry_node = curr_grid.geometry.objToXML(curr_grid_node);
 
     xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
@@ -86,7 +82,7 @@ int IDX_Metadata_Simple_Layout::save(){
   xmlNewProp(time_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
   
-  const Time& metadata_time = metadata->get_time();
+  Time& metadata_time = metadata->get_time();
 
   if(metadata_time.type == TimeType::SINGLE_TIME_TYPE){
     for(int i=0; i < metadata->get_n_timesteps(); i++){
@@ -106,12 +102,8 @@ int IDX_Metadata_Simple_Layout::save(){
       xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
     }
   }else if(metadata_time.type == TimeType::HYPER_SLAB_TIME_TYPE){
-    xmlNodePtr time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Time", NULL);
-    xmlNewProp(time_node, BAD_CAST "TimeType", BAD_CAST "HyperSlab");
 
-    for(auto item : metadata_time.items){
-      xmlNodePtr data_node = item.objToXML(time_node, item.text.c_str());
-    }
+    xmlNodePtr time_node = metadata_time.objToXML(time_grid_node);
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
     xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,0).c_str());
@@ -207,24 +199,9 @@ int IDX_Metadata_Simple_Layout::load(){
       metadata->add_timestep(ts);
     }
     else if(cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Time")){
-      const char* timeType = getProp(cur_node, "TimeType");
-      if(timeType == NULL || strcmp(timeType, ToString(static_cast<TimeType>(TimeType::SINGLE_TIME_TYPE)))==0){
-        metadata->get_time().type = TimeType::SINGLE_TIME_TYPE;
-      }
-      else if(strcmp(timeType, ToString(static_cast<TimeType>(TimeType::HYPER_SLAB_TIME_TYPE)))==0){
 
-        for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
-          if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"DataItem")){
-            metadata->get_time().type = TimeType::HYPER_SLAB_TIME_TYPE;
-
-            DataItem phy_time_dataitem;
-            phy_time_dataitem.XMLToObj(cur_time_node);
-
-            metadata->get_time().items.push_back(phy_time_dataitem);
-          }
-        }
-
-      }
+      metadata->get_time().XMLToObj(cur_node);
+      
     }
   }
 

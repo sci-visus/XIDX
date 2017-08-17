@@ -10,6 +10,8 @@
 #include "idx_metadata_information.h"
 #include "idx_metadata_dataitem.h"
 #include "idx_metadata_attribute.h"
+#include "idx_metadata_time.h"
+#include "idx_metadata_geometry.h"
 
 template<typename ... Args>
 static std::string string_format(const std::string& format, Args ... args){
@@ -19,19 +21,7 @@ static std::string string_format(const std::string& format, Args ... args){
     return std::string(buf.get(), buf.get() + size);
 }
 
-struct Time{
-  std::string value;
-  TimeType type;
-  std::vector<DataItem> items;
-  std::vector<Information> information;
-};
-
 namespace idx_metadata{
-struct Geometry{
-  std::string name;
-  GeometryType geometryType;
-  std::vector<DataItem> items;
-};
 
 struct Topology{
   std::vector<Information> information;
@@ -69,7 +59,6 @@ struct Graph{
 };
 
 }
-
 namespace idx_metadata{
 
 static std::string generate_vars_filename(CenterType ctype){
