@@ -6,6 +6,11 @@
 
 namespace idx_metadata{
 
+namespace defaults{
+  const CenterType ATTRIBUTE_CENTER_TYPE = CenterType::CELL_CENTER;
+  const AttributeType ATTRIBUTE_TYPE = AttributeType::SCALAR_ATTRIBUTE_TYPE;
+}
+
 class Attribute : public idx_metadata::Parsable{
 
 public:
@@ -18,8 +23,10 @@ public:
   xmlNodePtr objToXML(xmlNode* parent, const char* text=NULL){
     xmlNodePtr attribute_node = xmlNewChild(parent, NULL, BAD_CAST "Attribute", NULL);
     xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(centerType));
-    xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(attributeType));
+    if(centerType != defaults::ATTRIBUTE_CENTER_TYPE)
+      xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(centerType));
+    if(attributeType != defaults::ATTRIBUTE_TYPE)
+      xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(attributeType));
 
     xmlNodePtr data_node = data.objToXML(attribute_node, data.text.c_str());
 
@@ -37,14 +44,23 @@ public:
     name = idx_metadata::getProp(node, "Name");
 
     const char* center_type = idx_metadata::getProp(node, "Center");
-    for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
-      if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
-          centerType = static_cast<CenterType>(t);
+    if(center_type != NULL){
+      for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
+        if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
+            centerType = static_cast<CenterType>(t);
+    }
+    else
+      centerType = defaults::ATTRIBUTE_CENTER_TYPE;
 
     const char* att_type = idx_metadata::getProp(node, "AttributeType");
-    for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
-      if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
-          attributeType = static_cast<AttributeType>(t);
+
+    if(att_type != NULL){
+      for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
+        if (strcmp(att_type, ToString(static_cast<AttributeType>(t)))==0)
+            attributeType = static_cast<AttributeType>(t);
+    }
+    else
+      attributeType = defaults::ATTRIBUTE_TYPE;
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(idx_metadata::is_node_name(inner_node, "DataItem")){
