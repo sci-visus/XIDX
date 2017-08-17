@@ -21,13 +21,7 @@ int parse_geometry(xmlNode *geo_node, Geometry& geometry){
 }
 
 int parse_topology(xmlNode* topo_node, Topology& topology){
-  const char* topo_type = getProp(topo_node, "TopologyType");
-
-  for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
-    if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
-        topology.topologyType = static_cast<TopologyType>(t);
-
-  topology.dimensions = getProp(topo_node, "Dimensions");
+  topology.XMLToObj(topo_node);
 
   //printf("topo type %s dim %s\n", ToString(topology.topologyType), topology.dimensions.c_str());
 

@@ -12,6 +12,7 @@
 #include "idx_metadata_attribute.h"
 #include "idx_metadata_time.h"
 #include "idx_metadata_geometry.h"
+#include "idx_metadata_topology.h"
 
 template<typename ... Args>
 static std::string string_format(const std::string& format, Args ... args){
@@ -22,15 +23,6 @@ static std::string string_format(const std::string& format, Args ... args){
 }
 
 namespace idx_metadata{
-
-struct Topology{
-  std::vector<Information> information;
-  std::vector<DataItem> items;
-  TopologyType topologyType;
-  std::string dimensions;
-  std::string order;
-  std::string nodesPerElement;
-};
 
 struct Grid{
   std::string name;
@@ -49,14 +41,15 @@ struct Domain{
   std::vector<Grid> grid;
 };
 
-struct Graph{
-  std::vector<Information> information;
-  Time time;
-  std::vector<Attribute> attribute;
-  std::string name;
-  std::string numberColumns;
-  std::string numberRows;
-};
+// Not used yet
+// struct Graph{
+//   std::vector<Information> information;
+//   Time time;
+//   std::vector<Attribute> attribute;
+//   std::string name;
+//   std::string numberColumns;
+//   std::string numberRows;
+// };
 
 }
 namespace idx_metadata{

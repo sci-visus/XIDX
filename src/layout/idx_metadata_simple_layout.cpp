@@ -63,15 +63,12 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNewProp(curr_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::UNIFORM_GRID_TYPE));
     xmlNewProp(curr_grid_node, BAD_CAST "Name", BAD_CAST curr_grid.name.c_str());
 
-    xmlNodePtr topology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "Topology", NULL);
-
-    xmlNewProp(topology_node, BAD_CAST "TopologyType", BAD_CAST ToString(curr_grid.topology.topologyType));
-    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST curr_grid.topology.dimensions.c_str());
+    xmlNodePtr topology_node = curr_grid.topology.objToXML(curr_grid_node);
 
     xmlNodePtr geometry_node = curr_grid.geometry.objToXML(curr_grid_node);
 
-    xmlNodePtr xtopology_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
-    xmlNewProp(xtopology_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
+    xmlNodePtr xattributes_node = xmlNewChild(curr_grid_node, NULL, BAD_CAST "xi:include", NULL);
+    xmlNewProp(xattributes_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Attribute)");
 
   }
   
@@ -201,7 +198,7 @@ int IDX_Metadata_Simple_Layout::load(){
     else if(cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Time")){
 
       metadata->get_time().XMLToObj(cur_node);
-      
+
     }
   }
 
