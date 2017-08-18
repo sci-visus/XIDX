@@ -71,10 +71,10 @@ int IDX_Metadata_Simple_Layout::save(){
       xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
       xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
-      xmlNodePtr info_node = curr_grid->get_log_time_info().objToXML(curr_time_node);
-
-      xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-      xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_grid->get_physical_time_str());
+      Time t;
+      t.value = curr_grid->get_physical_time_str();
+      t.information.push_back(curr_grid->get_log_time_info());
+      xmlNodePtr time_node = t.objToXML(curr_time_node);
 
       xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
       xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
@@ -155,18 +155,14 @@ int IDX_Metadata_Simple_Layout::load(){
       double phy_time = -1.0;
 
       for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
-        if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Information")) {
-          Information info; 
-          info.XMLToObj(cur_time_node);
+        if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
+          Time t;
+          t.XMLToObj(cur_time_node);
+          phy_time = stod(t.value);
 
-          if(strcmp(info.name.c_str(),"LogicalTime")==0)
-            log_time = stoi(info.value);
-          else
-            fprintf(stderr, "LogicalTime attribute not found\n");
-
-        }
-        else if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
-          phy_time = stod(getProp(cur_time_node, "Value"));
+          for(auto info:t.information)
+            if(strcmp(info.name.c_str(), "LogicalTime")==0)
+              log_time = stoi(info.value);
         }
       }
       //printf("timestep %d %f\n", log_time, phy_time);

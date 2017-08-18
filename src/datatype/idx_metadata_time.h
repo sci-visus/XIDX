@@ -56,6 +56,14 @@ public:
       }
     }
 
+    for (xmlNode* cur_time_node = node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
+      if(cur_time_node->type == XML_ELEMENT_NODE && idx_metadata::is_node_name(cur_time_node,"Information")){
+        Information info;
+        info.XMLToObj(cur_time_node);
+        information.push_back(info);
+      }
+    }
+
     return 0;
   };
 
