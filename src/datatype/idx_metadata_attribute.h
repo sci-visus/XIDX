@@ -3,6 +3,7 @@
 
 #include "idx_metadata_parsable.h"
 #include "idx_metadata_dataitem.h"
+#include <algorithm>
 
 namespace idx_metadata{
 
@@ -20,12 +21,24 @@ public:
   AttributeType attributeType;
   std::vector<Information> information;
 
+  int get_n_components(){
+    size_t found=data.dimensions.find_last_of(" \\");
+    return stoi(data.dimensions.substr(found));
+  }
+
+  std::string get_dtype_str(){
+    std::string numberType = ToString(data.numberType); 
+    std::transform(numberType.begin(), numberType.end(), numberType.begin(), ::tolower);
+    int n_bytes = stoi(data.precision)*8;
+    return string_format("%d*%s%d",get_n_components(),numberType.c_str(),n_bytes);
+  }
+
   xmlNodePtr objToXML(xmlNode* parent, const char* text=NULL){
     xmlNodePtr attribute_node = xmlNewChild(parent, NULL, BAD_CAST "Attribute", NULL);
     xmlNewProp(attribute_node, BAD_CAST "Name", BAD_CAST name.c_str());
     if(centerType != defaults::ATTRIBUTE_CENTER_TYPE)
       xmlNewProp(attribute_node, BAD_CAST "Center", BAD_CAST ToString(centerType));
-    if(attributeType != defaults::ATTRIBUTE_TYPE)
+    //if(attributeType != defaults::ATTRIBUTE_TYPE)
       xmlNewProp(attribute_node, BAD_CAST "AttributeType", BAD_CAST ToString(attributeType));
 
     xmlNodePtr data_node = data.objToXML(attribute_node, data.text.c_str());

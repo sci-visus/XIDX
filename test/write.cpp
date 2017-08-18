@@ -32,6 +32,10 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
 
   grid->add_attribute("temperature", NumberType::FLOAT_NUMBER_TYPE, 4, cf_info);
 
+  grid->add_attribute("custom0", "1*uint32");
+  grid->add_attribute("custom1", "1*float64");
+  grid->add_attribute("custom1", "3*float32");
+
   // Create one level that contains the grid
   std::shared_ptr<Level> level(new Level());
   ret = level->add_datagrid(grid);
@@ -126,12 +130,17 @@ int write_hpc_multigrid(const char* filepath, int n_attributes, int n_timesteps,
     grid1->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
   }
 
-  for(int i=0; i < n_attributes+2; i++){
+  for(int i=0; i < n_attributes; i++){
     char name[32];
     sprintf(name, "var_%d", i);
     grid2->unset_reference_attributes();
-    grid2->add_attribute(name, NumberType::INT_NUMBER_TYPE, 4);
+    grid2->add_attribute(name, NumberType::INT_NUMBER_TYPE, 4, AttributeType::VECTOR_ATTRIBUTE_TYPE, 3);
   }
+
+  grid2->unset_reference_attributes();
+  grid2->add_attribute("custom0", "1*uint32");
+  grid2->add_attribute("custom1", "1*float64");
+  grid2->add_attribute("custom1", "3*float32");
 
   // Create timesteps that contains the level
   for(int i=0; i < n_timesteps; i++){

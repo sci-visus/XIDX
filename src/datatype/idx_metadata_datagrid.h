@@ -2,6 +2,8 @@
 #ifndef IDX_METADATA_DATAGRID_H_
 #define IDX_METADATA_DATAGRID_H_
 
+#include <cctype>
+
 #include "idx_metadata_enums.h"
 #include "idx_metadata_topology.h"
 #include "idx_metadata_geometry.h"
@@ -129,7 +131,8 @@ public:
                    const std::vector<Information>& info=std::vector<Information>(),
                    const AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
                    const CenterType center=CenterType::CELL_CENTER, 
-                   const EndianType endian=EndianType::LITTLE_ENDIANESS){
+                   const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                   const int n_components=1, const char* dimensions=NULL){
     Attribute att;
 
     att.name = name;
@@ -140,7 +143,84 @@ public:
     di.numberType = numberType;
     di.precision = string_format("%d", precision);
     di.endianType = endian;
-    di.dimensions = grid.topology.dimensions; // Use same dimensions of topology
+    if(dimensions==NULL){
+      di.dimensions = grid.topology.dimensions; // Use same dimensions of topology
+      di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
+    }
+    else
+      di.dimensions = dimensions;
+    
+    di.formatType = FormatType::IDX_FORMAT;
+    di.text = generate_vars_filename(att.centerType);
+
+    att.data = di;
+
+    att.information = info;
+
+    return add_attribute(att);
+  }
+
+  int add_attribute(const char* name, NumberType numberType, const short precision, 
+                   const AttributeType attributeType, 
+                   const int n_components=1,
+                   const CenterType center=CenterType::CELL_CENTER, 
+                   const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                   const std::vector<Information>& info=std::vector<Information>(),
+                   const char* dimensions=NULL){
+    return add_attribute(name, numberType, precision, info, attributeType, center, endian, n_components, dimensions);
+
+  }
+
+  int add_attribute(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
+                    const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                    const std::vector<Information>& info=std::vector<Information>(),
+                    const char* dimensions=NULL){
+    Attribute att;
+
+    att.name = name;
+  
+    size_t comp_idx= dtype.find_last_of("*\\");
+    int n_components = stoi(dtype.substr(0,comp_idx));
+
+    if(n_components == 1)
+      att.attributeType = AttributeType::SCALAR_ATTRIBUTE_TYPE;
+    else
+      att.attributeType = AttributeType::VECTOR_ATTRIBUTE_TYPE;
+
+    size_t num_idx=0;
+    for(int i=comp_idx;i<dtype.size(); i++)
+      if(!std::isdigit(dtype[i]))
+        num_idx++;
+      else
+        break;
+
+    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
+    int precision = stoi(dtype.substr(num_idx+1))/8;
+    //printf("comp %s ntype %s prec %d\n", dtype.substr(0,comp_idx).c_str(), num_idx, precision);
+
+    DataItem di;
+
+    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
+      std::string numType = ToString(static_cast<NumberType>(t));
+      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
+      
+      if (strcmp(numType.c_str(), ntype.c_str())==0){
+        di.numberType = static_cast<NumberType>(t);
+        break;
+      }
+    }
+
+    att.centerType = center;
+    
+    di.precision = string_format("%d", precision);
+    di.endianType = endian;
+    if(dimensions==NULL){
+      di.dimensions = grid.topology.dimensions; // Use same dimensions of topology
+      di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
+    }
+    else
+      di.dimensions = dimensions;
+    
     di.formatType = FormatType::IDX_FORMAT;
     di.text = generate_vars_filename(att.centerType);
 
