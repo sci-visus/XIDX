@@ -32,9 +32,9 @@ public:
     xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST text);
     if(formatType != defaults::DATAITEM_FORMAT_TYPE)
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(formatType));
-    if(numberType != defaults::DATAITEM_NUMBER_TYPE)
+    if(numberType != defaults::DATAITEM_NUMBER_TYPE || formatType == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(numberType));
-    if(strcmp(precision.c_str(), defaults::DATAITEM_PRECISION.c_str()) != 0)
+    if(strcmp(precision.c_str(), defaults::DATAITEM_PRECISION.c_str()) != 0 || formatType == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "Precision", BAD_CAST precision.c_str());
     if(endianType != defaults::DATAITEM_ENDIAN_TYPE)
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endianType));
