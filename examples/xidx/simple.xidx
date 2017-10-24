@@ -7,7 +7,6 @@
     <Grid Name="Grids" GridType="Collection" CollectionType="Spatial">
 
       <Attribute Name="var_0" Center="Cell" AttributeType="Scalar">
-        <!--  -->
         <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
       </Attribute>
       <Attribute Name="var_1" Center="Cell" AttributeType="Scalar">

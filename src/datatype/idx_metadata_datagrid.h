@@ -28,10 +28,12 @@ class DataGrid{
 private:
   Grid grid;
   int ref_attributes;
+  char* custom_filepath;
 
 public:
-  DataGrid(){
-    ref_attributes = 1; // default: refer attributes to the first grid
+  DataGrid(char* datafile_path=NULL){
+    ref_attributes = 1; // default: refer attributes to the first grida
+    custom_filepath = datafile_path;
   }
 
   template<typename T>
@@ -127,7 +129,7 @@ public:
 
   int unset_reference_attributes(){ ref_attributes = 0; return 0;}
 
-  int add_attribute(const char* name, NumberType numberType, const short precision, 
+  Attribute* add_attribute(const char* name, NumberType numberType, const short precision, 
                    const std::vector<Information>& info=std::vector<Information>(),
                    const AttributeType attributeType=AttributeType::SCALAR_ATTRIBUTE_TYPE, 
                    const CenterType center=CenterType::CELL_CENTER, 
@@ -151,7 +153,11 @@ public:
       di.dimensions = dimensions;
     
     di.formatType = FormatType::IDX_FORMAT;
-    di.text = generate_vars_filename(att.centerType);
+
+    if(custom_filepath==NULL)
+      di.text = generate_vars_filename(att.centerType);
+    else
+      di.text = custom_filepath;
 
     att.data = di;
 
@@ -160,7 +166,7 @@ public:
     return add_attribute(att);
   }
 
-  int add_attribute(const char* name, NumberType numberType, const short precision, 
+  Attribute* add_attribute(const char* name, NumberType numberType, const short precision, 
                    const AttributeType attributeType, 
                    const int n_components=1,
                    const CenterType center=CenterType::CELL_CENTER, 
@@ -171,7 +177,7 @@ public:
 
   }
 
-  int add_attribute(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
+  Attribute* add_attribute(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
                     const EndianType endian=EndianType::LITTLE_ENDIANESS,
                     const std::vector<Information>& info=std::vector<Information>(),
                     const char* dimensions=NULL){
@@ -222,7 +228,11 @@ public:
       di.dimensions = dimensions;
     
     di.formatType = FormatType::IDX_FORMAT;
-    di.text = generate_vars_filename(att.centerType);
+
+    if(custom_filepath==NULL)
+      di.text = generate_vars_filename(att.centerType);
+    else
+      di.text = custom_filepath;
 
     att.data = di;
 
@@ -231,9 +241,9 @@ public:
     return add_attribute(att);
   }
 
-  int add_attribute(Attribute attribute){
+  Attribute* add_attribute(Attribute& attribute){
     grid.attribute.push_back(attribute);
-    return 0;
+    return &grid.attribute.back();
   };
 
   Grid& get_grid(){ return grid; }

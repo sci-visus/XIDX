@@ -32,6 +32,8 @@ int IDX_Metadata_Simple_Layout::save(){
   xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
   xmlNewProp(root_node, BAD_CAST "Layout", BAD_CAST "Simple");
 
+  xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
+
   /*
    * Creates a DTD declaration. Isn't mandatory. 
    */

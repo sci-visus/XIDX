@@ -12,7 +12,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   float d[3] = {1.f, 1.f, 1.f};   // dx dy dz
 
   // Create a grid
-  std::shared_ptr<DataGrid> grid(new DataGrid());
+  std::shared_ptr<DataGrid> grid(new DataGrid("test.idx"));
 
   // Set grid metadata
   int ret = grid->set_grid("l0", TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, 
@@ -25,12 +25,10 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     grid->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
   }
 
-  std::vector<Information> cf_info;
-  cf_info.push_back(Information("unit", "Kelvin"));
-  cf_info.push_back(Information("valid_min", "0"));
-  cf_info.push_back(Information("valid_max", "10000"));
-
-  grid->add_attribute("temperature", NumberType::FLOAT_NUMBER_TYPE, 4, cf_info);
+  Attribute* temp = grid->add_attribute("temperature", NumberType::FLOAT_NUMBER_TYPE, 4);
+  temp->add_information("unit", "Kelvin");
+  temp->add_information("valid_min", "0");
+  temp->add_information("valid_max", "10000");
 
   grid->add_attribute("custom0", "1*uint32");
   grid->add_attribute("custom1", "1*float64");

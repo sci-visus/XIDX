@@ -49,6 +49,12 @@ public:
 
     return attribute_node;
   };
+
+  int add_information(std::string name, std::string value){
+    Information info(name, value);
+    information.push_back(info);
+    return 0;
+  }
   
   int XMLToObj(xmlNodePtr node){
     if(!idx_metadata::is_node_name(node,"Attribute"))
