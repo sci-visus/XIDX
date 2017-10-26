@@ -25,10 +25,13 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     grid->add_attribute(name, NumberType::FLOAT_NUMBER_TYPE, 4);
   }
 
-  Attribute* temp = grid->add_attribute("temperature", NumberType::FLOAT_NUMBER_TYPE, 4);
-  temp->add_information("unit", "Kelvin");
+  Attribute* temp = grid->add_attribute("latitude", NumberType::FLOAT_NUMBER_TYPE, 4);
+  temp->add_information("unit", "deg");
   temp->add_information("valid_min", "0");
-  temp->add_information("valid_max", "10000");
+  temp->add_information("valid_max", "180.0");
+
+  char some_data[64];
+  temp->set_raw_data("64 1", some_data, "./");
 
   grid->add_attribute("custom0", "1*uint32");
   grid->add_attribute("custom1", "1*float64");

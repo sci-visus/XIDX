@@ -1,9 +1,12 @@
 #ifndef IDX_METADATA_ATTRIBUTE_H_
 #define IDX_METADATA_ATTRIBUTE_H_
 
+#include <algorithm>
+#include <sstream>
+#include <fstream>
+
 #include "idx_metadata_parsable.h"
 #include "idx_metadata_dataitem.h"
-#include <algorithm>
 
 namespace idx_metadata{
 
@@ -49,6 +52,35 @@ public:
 
     return attribute_node;
   };
+
+  int set_raw_data(std::string dims, char* raw_data, char* filepath){
+    data.formatType = FormatType::BINARY_FORMAT;
+    data.dimensions = dims;
+
+    std::vector<int> idims;
+    std::istringstream f(dims);
+
+    std::string s;
+    while (getline(f, s, ' ')) {
+      idims.push_back(atoi(s.c_str()));
+    }
+
+    size_t size = 1;
+    for(auto d:idims)
+      size *= d;
+
+    std::stringstream ss;
+    ss << name << ".raw";
+
+    std::ofstream out;
+    out.open(ss.str().c_str(), std::ios::out | std::ios::binary);
+    out.write(raw_data, size);
+    out.close();
+
+    data.text = ss.str();
+
+    return 0;
+  }
 
   int add_information(std::string name, std::string value){
     Information info(name, value);

@@ -174,7 +174,6 @@ public:
                    const std::vector<Information>& info=std::vector<Information>(),
                    const char* dimensions=NULL){
     return add_attribute(name, numberType, precision, info, attributeType, center, endian, n_components, dimensions);
-
   }
 
   Attribute* add_attribute(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
