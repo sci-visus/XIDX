@@ -82,6 +82,15 @@ public:
     return 0;
   }
 
+  int get_raw_data(char* raw_data, size_t size){
+    std::ifstream out;
+    out.open(data.text.c_str(), std::ios::in | std::ios::binary);
+    out.read(raw_data, size);
+    out.close();
+
+    return 0;
+  }
+
   int add_information(std::string name, std::string value){
     Information info(name, value);
     information.push_back(info);

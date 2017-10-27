@@ -37,10 +37,26 @@ int main(int argc, char** argv){
       std::shared_ptr<DataGrid> datagrid = level->get_datagrid(g);
 
       for(auto att : datagrid->get_attributes()){
-        printf("Attribute %s cent %s type %s num_type %s prec %s endian %s DType %s\n",
+        printf("Attribute %s cent %s type %s num_type %s prec %s endian %s DType %s Format %s\n",
           att.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
-          ToString(att.data.numberType), att.data.precision.c_str(), ToString(att.data.endianType), att.get_dtype_str().c_str());
+          ToString(att.data.numberType), att.data.precision.c_str(), ToString(att.data.endianType), att.get_dtype_str().c_str(), ToString(att.data.formatType));
 
+          if(att.data.formatType == FormatType::BINARY_FORMAT){
+            std::vector<int> idims;
+            std::istringstream f(att.data.dimensions);
+
+            std::string s;
+            while (getline(f, s, ' ')) {
+              idims.push_back(atoi(s.c_str()));
+            }
+
+            size_t size = 1;
+            for(auto d:idims)
+              size *= d;
+            char data[size];
+            att.get_raw_data(data,size);
+            printf("\t<< reading binary attribute of size %zu\n", size);
+          }
         for(auto info: att.information){
           printf("\t Info %s = %s \n", info.name.c_str(), info.value.c_str());
         }

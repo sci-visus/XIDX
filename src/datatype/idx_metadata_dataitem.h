@@ -53,8 +53,15 @@ public:
     if(!idx_metadata::is_node_name(node,"DataItem"))
       return -1;
 
-    formatType = FormatType::IDX_FORMAT; // TODO remove this hardcoded
-            
+    const char* form_type = idx_metadata::getProp(node, "Format"); 
+    if(form_type != NULL){
+      for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
+        if (strcmp(form_type, ToString(static_cast<FormatType>(t)))==0){
+          formatType = static_cast<FormatType>(t);
+          break;
+        }
+    }
+
     const char* num_type = idx_metadata::getProp(node, "NumberType");
     if(num_type != NULL){
       for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
