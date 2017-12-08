@@ -1,8 +1,8 @@
 #include <libxml/xmlreader.h>
 #include <libxml/xinclude.h>
-#include "idx_metadata.h"
+#include "xidx.h"
 
-using namespace idx_metadata;
+using namespace xidx;
 
 int main(int argc, char** argv){
 
@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
 
-  IDX_Metadata meta(argv[1]);//, MetadataLayoutType::HPC); // default: use simple layout
+  XIDX_File meta(argv[1]);//, MetadataLayoutType::HPC); // default: use simple layout
 
   int ret = meta.load();
 

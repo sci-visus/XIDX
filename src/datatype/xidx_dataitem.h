@@ -1,11 +1,11 @@
-#ifndef IDX_METADATA_DATAITEM_H_
-#define IDX_METADATA_DATAITEM_H_
+#ifndef xidx_dataITEM_H_
+#define xidx_dataITEM_H_
 
-#include "idx_metadata_parsable.h"
-#include "idx_metadata_enums.h"
-#include "idx_metadata_information.h"
+#include "xidx_parsable.h"
+#include "xidx_enums.h"
+#include "xidx_information.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 namespace defaults{
   const FormatType DATAITEM_FORMAT_TYPE = FormatType::XML_FORMAT;
@@ -14,7 +14,7 @@ namespace defaults{
   const EndianType DATAITEM_ENDIAN_TYPE = EndianType::LITTLE_ENDIANESS;
 }
 
-class DataItem : public idx_metadata::Parsable{
+class DataItem : public xidx::Parsable{
 
 public:
   std::string name;
@@ -50,10 +50,10 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"DataItem"))
+    if(!xidx::is_node_name(node,"DataItem"))
       return -1;
 
-    const char* form_type = idx_metadata::getProp(node, "Format"); 
+    const char* form_type = xidx::getProp(node, "Format"); 
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
         if (strcmp(form_type, ToString(static_cast<FormatType>(t)))==0){
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    const char* num_type = idx_metadata::getProp(node, "NumberType");
+    const char* num_type = xidx::getProp(node, "NumberType");
     if(num_type != NULL){
       for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
         if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0){
@@ -74,14 +74,14 @@ public:
       numberType = defaults::DATAITEM_NUMBER_TYPE;
     }
     
-    const char* val_precision = idx_metadata::getProp(node, "Precision");
+    const char* val_precision = xidx::getProp(node, "Precision");
     if(val_precision == NULL)
       precision = defaults::DATAITEM_PRECISION;
     else 
       precision = val_precision;
 
     //if(formatType != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
-      const char* val_dimensions = idx_metadata::getProp(node, "Dimensions");
+      const char* val_dimensions = xidx::getProp(node, "Dimensions");
       if(val_dimensions == NULL){
         assert(false);
         fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
@@ -90,7 +90,7 @@ public:
         dimensions = val_dimensions;
     //}
 
-    const char* end_type = idx_metadata::getProp(node, "Endian");
+    const char* end_type = xidx::getProp(node, "Endian");
     if (end_type != NULL){
       for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
         if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0){

@@ -1,11 +1,11 @@
-#ifndef IDX_METADATA_INFOMATION_H_
-#define IDX_METADATA_INFOMATION_H_
+#ifndef XIDX_INFOMATION_H_
+#define XIDX_INFOMATION_H_
 
-#include "idx_metadata_parsable.h"
+#include "xidx_parsable.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class Information: public idx_metadata::Parsable{
+class Information: public xidx::Parsable{
 public:
   Information(){};
   Information(std::string _name, std::string _value)
@@ -23,11 +23,11 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Information"))
+    if(!xidx::is_node_name(node,"Information"))
       return -1;
 
-    name = idx_metadata::getProp(node, "Name");
-    value = idx_metadata::getProp(node, "Value");
+    name = xidx::getProp(node, "Name");
+    value = xidx::getProp(node, "Value");
 
     return 0;
   };

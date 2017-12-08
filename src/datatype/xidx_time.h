@@ -1,11 +1,11 @@
-#ifndef IDX_METADATA_TIME_H_
-#define IDX_METADATA_TIME_H_
+#ifndef XIDX_TIME_H_
+#define XIDX_TIME_H_
 
-#include "idx_metadata_parsable.h"
+#include "xidx_parsable.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class Time : public idx_metadata::Parsable{
+class Time : public xidx::Parsable{
 
 public:
 
@@ -31,12 +31,12 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Time"))
+    if(!xidx::is_node_name(node,"Time"))
       return -1;
 
-    value = idx_metadata::getProp(node, "Value");
+    value = xidx::getProp(node, "Value");
             
-    const char* time_type = idx_metadata::getProp(node, "TimeType");
+    const char* time_type = xidx::getProp(node, "TimeType");
     if(time_type != NULL){
       for(int t=TimeType::SINGLE_TIME_TYPE; t <= TimeType::RANGE_TIME_TYPE; t++)
         if (strcmp(time_type, ToString(static_cast<TimeType>(t)))==0){
@@ -47,7 +47,7 @@ public:
     
     if(type == TimeType::HYPER_SLAB_TIME_TYPE){
       for (xmlNode* cur_time_node = node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
-        if(cur_time_node->type == XML_ELEMENT_NODE && idx_metadata::is_node_name(cur_time_node,"DataItem")){
+        if(cur_time_node->type == XML_ELEMENT_NODE && xidx::is_node_name(cur_time_node,"DataItem")){
           DataItem phy_time_dataitem;
           phy_time_dataitem.XMLToObj(cur_time_node);
 
@@ -57,7 +57,7 @@ public:
     }
 
     for (xmlNode* cur_time_node = node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
-      if(cur_time_node->type == XML_ELEMENT_NODE && idx_metadata::is_node_name(cur_time_node,"Information")){
+      if(cur_time_node->type == XML_ELEMENT_NODE && xidx::is_node_name(cur_time_node,"Information")){
         Information info;
         info.XMLToObj(cur_time_node);
         information.push_back(info);

@@ -1,11 +1,11 @@
 #include <libxml/xmlreader.h>
 #include <libxml/xinclude.h>
-#include "idx_metadata.h"
+#include "xidx.h"
 
-using namespace idx_metadata;
+using namespace xidx;
 
 int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool time_hyperslab=false){
-  IDX_Metadata meta(filepath); // default: use simple layout
+  XIDX_File meta(filepath); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
   float o[3] = {0, 0, 0};         // origin x y z
@@ -65,7 +65,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
 }
 
 int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_levels){
-  IDX_Metadata meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
+  XIDX_File meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
   float o[3] = {0, 0, 0};         // origin x y z
@@ -106,7 +106,7 @@ int write_hpc(const char* filepath, int n_attributes, int n_timesteps, int n_lev
 }
 
 int write_hpc_multigrid(const char* filepath, int n_attributes, int n_timesteps, int n_levels){
-  IDX_Metadata meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
+  XIDX_File meta(filepath, MetadataLayoutType::HPC); // default: use simple layout
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
   float o1[3] = {0, 0, 0};         // origin x y z

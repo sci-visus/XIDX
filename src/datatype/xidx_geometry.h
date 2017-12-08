@@ -1,11 +1,11 @@
-#ifndef IDX_METADATA_GEOMETRY_H_
-#define IDX_METADATA_GEOMETRY_H_
+#ifndef XIDX_GEOMETRY_H_
+#define XIDX_GEOMETRY_H_
 
-#include "idx_metadata_parsable.h"
+#include "xidx_parsable.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class Geometry : public idx_metadata::Parsable{
+class Geometry : public xidx::Parsable{
 
 public:
   std::string name;
@@ -24,12 +24,12 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Geometry"))
+    if(!xidx::is_node_name(node,"Geometry"))
       return -1;
 
-    //name = idx_metadata::getProp(node, "Name");
+    //name = xidx::getProp(node, "Name");
             
-    const char* geo_type = idx_metadata::getProp(node, "GeometryType");
+    const char* geo_type = xidx::getProp(node, "GeometryType");
 
     for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= ORIGIN_DXDY_GEOMETRY_TYPE; t++)
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)

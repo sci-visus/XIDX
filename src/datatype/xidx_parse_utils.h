@@ -1,7 +1,7 @@
 
 
-#ifndef IDX_METADATA_PARSE_UTILS_H_
-#define IDX_METADATA_PARSE_UTILS_H_
+#ifndef XIDX_PARSE_UTILS_H_
+#define XIDX_PARSE_UTILS_H_
 
 #include <string>
 

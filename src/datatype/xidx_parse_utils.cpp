@@ -2,12 +2,12 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "idx_metadata_parse_utils.h"
-#include "idx_metadata_attribute.h"
+#include "xidx_parse_utils.h"
+#include "xidx_attribute.h"
 
 #define MY_ENCODING "ISO-8859-1"
 
-namespace idx_metadata{
+namespace xidx{
 
 
 // int parse_level(xmlNode *space_grid, std::shared_ptr<Level> lvl){

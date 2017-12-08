@@ -1,10 +1,10 @@
 
 #include <libxml/encoding.h>
-#include "idx_metadata_layout.h"
+#include "xidx_layout.h"
 
-using namespace idx_metadata;
+using namespace xidx;
 
-std::string IDX_Metadata_Layout::read_layout_type(){
+std::string xidx_Layout::read_layout_type(){
 
   if(metadata == NULL){
     fprintf(stderr, "Metadata NULL file %s line %d\n", __FILE__, __LINE__);

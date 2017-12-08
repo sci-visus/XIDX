@@ -4,18 +4,18 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "idx_metadata.h"
-#include "idx_metadata_simple_layout.h"
-#include "idx_metadata_parse_utils.h"
+#include "xidx.h"
+#include "xidx_simple_layout.h"
+#include "xidx_parse_utils.h"
 
 using namespace std;
-using namespace idx_metadata;
+using namespace xidx;
 
-std::string IDX_Metadata_Simple_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
+std::string xidx_Simple_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
     return metadata->get_md_file_path()+generate_vars_filename(ctype);
 }
 
-int IDX_Metadata_Simple_Layout::save(){
+int xidx_Simple_Layout::save(){
 
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
@@ -69,7 +69,7 @@ int IDX_Metadata_Simple_Layout::save(){
       shared_ptr<TimeStep> curr_grid = it_ts.second;
 
       xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-      xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,it_ts.first).c_str());
+      xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(XIDX_TIME_FORMAT,it_ts.first).c_str());
       xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
       xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
@@ -86,7 +86,7 @@ int IDX_Metadata_Simple_Layout::save(){
     xmlNodePtr time_node = metadata_time.objToXML(time_grid_node);
 
     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,0).c_str());
+    xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(XIDX_TIME_FORMAT,0).c_str());
     xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
@@ -124,7 +124,7 @@ int IDX_Metadata_Simple_Layout::save(){
   return 0; 
 }
 
-int IDX_Metadata_Simple_Layout::load(){
+int xidx_Simple_Layout::load(){
 
   LIBXML_TEST_VERSION;
 

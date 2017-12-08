@@ -1,21 +1,21 @@
-#ifndef IDX_METADATA_ATTRIBUTE_H_
-#define IDX_METADATA_ATTRIBUTE_H_
+#ifndef XIDX_ATTRIBUTE_H_
+#define XIDX_ATTRIBUTE_H_
 
 #include <algorithm>
 #include <sstream>
 #include <fstream>
 
-#include "idx_metadata_parsable.h"
-#include "idx_metadata_dataitem.h"
+#include "xidx_parsable.h"
+#include "xidx_dataitem.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 namespace defaults{
   const CenterType ATTRIBUTE_CENTER_TYPE = CenterType::CELL_CENTER;
   const AttributeType ATTRIBUTE_TYPE = AttributeType::SCALAR_ATTRIBUTE_TYPE;
 }
 
-class Attribute : public idx_metadata::Parsable{
+class Attribute : public xidx::Parsable{
 
 public:
   std::string name;
@@ -62,6 +62,8 @@ public:
         ss << dims[i];
 
     set_raw_data(ss.str(), raw_data, filepath);
+
+    return 0;
   }
 
   int set_raw_data(std::string dims, char* raw_data, char* filepath){
@@ -109,12 +111,12 @@ public:
   }
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Attribute"))
+    if(!xidx::is_node_name(node,"Attribute"))
       return -1;
 
-    name = idx_metadata::getProp(node, "Name");
+    name = xidx::getProp(node, "Name");
 
-    const char* center_type = idx_metadata::getProp(node, "Center");
+    const char* center_type = xidx::getProp(node, "Center");
     if(center_type != NULL){
       for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
         if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
@@ -123,7 +125,7 @@ public:
     else
       centerType = defaults::ATTRIBUTE_CENTER_TYPE;
 
-    const char* att_type = idx_metadata::getProp(node, "AttributeType");
+    const char* att_type = xidx::getProp(node, "AttributeType");
 
     if(att_type != NULL){
       for(int t=AttributeType::SCALAR_ATTRIBUTE_TYPE; t <= TENSOR_ATTRIBUTE_TYPE; t++)
@@ -134,10 +136,10 @@ public:
       attributeType = defaults::ATTRIBUTE_TYPE;
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
-      if(idx_metadata::is_node_name(inner_node, "DataItem")){
+      if(xidx::is_node_name(inner_node, "DataItem")){
         data.XMLToObj(inner_node);
       }
-      else if(idx_metadata::is_node_name(inner_node, "Information")){
+      else if(xidx::is_node_name(inner_node, "Information")){
         Information info;
         info.XMLToObj(inner_node);
         information.push_back(info);

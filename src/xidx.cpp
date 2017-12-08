@@ -6,14 +6,14 @@
 #include <memory>
 #include <set>
 
-#include "idx_metadata_simple_layout.h"
-#include "idx_metadata_hpc_layout.h"
-#include "idx_metadata.h"
-#include "idx_metadata_config.h"
+#include "xidx_simple_layout.h"
+#include "xidx_hpc_layout.h"
+#include "xidx.h"
+#include "xidx_config.h"
 
-using namespace idx_metadata;
+using namespace xidx;
 
-IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
+XIDX_File::XIDX_File(const char* path, MetadataLayoutType _layout){
 
   set_correct_path(path);
 
@@ -24,7 +24,7 @@ IDX_Metadata::IDX_Metadata(const char* path, MetadataLayoutType _layout){
 
 };
 
-int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){ 
+int XIDX_File::add_timestep(std::shared_ptr<TimeStep> ts){ 
   timesteps[ts->get_logical_time()] = ts; 
 
   if(loaded)
@@ -32,7 +32,7 @@ int IDX_Metadata::add_timestep(std::shared_ptr<TimeStep> ts){
   return 0;
 }
 
-int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::shared_ptr<Level> level){
+int XIDX_File::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::shared_ptr<Level> level){
   time.type = TimeType::HYPER_SLAB_TIME_TYPE;
   
   DataItem phy_item;
@@ -59,7 +59,7 @@ int IDX_Metadata::add_time_hyperslab(uint32_t* log_time, double* phy_time, std::
   return 0;
 }
 
-std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){ 
+std::shared_ptr<TimeStep> XIDX_File::get_timestep(int t){ 
   if(time.type == TimeType::SINGLE_TIME_TYPE) 
     return timesteps[t]; 
   else if(time.type == TimeType::HYPER_SLAB_TIME_TYPE){
@@ -78,7 +78,7 @@ std::shared_ptr<TimeStep> IDX_Metadata::get_timestep(int t){
     return NULL;
 }
 
-int IDX_Metadata::get_n_timesteps() { 
+int XIDX_File::get_n_timesteps() { 
   if(time.type == TimeType::SINGLE_TIME_TYPE) 
     return timesteps.size(); 
   else if(time.type == TimeType::HYPER_SLAB_TIME_TYPE){
@@ -93,8 +93,8 @@ int IDX_Metadata::get_n_timesteps() {
 
 }
 
-int IDX_Metadata::load(){
-  layout = std::unique_ptr<IDX_Metadata_Simple_Layout>(new IDX_Metadata_Simple_Layout(this));
+int XIDX_File::load(){
+  layout = std::unique_ptr<xidx_Simple_Layout>(new xidx_Simple_Layout(this));
 
   std::string layout_type = layout->read_layout_type();
   
@@ -104,7 +104,7 @@ int IDX_Metadata::load(){
     int hpc_level=std::stoi(layout_type.substr(found+1)); 
     if(hpc_level < 2){ // Use HPC Layout insted
       layout.release();
-      layout = std::unique_ptr<IDX_Metadata_HPC_Layout>(new IDX_Metadata_HPC_Layout(this));
+      layout = std::unique_ptr<xidx_HPC_Layout>(new xidx_HPC_Layout(this));
     }
   }
 
@@ -113,13 +113,13 @@ int IDX_Metadata::load(){
   return 0;
 }
 
-int IDX_Metadata::save(){
+int XIDX_File::save(){
   switch(layoutType){
     case MetadataLayoutType::SIMPLE:
-      layout = std::unique_ptr<IDX_Metadata_Simple_Layout>(new IDX_Metadata_Simple_Layout(this));
+      layout = std::unique_ptr<xidx_Simple_Layout>(new xidx_Simple_Layout(this));
       break;
     case MetadataLayoutType::HPC:
-      layout = std::unique_ptr<IDX_Metadata_HPC_Layout>(new IDX_Metadata_HPC_Layout(this));
+      layout = std::unique_ptr<xidx_HPC_Layout>(new xidx_HPC_Layout(this));
       break;
     default:
       assert(false);
@@ -130,7 +130,7 @@ int IDX_Metadata::save(){
   return 0;
 }
 
-std::string IDX_Metadata::get_idx_file_path(int timestep, int level, CenterType ctype){
+std::string XIDX_File::get_idx_file_path(int timestep, int level, CenterType ctype){
   return layout->get_idx_file_path(timestep, level, ctype);
 }
 

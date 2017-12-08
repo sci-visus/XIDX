@@ -3,26 +3,26 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "idx_metadata_hpc_layout.h"
-#include "idx_metadata_parse_utils.h"
+#include "xidx_hpc_layout.h"
+#include "xidx_parse_utils.h"
 
 using namespace std;
-using namespace idx_metadata;
+using namespace xidx;
 
-std::string IDX_Metadata_HPC_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
-  char file_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
+std::string xidx_HPC_Layout::get_idx_file_path(int timestep, int level, CenterType ctype){
+  char file_path[XIDX_MAX_PATH_FILE_LENGTH];
 
   char time_name[32];
-  sprintf(time_name, IDX_METADATA_TIME_FORMAT, timestep);
+  sprintf(time_name, XIDX_TIME_FORMAT, timestep);
   char level_name[32];
-  sprintf(time_name, IDX_METADATA_LEVEL_FORMAT, level);
+  sprintf(time_name, XIDX_LEVEL_FORMAT, level);
 
   sprintf(file_path, "%s/%s/%s", time_name, level_name, generate_vars_filename(ctype).c_str());
 
   return file_path;
 }
 
-int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared_ptr<TimeStep> ts, const char* time_path ){
+int xidx_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared_ptr<TimeStep> ts, const char* time_path ){
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
 
@@ -46,7 +46,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlNewProp(main_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
   char level_name[32];
-  sprintf(level_name,IDX_METADATA_LEVEL_FORMAT, n);
+  sprintf(level_name,XIDX_LEVEL_FORMAT, n);
 
   char mkdir_cmd[150];
   sprintf(mkdir_cmd,"mkdir -p %s/%s", time_path, level_name);
@@ -73,7 +73,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
   
   xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-  xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT, ts->get_logical_time()).c_str());
+  xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(XIDX_TIME_FORMAT, ts->get_logical_time()).c_str());
   xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
   xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
@@ -86,7 +86,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
   xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
   
   char level_path[128];
-  sprintf(level_path,"%s/%s/meta%s", time_path, level_name, IDX_METADATA_FILE_EXTENSION);
+  sprintf(level_path,"%s/%s/meta%s", time_path, level_name, XIDX_FILE_EXTENSION);
   xmlSaveFormatFileEnc(level_path, doc, "UTF-8", 1);
   xmlFreeDoc(doc);
   xmlCleanupParser();
@@ -96,7 +96,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_level(shared_ptr<Level> lvl, int n, shared
 }
 
 
-int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
+int xidx_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
 
@@ -122,9 +122,9 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
   string path=metadata->get_md_file_path().substr(0,found+1);
 
   char time_name[32];
-  sprintf(time_name,IDX_METADATA_TIME_FORMAT, ts->get_logical_time());
+  sprintf(time_name,XIDX_TIME_FORMAT, ts->get_logical_time());
 
-  char time_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
+  char time_path[XIDX_MAX_PATH_FILE_LENGTH];
   sprintf(time_path,"%s%s", path.c_str(), time_name);
 
   char mkdir_cmd[150];
@@ -151,11 +151,11 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
 
   for(int l=0; l < ts->get_n_levels(); l++){
     char level_name[32];
-    sprintf(level_name,IDX_METADATA_LEVEL_FORMAT, l);
+    sprintf(level_name,XIDX_LEVEL_FORMAT, l);
 
-    char level_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
+    char level_path[XIDX_MAX_PATH_FILE_LENGTH];
 
-    sprintf(level_path, "%s/meta%s",level_name, IDX_METADATA_FILE_EXTENSION);
+    sprintf(level_path, "%s/meta%s",level_name, XIDX_FILE_EXTENSION);
     xmlNodePtr level_node = xmlNewChild(levels_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(level_node, BAD_CAST "href", BAD_CAST level_path);
     xmlNewProp(level_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1])");
@@ -164,8 +164,8 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
     save_hpc_level(level, l, ts, time_path);
   }
 
-  char time_metadata_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
-  sprintf(time_metadata_path,"%s/meta%s", time_path, IDX_METADATA_FILE_EXTENSION);
+  char time_metadata_path[XIDX_MAX_PATH_FILE_LENGTH];
+  sprintf(time_metadata_path,"%s/meta%s", time_path, XIDX_FILE_EXTENSION);
   xmlSaveFormatFileEnc(time_metadata_path, doc, "UTF-8", 1);
   xmlFreeDoc(doc);
   xmlCleanupParser();
@@ -175,7 +175,7 @@ int IDX_Metadata_HPC_Layout::save_hpc_timestep(shared_ptr<TimeStep> ts){
 
 }
 
-int IDX_Metadata_HPC_Layout::save(){
+int xidx_HPC_Layout::save(){
 
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
@@ -202,9 +202,9 @@ int IDX_Metadata_HPC_Layout::save(){
 
   for(int t=0; t<metadata->get_n_timesteps(); t++){
     char time_name[32];
-    sprintf(time_name, IDX_METADATA_TIME_FORMAT, t);
-    char time_path[IDX_METADATA_MAX_PATH_FILE_LENGTH];
-    sprintf(time_path, "%s/meta%s", time_name, IDX_METADATA_FILE_EXTENSION);
+    sprintf(time_name, XIDX_TIME_FORMAT, t);
+    char time_path[XIDX_MAX_PATH_FILE_LENGTH];
+    sprintf(time_path, "%s/meta%s", time_name, XIDX_FILE_EXTENSION);
 
     xmlNodePtr xgrids_node = xmlNewChild(main_time_node, NULL, BAD_CAST "xi:include", NULL);
     xmlNewProp(xgrids_node, BAD_CAST "href", BAD_CAST time_path);
@@ -222,7 +222,7 @@ int IDX_Metadata_HPC_Layout::save(){
   return 0; 
 }
 
-int IDX_Metadata_HPC_Layout::load_hpc_grid(string gpath, shared_ptr<TimeStep> ts){
+int xidx_HPC_Layout::load_hpc_grid(string gpath, shared_ptr<TimeStep> ts){
   LIBXML_TEST_VERSION;
 
   xmlDocPtr doc; /* the resulting document tree */
@@ -249,7 +249,7 @@ int IDX_Metadata_HPC_Layout::load_hpc_grid(string gpath, shared_ptr<TimeStep> ts
   return ret;
 }
 
-int IDX_Metadata_HPC_Layout::load_hpc_timestep(string& tpath){
+int xidx_HPC_Layout::load_hpc_timestep(string& tpath){
   LIBXML_TEST_VERSION;
 
   xmlDocPtr doc; /* the resulting document tree */
@@ -315,7 +315,7 @@ int IDX_Metadata_HPC_Layout::load_hpc_timestep(string& tpath){
 }
 
 
-int IDX_Metadata_HPC_Layout::load(){
+int xidx_HPC_Layout::load(){
   LIBXML_TEST_VERSION;
 
   xmlDocPtr doc; /* the resulting document tree */

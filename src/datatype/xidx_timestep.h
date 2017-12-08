@@ -1,11 +1,11 @@
 
-#ifndef IDX_METADATA_TIMESTEP_H_
-#define IDX_METADATA_TIMESTEP_H_
+#ifndef XIDX_TIMESTEP_H_
+#define XIDX_TIMESTEP_H_
 
-#include "idx_metadata_level.h"
-#include "idx_metadata_information.h"
+#include "xidx_level.h"
+#include "xidx_information.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 class TimeStep{
 private:

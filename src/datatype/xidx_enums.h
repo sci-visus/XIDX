@@ -1,8 +1,8 @@
 
-#ifndef IDX_METADATA_ENUMS_H_
-#define IDX_METADATA_ENUMS_H_
+#ifndef XIDX_ENUMS_H_
+#define XIDX_ENUMS_H_
 
-#include "idx_metadata_config.h"
+#include "xidx_config.h"
 
 enum MetadataLayoutType{
   SIMPLE = 0,

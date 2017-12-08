@@ -1,16 +1,16 @@
 
-#ifndef IDX_METADATA_DATAGRID_H_
-#define IDX_METADATA_DATAGRID_H_
+#ifndef xidx_dataGRID_H_
+#define xidx_dataGRID_H_
 
 #include <cctype>
 
-#include "idx_metadata_enums.h"
-#include "idx_metadata_topology.h"
-#include "idx_metadata_geometry.h"
-#include "idx_metadata_attribute.h"
-#include "idx_metadata_time.h"
+#include "xidx_enums.h"
+#include "xidx_topology.h"
+#include "xidx_geometry.h"
+#include "xidx_attribute.h"
+#include "xidx_time.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 struct Grid{
   std::string name;

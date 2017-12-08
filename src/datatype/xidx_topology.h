@@ -1,13 +1,13 @@
-#ifndef IDX_METADATA_TOPOLOGY_H_
-#define IDX_METADATA_TOPOLOGY_H_
+#ifndef XIDX_TOPOLOGY_H_
+#define XIDX_TOPOLOGY_H_
 
-#include "idx_metadata_parsable.h"
-#include "idx_metadata_information.h"
-#include "idx_metadata_dataitem.h"
+#include "xidx_parsable.h"
+#include "xidx_information.h"
+#include "xidx_dataitem.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class Topology : public idx_metadata::Parsable{
+class Topology : public xidx::Parsable{
 
 public:
 
@@ -32,16 +32,16 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Topology"))
+    if(!xidx::is_node_name(node,"Topology"))
       return -1;
 
-    const char* topo_type = idx_metadata::getProp(node, "TopologyType");
+    const char* topo_type = xidx::getProp(node, "TopologyType");
 
     for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
       if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
           topologyType = static_cast<TopologyType>(t);
 
-    dimensions = idx_metadata::getProp(node, "Dimensions");
+    dimensions = xidx::getProp(node, "Dimensions");
 
     return 0;
   };

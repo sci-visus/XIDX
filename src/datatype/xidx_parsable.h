@@ -1,12 +1,12 @@
-#ifndef IDX_METADATA_PARSABLE_INTERFACE_H_
-#define IDX_METADATA_PARSABLE_INTERFACE_H_
+#ifndef XIDX_PARSABLE_INTERFACE_H_
+#define XIDX_PARSABLE_INTERFACE_H_
 
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "idx_metadata_parse_utils.h"
+#include "xidx_parse_utils.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 static const char* getProp(xmlNode* node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));

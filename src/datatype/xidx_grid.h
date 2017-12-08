@@ -1,11 +1,11 @@
-#ifndef IDX_METADATA_GRID_H_
-#define IDX_METADATA_GRID_H_
+#ifndef XIDX_GRID_H_
+#define XIDX_GRID_H_
 
-#include "idx_metadata_parsable.h"
+#include "xidx_parsable.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class Grid : public idx_metadata::Parsable{
+class Grid : public xidx::Parsable{
 
 public:
 
@@ -32,7 +32,7 @@ public:
 
       if(gridType == CollectionType::TEMPORAL_COLLECTION_TYPE){
         xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-        xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(IDX_METADATA_TIME_FORMAT,i).c_str());
+        xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(xidx_TIME_FORMAT,i).c_str());
         xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
         xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
 
@@ -48,16 +48,16 @@ public:
   };
   
   int XMLToObj(xmlNodePtr node){
-    if(!idx_metadata::is_node_name(node,"Topology"))
+    if(!xidx::is_node_name(node,"Topology"))
       return -1;
 
-    const char* topo_type = idx_metadata::getProp(node, "TopologyType");
+    const char* topo_type = xidx::getProp(node, "TopologyType");
 
     for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
       if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
           topologyType = static_cast<TopologyType>(t);
 
-    dimensions = idx_metadata::getProp(node, "Dimensions");
+    dimensions = xidx::getProp(node, "Dimensions");
 
     return 0;
   };

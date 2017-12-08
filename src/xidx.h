@@ -1,7 +1,7 @@
 
 
-#ifndef IDX_METADATA_H_
-#define IDX_METADATA_H_
+#ifndef XIDX_H_
+#define XIDX_H_
 
 #include <cassert>
 #include <string>
@@ -10,20 +10,20 @@
 #include <map>
 #include <set>
 
-#include "layout/idx_metadata_layout.h"
-#include "idx_metadata_config.h"
-#include "datatype/idx_metadata_timestep.h"
+#include "layout/xidx_layout.h"
+#include "xidx_config.h"
+#include "datatype/xidx_timestep.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class IDX_Metadata_Layout;
-class IDX_Metadata{
+class xidx_Layout;
+class XIDX_File{
 
 private:
   std::map<int, std::shared_ptr<TimeStep> > timesteps;
   MetadataLayoutType layoutType;
   std::string file_path;
-  std::unique_ptr<idx_metadata::IDX_Metadata_Layout> layout;
+  std::unique_ptr<xidx::xidx_Layout> layout;
   Time time;
 
   bool loaded;
@@ -33,12 +33,12 @@ private:
     file_path = std::string(path);
     size_t found=file_path.find_last_of(".\\");
 
-    file_path=file_path.substr(0,found).append(IDX_METADATA_FILE_EXTENSION);
+    file_path=file_path.substr(0,found).append(XIDX_FILE_EXTENSION);
   }
 
 public:
 
-  IDX_Metadata(const char* path, MetadataLayoutType _layout=MetadataLayoutType::SIMPLE);
+  XIDX_File(const char* path, MetadataLayoutType _layout=MetadataLayoutType::SIMPLE);
 
   int load();
   int save();

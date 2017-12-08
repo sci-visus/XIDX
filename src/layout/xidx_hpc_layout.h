@@ -1,13 +1,13 @@
 
 
-#ifndef IDX_METADATA_HPC_LAYOUT_H_
-#define IDX_METADATA_HPC_LAYOUT_H_
+#ifndef XIDX_HPC_LAYOUT_H_
+#define XIDX_HPC_LAYOUT_H_
 
-#include "idx_metadata_layout.h"
+#include "xidx_layout.h"
 
-namespace idx_metadata{
+namespace xidx{
 
-class IDX_Metadata_HPC_Layout : public IDX_Metadata_Layout{
+class xidx_HPC_Layout : public xidx_Layout{
 private:
   int save_hpc_level(std::shared_ptr<Level> lvl, int n, std::shared_ptr<TimeStep> ts, const char* time_path);
   int save_hpc_timestep(std::shared_ptr<TimeStep> ts);
@@ -16,7 +16,7 @@ private:
 
 public:
 
-  IDX_Metadata_HPC_Layout(IDX_Metadata* idx_metadata) : IDX_Metadata_Layout(idx_metadata){};
+  xidx_HPC_Layout(XIDX_File* xidx) : xidx_Layout(xidx){};
 
   virtual int load();
   virtual int save();

@@ -1,10 +1,10 @@
-#ifndef IDX_METADATA_LEVEL_H_
-#define IDX_METADATA_LEVEL_H_
+#ifndef XIDX_LEVEL_H_
+#define XIDX_LEVEL_H_
 
-#include "idx_metadata_parsable.h"
-#include "idx_metadata_datagrid.h"
+#include "xidx_parsable.h"
+#include "xidx_datagrid.h"
 
-namespace idx_metadata{
+namespace xidx{
 
 class Level : public Parsable{
 private:
