@@ -53,6 +53,17 @@ public:
     return attribute_node;
   };
 
+  int set_raw_data(std::vector<uint32_t>& dims, char* raw_data, char* filepath){
+    std::stringstream ss;
+    for(int i=0; i< dims.size(); i++)
+      if(i < dims.size()-1)
+        ss << dims[i] << " ";
+      else
+        ss << dims[i];
+
+    set_raw_data(ss.str(), raw_data, filepath);
+  }
+
   int set_raw_data(std::string dims, char* raw_data, char* filepath){
     data.formatType = FormatType::BINARY_FORMAT;
     data.dimensions = dims;

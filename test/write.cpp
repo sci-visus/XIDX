@@ -31,7 +31,8 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   temp->add_information("valid_max", "180.0");
 
   char some_data[64];
-  temp->set_raw_data("64 1", some_data, "./");
+  std::vector<uint32_t> adims = {64,1};
+  temp->set_raw_data(adims, some_data, "./");
 
   grid->add_attribute("custom0", "1*uint32");
   grid->add_attribute("custom1", "1*float64");
