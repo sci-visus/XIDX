@@ -35,19 +35,16 @@ int validate_xmf(char *filename, bool keep_validate_file) {
             XML_PARSE_DTDVALID | XML_PARSE_XINCLUDE); 
 
     if (reader != NULL) {
-        //ret = xmlTextReaderRead(reader);
+        ret = xmlTextReaderRead(reader);
     
         /*
          * Once the document has been fully parsed check the validation results
          */
         if (xmlTextReaderIsValid(reader) != 1) {
-            fprintf(stderr, "Document %s does not validate\n", filename);
+            fprintf(stderr, "Document %s is not valid\n", filename);
             return 1;
         }
         
-        // if (ret != 0) {
-        //     fprintf(stderr, "%s : failed to parse\n", filename);
-        // }
     } else {
         fprintf(stderr, "Unable to open %s\n", filename);
         return 1;

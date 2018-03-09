@@ -1,4 +1,4 @@
-project(IDX_Metadata)
+project(XIDX)
 cmake_minimum_required(VERSION 2.6)
 
 include(CheckCXXCompilerFlag)
@@ -19,6 +19,8 @@ find_package(LibXml2 REQUIRED)
 if(LIBXML2_FOUND)
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
+
+include_directories(include)
 
 add_subdirectory(src)
 add_subdirectory(test)

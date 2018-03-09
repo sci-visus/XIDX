@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
-<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0" Layout="HPC-0">
-  <Domain>
-    <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
-      <xi:include href="t000000000/meta.xidx" xpointer="xpointer(//Xdmf/Domain/Grid)"/>
-      <xi:include href="t000000001/meta.xidx" xpointer="xpointer(//Xdmf/Domain/Grid)"/>
-      <xi:include href="t000000002/meta.xidx" xpointer="xpointer(//Xdmf/Domain/Grid)"/>
-    </Grid>
-  </Domain>
-</Xdmf>
+<!DOCTYPE Xdmf SYSTEM "../../Xidx.dtd">
+<Xidx xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
+
+  <Group Name="TimeSeries" GroupType="Temporal">
+    <Domain Name="Time" Type="HyperSlab">
+      <DataItem Name="Physical" Format="XML" NumberType="Float" Precision="8" Dimensions="3">2.000000 0.200000 3.000000</DataItem>
+      <DataItem Name="Logical" Format="XML" NumberType="Int" Precision="4" Dimensions="3">2 1 3</DataItem>
+    </Domain>
+
+    <Group GroupItemType="Variadic">
+      <xi:include href="t000000000/meta.xidx" xpointer="xpointer(//Xidx/Group/GroupItem/)"/>
+    </Group>
+    <Group GroupItemType="Variadic">
+      <xi:include href="t000000001/meta.xidx" xpointer="xpointer(//Xidx/Group/GroupItem/)"/>
+    </Group>
+    <Group GroupItemType="Variadic">
+      <xi:include href="t000000002/meta.xidx" xpointer="xpointer(//Xidx/Group/GroupItem/)"/>
+    </Group>
+
+  </Group>
+
+</Xidx>

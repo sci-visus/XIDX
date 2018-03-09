@@ -1,65 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Xdmf SYSTEM "../Xdmf.dtd">
-<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0" Layout="Simple">
-  <Domain>
+<!DOCTYPE Xidx SYSTEM "/Users/steve/Research/SCI/workspace/xidx/Xidx.dtd">
+<Xidx xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.0">
 
-    <!-- Spatial grids -->
-    <Grid Name="Grids" GridType="Collection" CollectionType="Spatial">
+  <Group Name="TimeSeries">
 
-      <Attribute Name="var_0" Center="Cell" AttributeType="Scalar">
-        <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
-      </Attribute>
-      <Attribute Name="var_1" Center="Cell" AttributeType="Scalar">
-        <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
-      </Attribute>
-      <Attribute Name="var_2" Center="Cell" AttributeType="Scalar">
-        <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
-      </Attribute>
-      <Attribute Name="var_3" Center="Cell" AttributeType="Scalar">
-        <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
-      </Attribute>
-      <Attribute Name="temperature" Center="Cell" AttributeType="Scalar">
-        <DataItem Format="IDX" NumberType="Float" Precision="4" Endian="Little" Dimensions="10 20 30">CCVars.idx</DataItem>
-        <!-- Additional information (e.g. climate) -->
-        <Information Name="unit" Value="Kelvin"/>
-        <Information Name="valid_min" Value="0"/>
-        <Information Name="valid_max" Value="10000"/>
-      </Attribute>
+    <Domain Name="Time" Type="HyperSlab">
+      <DataItem Name="Physical" Format="XML" NumberType="Float" Precision="8" Dimensions="3">2.000000 0.200000 3.000000</DataItem>
+      <DataItem Name="Logical" Format="XML" NumberType="Int" Precision="4" Dimensions="3">2 1 3</DataItem>
+    </Domain>
 
-      <!-- One uniform rectilinear 3D grid -->
-      <Grid GridType="Uniform" Name="l0">
-        <!-- Logical dimension of the grid -->
-        <Topology TopologyType="3DCoRectMesh" Dimensions="10 20 30"/>
+    <Group VariabilityType="Static">
+      <FileRef Name="main_idx" Url="/path/to/idx/CCVars.idx"/>
+      <FileRef Name="lat_raw" Url="latitude.raw"/>
 
-        <!-- Define the geometry as Origin and Delta vectors -->
-        <Geometry GeometryType="ORIGIN_DXDYDZ">
-          <DataItem Format="XML" Dimensions="3">0.000000 0.000000 0.000000</DataItem>
-          <DataItem Format="XML" Dimensions="3">1.000000 1.000000 1.000000</DataItem>
-        </Geometry>
+      <Group Name="L0">
+        <Domain Name="Grid" DomainType="Spatial">
+          <Topology Type="3DCoRectMesh" Dimensions="10 20 30"/>
 
-        <!-- Attributes of this grid -->
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Attribute)"/>
-      </Grid>
+          <!-- Define the geometry as Origin and Delta vectors -->
+          <Geometry Type="ORIGIN_DXDYDZ">
+            <DataItem Format="XML" NumberType="Float" Precision="8" Dimensions="3">0.000000 0.000000 0.000000</DataItem>
+            <DataItem Format="XML" NumberType="Float" Precision="8" Dimensions="3">1.000000 1.000000 1.000000</DataItem>
+          </Geometry>
+        </Domain>
 
-    </Grid>
+        <Variable Name="var_1" Center="Cell">
+          <DataItem Format="IDX" NumberComponents="1" SampleType="Float" BitsPerSample="32" Endian="Little">
+            <xi:include xpointer='xpointer(//Xidx/Group/File[@Name="main_idx"])'/>
+          </DataItem>
+        </Variable>
 
-    <!-- Timesteps collection -->
-    <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
-      <Grid Name="t000000000" GridType="Collection" CollectionType="Spatial">
-        <Information Name="LogicalTime" Value="0"/>
-        <Time Value="10.000000"/>
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
-      </Grid>
-      <Grid Name="t000000001" GridType="Collection" CollectionType="Spatial">
-        <Information Name="LogicalTime" Value="1"/>
-        <Time Value="11.000000"/>
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
-      </Grid>
-      <Grid Name="t000000002" GridType="Collection" CollectionType="Spatial">
-        <Information Name="LogicalTime" Value="2"/>
-        <Time Value="12.000000"/>
-        <xi:include xpointer="xpointer(//Xdmf/Domain/Grid[1]/Grid)"/>
-      </Grid>
-    </Grid>
-  </Domain>
-</Xdmf>
+        <!-- attribute with custom domain -->
+        <Variable Name="lat" Center="Cell">
+          <Domain Name="Grid" Type="Spatial">
+            <Topology Type="1D" Dimensions="320"/>
+            <!-- Use default geometry -->
+          </Domain>
+
+          <DataItem Name="lat_file" Format="RAW" NumberComponents="1" NumberType="Float" BitsPerSample="32" Endian="Little">
+            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/File[@Name="lat_raw"])'/>
+          </DataItem>
+
+          <Attribute Name="axis" Value="Y"/>
+          <Attribute Name="bounds" Value="lat_bnds"/>
+          <Attribute Name="long_name" Value="latitude"/>
+          <Attribute Name="units" Value="degrees_north"/>
+        </Variable>
+
+        <Variable Name="pathlines" Center="Cell">
+          <Domain Name="VTKGrid" Type="Spatial">
+            <Topology Type="Polyline" Dimensions="500"/>
+            <!-- set some other fields needed to define a polyline dataset -->
+          </Domain>
+          <!-- will be customized in case fort this AttributeType -->
+          <DataItem Format="VTK">pathlines.vtk</DataItem>
+        </Variable>
+
+        <Variable Name="temperature" Center="Cell">
+          <DataItem Format="IDX" NumberComponents="1" Type="Float" BitsPerSample="32" Endian="Little">
+            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/File[@Name="main_idx"])'/>
+          </DataItem>
+          <!-- Additional information (e.g. climate) -->
+          <Attribute Name="unit" Value="Kelvin"/>
+          <Attribute Name="valid_min" Value="0"/>
+          <Attribute Name="valid_max" Value="10000"/>
+        </Variable>
+
+      </Group>
+
+    </GroupItem>
+
+  </Group>
+
+</Xidx>

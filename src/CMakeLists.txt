@@ -1,43 +1,45 @@
 
-include_directories(./)
-include_directories(./layout)
-include_directories(./datatype)
+include_directories(../include/xidx/)
+include_directories(../include/xidx/elements)
 
 set(SRCS
-    xidx.cpp
-    layout/xidx_layout.cpp
-    layout/xidx_simple_layout.cpp
-    layout/xidx_hpc_layout.cpp
+    xidx_file.cpp
 )
 
-add_library(xidx ${SRCS})
+string(CONCAT SRC_HEADERS
+             "../include/xidx/xidx.h;"
+             "../include/xidx/xidx_file.h;"
+             "../include/xidx/xidx_config.h;"
+)
 
-string(CONCAT SRC_HEADERS "xidx.h;"
-                          "xidx_config.h;"
-                          "layout/xidx_hpc_layout.h;"
-                          "layout/xidx_simple_layout.h;"
-                          "layout/xidx_layout.h;"
-                          "datatype/xidx_attribute.h;"
-                          "datatype/xidx_datagrid.h;"
-                          "datatype/xidx_dataitem.h;"
-                          "datatype/xidx_enums.h;"
-                          "datatype/xidx_geometry.h;"
-                          "datatype/xidx_grid.h;"
-                          "datatype/xidx_information.h;"
-                          "datatype/xidx_level.h;"
-                          "datatype/xidx_parsable.h;"
-                          "datatype/xidx_parse_utils.h;"
-                          "datatype/xidx_time.h;"
-                          "datatype/xidx_timestep.h;"
-                          "datatype/xidx_topology.h"
-                       )
+string(CONCAT ELEMENTS_HEADERS
+             "../include/xidx/elements/xidx_list.h;"
+             "../include/xidx/elements/xidx_attribute.h;"
+             "../include/xidx/elements/xidx_dataitem.h;"
+             "../include/xidx/elements/xidx_domain.h;"
+             "../include/xidx/elements/xidx_spatial_domain.h;"
+             "../include/xidx/elements/xidx_hyperslab_domain.h;"
+             "../include/xidx/elements/xidx_list_domain.h;"
+             "../include/xidx/elements/xidx_types.h;"
+             "../include/xidx/elements/xidx_geometry.h;"
+             "../include/xidx/elements/xidx_topology.h;"
+             "../include/xidx/elements/xidx_group.h;"
+             "../include/xidx/elements/xidx_variable.h;"
+             "../include/xidx/elements/xidx_attribute.h;"
+             "../include/xidx/elements/xidx_parsable.h;"
+             "../include/xidx/elements/xidx_parse_utils.h;"
+)
 
-set_target_properties(xidx PROPERTIES PUBLIC_HEADER 
-                      "${SRC_HEADERS}")
+add_library(xidx ${SRCS} ${SRC_HEADERS} ${ELEMENTS_HEADERS})
+
+string(CONCAT HEADERS ${SRC_HEADERS} ${ELEMENTS_HEADERS})
+
+set_target_properties(xidx PROPERTIES PUBLIC_HEADER
+                      $HEADERS)
 
 target_link_libraries(xidx ${LIBXML2_LIBRARIES})
 
-install(TARGETS xidx 
+install(TARGETS xidx
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION include)
