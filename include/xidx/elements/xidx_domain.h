@@ -1,14 +1,19 @@
 #ifndef XIDX_DOMAIN_H_
 #define XIDX_DOMAIN_H_
 
-#include "xidx_parsable.h"
-#include "xidx_dataitem.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
 class Domain : public Parsable{
 
 public:
+  
+  Domain(){};
+  
+  Domain(const Domain& c) {
+    name = c.name;
+  };
   
   Domain(std::string _name) { name=_name; };
   
@@ -30,7 +35,7 @@ public:
   int Deserialize(xmlNodePtr node){
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
 
-    const char* domain_type = xidx::GetProp(node, "DomainType");
+    const char* domain_type = GetProp(node, "DomainType");
 
     for(int t=DomainType::SINGLE_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
       if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)

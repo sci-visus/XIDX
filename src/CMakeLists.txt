@@ -9,6 +9,7 @@ set(SRCS
 string(CONCAT SRC_HEADERS
              "../include/xidx/xidx.h;"
              "../include/xidx/xidx_file.h;"
+             "../include/xidx/xidx_data_source.h;"
              "../include/xidx/xidx_config.h;"
 )
 

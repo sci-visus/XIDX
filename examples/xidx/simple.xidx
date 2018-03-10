@@ -10,8 +10,8 @@
     </Domain>
 
     <Group VariabilityType="Static">
-      <FileRef Name="main_idx" Url="/path/to/idx/CCVars.idx"/>
-      <FileRef Name="lat_raw" Url="latitude.raw"/>
+      <DataSource Name="main_idx" Url="/path/to/idx/CCVars.idx"/>
+      <DataSource Name="lat_raw" Url="latitude.raw"/>
 
       <Group Name="L0">
         <Domain Name="Grid" DomainType="Spatial">
@@ -26,7 +26,7 @@
 
         <Variable Name="var_1" Center="Cell">
           <DataItem Format="IDX" NumberComponents="1" SampleType="Float" BitsPerSample="32" Endian="Little">
-            <xi:include xpointer='xpointer(//Xidx/Group/File[@Name="main_idx"])'/>
+            <xi:include xpointer='xpointer(//Xidx/Group/DataSource[@Name="main_idx"])'/>
           </DataItem>
         </Variable>
 
@@ -38,7 +38,7 @@
           </Domain>
 
           <DataItem Name="lat_file" Format="RAW" NumberComponents="1" NumberType="Float" BitsPerSample="32" Endian="Little">
-            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/File[@Name="lat_raw"])'/>
+            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/DataSource[@Name="lat_raw"])'/>
           </DataItem>
 
           <Attribute Name="axis" Value="Y"/>
@@ -58,7 +58,7 @@
 
         <Variable Name="temperature" Center="Cell">
           <DataItem Format="IDX" NumberComponents="1" Type="Float" BitsPerSample="32" Endian="Little">
-            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/File[@Name="main_idx"])'/>
+            <xi:include xpointer='xpointer(//Xidx/Group/GroupItem/DataSource[@Name="main_idx"])'/>
           </DataItem>
           <!-- Additional information (e.g. climate) -->
           <Attribute Name="unit" Value="Kelvin"/>

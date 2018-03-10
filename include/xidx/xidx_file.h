@@ -4,8 +4,6 @@
 #define XIDX_FILE_H_
 
 #include "xidx.h"
-//#include "xidx_list.h"
-#include "elements/xidx_group.h"
 
 namespace xidx{
   
@@ -14,7 +12,7 @@ namespace xidx{
 class XidxFile{
 
 private:
-  std::vector<std::shared_ptr<Group> > groups;
+  std::shared_ptr<Group> root_group;
   std::string file_path;
 
   bool loaded;
@@ -32,11 +30,14 @@ public:
 
   // int clear(){ groups.clear(); return 0; }
 
-  const std::vector<std::shared_ptr<Group> > getGroups() const { return groups; }
-
-  inline size_t GetNumberOfGroups() const { return groups.size(); };
+  int setRootGroup(std::shared_ptr<Group> _root_group){
+    root_group = _root_group;
+    return 0;
+  }
+  
+  inline size_t GetNumberOfGroups() const { return root_group->groups.size(); };
 };
 
-};
+}
 
 #endif

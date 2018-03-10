@@ -4,11 +4,18 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "xidx/xidx_file.h"
-#include "xidx/elements/xidx_parse_utils.h"
+#include "xidx.h"
 
-using namespace std;
 using namespace xidx;
+
+const std::string XidxDataType::FLOAT_32="float32";
+const std::string XidxDataType::FLOAT_64="float64";
+const std::string XidxDataType::INT_32="int32";
+const std::string XidxDataType::UINT_32="uint32";
+const std::string XidxDataType::INT_16="int16";
+const std::string XidxDataType::UINT_16="int16";
+const std::string XidxDataType::INT_8="int8";
+const std::string XidxDataType::UINT_8="uint8";
 
 // std::string XidsFile::get_idx_file_path(int timestep, int level, CenterType ctype){
 //     return metadata->get_md_file_path()+generate_vars_filename(ctype);
@@ -39,64 +46,7 @@ int XidxFile::save(){
 
   xmlNodePtr main_grid_node = xmlNewChild(root_node, NULL, BAD_CAST "Group", NULL);
 
-  for(auto g: groups)
-    g->Serialize(main_grid_node);
-
-  
-  // xmlNewProp(main_grid_node, BAD_CAST "Name", BAD_CAST "Grids");
-  // xmlNewProp(main_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
-  // xmlNewProp(main_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
-
-  // std::shared_ptr<Level> level = metadata->get_timesteps().begin()->second->get_level(0);
-
-  // level->objToXML(main_grid_node);
-  
-  // // Set Time series
-  // xmlNodePtr time_grid_node = xmlNewChild(domain_node, NULL, BAD_CAST "Grid", NULL);
-
-  // xmlNewProp(time_grid_node, BAD_CAST "Name", BAD_CAST "TimeSeries");
-  // xmlNewProp(time_grid_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
-  // xmlNewProp(time_grid_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::TEMPORAL_COLLECTION_TYPE));
-  
-  // Time& metadata_time = metadata->get_time();
-
-  // if(metadata_time.type == TimeType::SINGLE_TIME_TYPE){
-  //   for(auto it_ts : metadata->get_timesteps()){
-  //     shared_ptr<TimeStep> curr_grid = it_ts.second;
-
-  //     xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-  //     xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(XIDX_TIME_FORMAT,it_ts.first).c_str());
-  //     xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
-  //     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
-
-  //     Time t;
-  //     t.value = curr_grid->get_physical_time_str();
-  //     t.information.push_back(curr_grid->get_log_time_info());
-  //     xmlNodePtr time_node = t.objToXML(curr_time_node);
-
-  //     xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
-  //     xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
-  //   }
-  // }else if(metadata_time.type == TimeType::HYPER_SLAB_TIME_TYPE){
-
-  //   xmlNodePtr time_node = metadata_time.objToXML(time_grid_node);
-
-  //   xmlNodePtr curr_time_node = xmlNewChild(time_grid_node, NULL, BAD_CAST "Grid", NULL);
-  //   xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(XIDX_TIME_FORMAT,0).c_str());
-  //   xmlNewProp(curr_time_node, BAD_CAST "GridType", BAD_CAST ToString(GridType::COLLECTION_GRID_TYPE));
-  //   xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
-
-  //   xmlNodePtr single_time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-  //   std::string init_time = std::string(metadata_time.items[0].text);
-  //   size_t found=init_time.find_first_of(" \\");
-
-  //   init_time=init_time.substr(0,found);
-  //   xmlNewProp(single_time_node, BAD_CAST "Value", BAD_CAST init_time.c_str());
-
-  //   xmlNodePtr xgrids_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "xi:include", NULL);
-  //   xmlNewProp(xgrids_node, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xdmf/Domain/Grid[1]/Grid)");
-
-  // }
+  root_group->Serialize(main_grid_node);
 
   /* 
    * Dumping document to stdio or file

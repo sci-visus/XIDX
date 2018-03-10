@@ -2,11 +2,10 @@
 #define XIDX_VARIABLE_H_
 
 #include <algorithm>
-#include <sstream>
-#include <fstream>
+//#include <sstream>
+//#include <fstream>
 
-#include "xidx_parsable.h"
-#include "xidx_dataitem.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
@@ -14,10 +13,10 @@ namespace defaults{
   const CenterType VARIABLE_CENTER_TYPE = CenterType::CELL_CENTER;
 }
 
-class Variable : public xidx::Parsable{
+class Variable : public Parsable{
 
 public:
-  std::vector<std::shared_ptr<DataItem> > data_items;
+  std::vector<DataItem > data_items;
   CenterType center_type;
   std::vector<Attribute> attributes;
 
@@ -36,11 +35,11 @@ public:
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
     xmlNodePtr variable_node = xmlNewChild(parent, NULL, BAD_CAST "Variable", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    if(centerType != defaults::ATTRIBUTE_CENTER_TYPE)
-      xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(centerType));
+    if(center_type != defaults::VARIABLE_CENTER_TYPE)
+      xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(center_type));
 
     for(auto item: data_items)
-      xmlNodePtr data_node = item->Serialize(variable_node);
+      xmlNodePtr data_node = item.Serialize(variable_node);
 
     for(auto& curr_att : attributes){
       xmlNodePtr info_node = curr_att.Serialize(variable_node);
@@ -107,28 +106,30 @@ public:
   }
   
   int Deserialize(xmlNodePtr node){
-    if(!xidx::is_node_name(node,"Variable"))
+    if(!IsNodeName(node,"Variable"))
       return -1;
 
-    name = xidx::getProp(node, "Name");
+    name = GetProp(node, "Name");
 
-    const char* center_type = xidx::getProp(node, "Center");
-    if(center_type != NULL){
+    const char* center_type_value = GetProp(node, "Center");
+    if(center_type_value != NULL){
       for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
-        if (strcmp(center_type, ToString(static_cast<CenterType>(t)))==0)
-            centerType = static_cast<CenterType>(t);
+        if (strcmp(center_type_value, ToString(static_cast<CenterType>(t)))==0)
+            center_type = static_cast<CenterType>(t);
     }
     else
-      centerType = defaults::ATTRIBUTE_CENTER_TYPE;
+      center_type = defaults::VARIABLE_CENTER_TYPE;
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
-      if(xidx::is_node_name(inner_node, "DataItem")){
-        data.Deserialize(inner_node);
-      }
-      else if(xidx::is_node_name(inner_node, "Attribute")){
+      if(IsNodeName(inner_node, "Attribute")){
         Attribute att;
         att.Deserialize(inner_node);
         attributes.push_back(att);
+      }
+      if(IsNodeName(inner_node, "DataItem")){
+        DataItem ditem;
+        ditem.Deserialize(inner_node);
+        data_items.push_back(ditem);
       }
     }
 

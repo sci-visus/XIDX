@@ -1,7 +1,6 @@
 #ifndef XIDX_HYPERSLAB_DOMAIN_H_
 #define XIDX_HYPERSLAB_DOMAIN_H_
 
-#include <cmath>
 #include "xidx_domain.h"
 
 namespace xidx{
@@ -12,16 +11,22 @@ public:
   DataItem physical;
   DataItem logical;
   
+  HyperSlabDomain(const HyperSlabDomain* c) {
+    name = c->name;
+    physical = c->physical;
+    logical = c->logical;
+  };
+  
   HyperSlabDomain(std::string _name) : Domain(_name) {
   
     physical.name = "Physical";
-    physical.formatType = FormatType::XML_FORMAT;
-    physical.numberType = NumberType::FLOAT_NUMBER_TYPE;
+    physical.format_type = FormatType::XML_FORMAT;
+    physical.number_type = NumberType::FLOAT_NUMBER_TYPE;
     physical.bit_precision = "64";
     
     logical.name = "Physical";
-    logical.formatType = FormatType::XML_FORMAT;
-    logical.numberType = NumberType::FLOAT_NUMBER_TYPE;
+    logical.format_type = FormatType::XML_FORMAT;
+    logical.number_type = NumberType::FLOAT_NUMBER_TYPE;
     logical.bit_precision = "64";
   }
   

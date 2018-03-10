@@ -1,9 +1,7 @@
 #ifndef xidx_dataITEM_H_
 #define xidx_dataITEM_H_
 
-#include "xidx_parsable.h"
-#include "xidx_types.h"
-#include "xidx_attribute.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
@@ -20,31 +18,56 @@ class DataItem : public xidx::Parsable{
 public:
   std::string name;
   std::string dimensions;
-  NumberType numberType;
+  NumberType number_type;
   std::string bit_precision;
   std::string n_components;
   std::string reference;
-  EndianType endianType;
-  FormatType formatType;
   std::string text;
+  EndianType endian_type;
+  FormatType format_type;
+  std::shared_ptr<DataSource> file_ref;
   std::vector<Attribute> attributes;
+  
+  DataItem(){
+    format_type=defaults::DATAITEM_FORMAT_TYPE;
+    number_type=defaults::DATAITEM_NUMBER_TYPE;
+    bit_precision=defaults::DATAITEM_BIT_PRECISION;
+    n_components=defaults::DATAITEM_N_COMPONENTS;
+    endian_type=defaults::DATAITEM_ENDIAN_TYPE;
+  }
+  
+  DataItem(std::string dtype){
+    PopulateDType(dtype);
+  }
+  
+  DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file){
+    format_type=format;
+    
+    PopulateDType(dtype);
+    
+    // TODO
+    file_ref=file;
+    
+  }
 
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
     xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST text);
-    if(formatType != defaults::DATAITEM_FORMAT_TYPE)
-      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(formatType));
+    if(format_type != defaults::DATAITEM_FORMAT_TYPE)
+      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
     //if(numberType != defaults::DATAITEM_NUMBER_TYPE || formatType == FormatType::IDX_FORMAT)
-      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(numberType));
-    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION.c_str()) != 0 || formatType == FormatType::IDX_FORMAT)
+      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(number_type));
+    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION.c_str()) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
-    if(endianType != defaults::DATAITEM_ENDIAN_TYPE)
-      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endianType));
+    if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
+      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endian_type));
 
     //if(formatType != FormatType::IDX_FORMAT) // Ignore dimensions for IDX datasets
     xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
 
     xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
+    xmlNodePtr file_node = file_ref->Serialize(data_node);
+    
     for(auto att: attributes){
       xmlNodePtr att_node = att.Serialize(data_node);
     }
@@ -60,7 +83,7 @@ public:
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
         if (strcmp(form_type, ToString(static_cast<FormatType>(t)))==0){
-          formatType = static_cast<FormatType>(t);
+          format_type = static_cast<FormatType>(t);
           break;
         }
     }
@@ -69,12 +92,12 @@ public:
     if(num_type != NULL){
       for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
         if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0){
-          numberType = static_cast<NumberType>(t);
+          number_type = static_cast<NumberType>(t);
           break;
         }
     }
     else{
-      numberType = defaults::DATAITEM_NUMBER_TYPE;
+      number_type = defaults::DATAITEM_NUMBER_TYPE;
     }
     
     const char* val_precision = xidx::GetProp(node, "BitPrecision");
@@ -103,20 +126,54 @@ public:
     if (end_type != NULL){
       for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
         if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0){
-          endianType = static_cast<EndianType>(t);
+          endian_type = static_cast<EndianType>(t);
           break;
         }
     }
     else
-      endianType = defaults::DATAITEM_ENDIAN_TYPE;
+      endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
-    text = reinterpret_cast<const char*>(node->children->content);
-
+    file_ref->Deserialize(node->children);
+    
     return 0;
   };
-
+  
+private:
+  
+  void PopulateDType(XidxDataType dtype){
+    bit_precision = dtype.bit_precision;
+    number_type = dtype.type;
+    n_components = dtype.n_components;
+  }
+  
+  void PopulateDType(std::string dtype){
+    size_t comp_idx= dtype.find_last_of("*\\");
+    // TODO this uses only 1 digit component
+    n_components = dtype.substr(0,comp_idx);
+    
+    size_t num_idx=0;
+    for(int i=comp_idx;i<dtype.size(); i++)
+      if(!std::isdigit(dtype[i]))
+        num_idx++;
+      else
+        break;
+    
+    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
+    bit_precision = dtype.substr(num_idx+1);
+    
+    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
+      std::string numType = ToString(static_cast<NumberType>(t));
+      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
+      
+      if (strcmp(numType.c_str(), ntype.c_str())==0){
+        number_type = static_cast<NumberType>(t);
+        break;
+      }
+    }
+  }
+  
 };
-
+  
 }
 
 #endif

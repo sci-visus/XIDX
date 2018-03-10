@@ -2,6 +2,7 @@
 #ifndef XIDX_TYPES_H_
 #define XIDX_TYPES_H_
 
+#include <string>
 #include "xidx/xidx_config.h"
 
 enum GroupType{
@@ -193,4 +194,28 @@ inline const char* ToString(DomainType v)
   }
 }
 
+namespace xidx{
+class XidxDataType{
+  
+public:
+  static const std::string FLOAT_32;
+  static const std::string FLOAT_64;
+  static const std::string INT_32;
+  static const std::string UINT_32;
+  static const std::string INT_16;
+  static const std::string UINT_16;
+  static const std::string INT_8;
+  static const std::string UINT_8;
+  
+  int n_components;
+  NumberType type;
+  int bit_precision;
+  
+  XidxDataType(NumberType _type, int _n_components, int _bit_precision){
+    type=_type;
+    n_components=_n_components;
+    bit_precision=_bit_precision;
+  }
+};
+}
 #endif

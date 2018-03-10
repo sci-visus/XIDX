@@ -1,14 +1,11 @@
 #ifndef XIDX_GROUP_H_
 #define XIDX_GROUP_H_
 
-#include "xidx_types.h"
-#include "xidx_domain.h"
-#include "xidx_attribute.h"
-#include "xidx_parsable.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
-class Group : public xidx::Parsable{
+class Group : public Parsable{
 
 public:
 
@@ -16,6 +13,7 @@ public:
   VariabilityType variabilityType;
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
+  std::vector<Variable> variables;
   std::vector<Attribute> attributes;
   
   Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
@@ -26,6 +24,118 @@ public:
 
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
+  Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
+                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const CenterType center=CenterType::CELL_CENTER,
+                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                           const int n_components=1, const char* dimensions=NULL){
+    Variable var;
+    
+    var.name = name;
+    var.center_type = center;
+    
+    DataItem di;
+    di.number_type = numberType;
+    di.bit_precision = string_format("%d", bit_precision);
+    di.endian_type = endian;
+    if(dimensions==NULL){
+      di.dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
+      di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
+    }
+    else
+      di.dimensions = dimensions;
+    
+    di.format_type = FormatType::IDX_FORMAT;
+
+    // TODO generate file path
+    
+    di.text = "TODO GENERATE FILE PATH";
+    
+    var.data_items.push_back(di);
+    
+    var.attributes = atts;
+    
+    return AddVariable(var);
+  }
+  
+  Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
+                           const int n_components,
+                           const CenterType center=CenterType::CELL_CENTER,
+                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const char* dimensions=NULL){
+    return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
+  }
+  
+  Variable* AddVariable(const char* name, std::string dtype, std::shared_ptr<Domain> domain,
+                        const CenterType center=CenterType::CELL_CENTER,
+                        const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                        const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                        const char* dimensions=NULL){
+    
+    SetDomain(domain);
+    
+    return AddVariable(name, dtype, center, endian, atts, dimensions);
+  }
+  
+  Variable* AddVariable(const char* name, DataItem item, std::shared_ptr<Domain> domain,
+                         const std::vector<Attribute>& atts=std::vector<Attribute>()){
+    
+    Variable var;
+    var.name = name;
+    SetDomain(domain);
+    DataItem di = item;
+    var.data_items.push_back(di);
+    
+    var.attributes = atts;
+
+    return AddVariable(var);
+  }
+  
+  Variable* AddVariable(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
+                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const char* dimensions=NULL){
+    Variable var;
+    
+    var.name = name;
+    //printf("comp %s ntype %s prec %d\n", dtype.substr(0,comp_idx).c_str(), num_idx, precision);
+    
+    DataItem di(dtype);
+    
+    var.center_type = center;
+    
+    di.endian_type = endian;
+    if(dimensions==NULL){
+      di.dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
+      
+    }
+    else
+      di.dimensions = dimensions;
+    
+    di.format_type = FormatType::IDX_FORMAT;
+    
+    // TODO generate file path
+    
+    di.text = "TODO GENERATE FILE PATH";
+    
+    var.data_items.push_back(di);
+    
+    var.attributes = atts;
+    
+    return AddVariable(var);
+  }
+  
+  Variable* AddVariable(Variable& attribute){
+    variables.push_back(attribute);
+    return &variables.back();
+  }
+  
+  int AddGroup(std::shared_ptr<Group> group){
+    groups.push_back(group);
+    return 0;
+  }
+  
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
 
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
@@ -35,6 +145,12 @@ public:
 
     xmlNodePtr domain_node = domain->Serialize(group_node);
 
+    for(auto a:attributes)
+      xmlNodePtr a_node = a.Serialize(group_node);
+    
+    for(auto v:variables)
+      xmlNodePtr v_node = v.Serialize(group_node);
+      
     for(auto g:groups)
        xmlNodePtr g_node = g->Serialize(group_node);
 
