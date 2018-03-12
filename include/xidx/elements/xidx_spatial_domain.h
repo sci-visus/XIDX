@@ -36,7 +36,7 @@ public:
   
   int SetTopology(TopologyType type, int n_dims, uint32_t* dims){
     for(int i=0; i< n_dims; i++)
-      topology.dimensions = string_format("%d ", dims[i]);
+      topology.dimensions += std::to_string(dims[i])+" ";
     
     topology.type = type;
     

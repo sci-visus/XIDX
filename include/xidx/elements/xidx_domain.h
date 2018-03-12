@@ -21,7 +21,6 @@ public:
   std::vector<std::shared_ptr<DataItem> > data_items;
 
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
-    printf("serialize general domain\n");
     //Parsable::Serialize(parent);
 
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);

@@ -44,7 +44,6 @@ public:
   
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     xmlNodePtr domain_ptr = Domain::Serialize(parent);
-    printf("serilize hyperslab\n");
 
     physical.Serialize(domain_ptr);
     logical.Serialize(domain_ptr);

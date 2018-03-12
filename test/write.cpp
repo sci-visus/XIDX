@@ -10,60 +10,69 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
 
   //TODO check if metadata file is valid
 
-  // Create the time series
+  // Create a group to collect a time series
   std::shared_ptr<Group> time_group(new Group("TimeSeries", GroupType::TEMPORAL_GROUP_TYPE));
-
-  std::shared_ptr<Domain> dom;
-
-  std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
   
+  // Create a data source for this group
+  // if a variable does not redefine a data source the group source will be used
+  std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
   time_group->AddDataSource(file);
   
   const int n_dims = 3;
   
-  if(time_hyperslab){
-    dom = std::make_shared<HyperSlabDomain>(new HyperSlabDomain("Time"));
+  // Create the time domain
+  
+  std::shared_ptr<Domain> time_dom;
+  
+  if(time_hyperslab){// Create an hyperslab time domain (start, step, count)
+    time_dom = std::make_shared<HyperSlabDomain>(new HyperSlabDomain("Time"));
     int32_t log_time[n_dims] = {0,1,static_cast<int32_t>(n_timesteps)};
     double phy_time[n_dims] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
-    std::dynamic_pointer_cast<HyperSlabDomain>(dom)->setDomain(n_dims, phy_time, log_time);
+    std::dynamic_pointer_cast<HyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
   }
-  else{
-    dom = std::make_shared<ListDomain>(new ListDomain("Time"));
-    // Create series of timestep values
+  else{// Create series of timestep values
+    time_dom = std::make_shared<ListDomain>(new ListDomain("Time"));
+    
     for(int i=0; i < n_timesteps; i++){
-      std::dynamic_pointer_cast<ListDomain>(dom)->AddDomainItem(i, float(i+10));
+      std::dynamic_pointer_cast<ListDomain>(time_dom)->AddDomainItem(i, float(i+10));
     }
   }
 
-  time_group->SetDomain(dom);
+  // Set the time group domain to use the time domain we just created
+  time_group->SetDomain(time_dom);
 
+  // Create a new group to collect a set of variables that share the same spatial domain
   std::shared_ptr<Group> grid(new Group("L0", GroupType::SPATIAL_GROUP_TYPE)); // default static group
+  
+  // Create a spatial domain
   std::shared_ptr<SpatialDomain> space_dom(new SpatialDomain("Grid"));
 
   uint32_t dims[3] = {10, 20, 30};// logical dims
   double o[3] = {0, 0, 0};         // origin x y z
   double d[3] = {1.f, 1.f, 1.f};   // dx dy dz
 
-  // Set grid metadata
+  // Set topology and geometry of the spatial domain
   int ret = space_dom->SetTopology(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
       dims);
   ret = space_dom->SetGeometry(GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, n_dims, o, d);
 
+  // Set the domain for the spatial group
   grid->SetDomain(space_dom);
 
-  // Set attributes
+  // Add some variables to the spatial group
   for(int i=0; i < n_attributes; i++){
     char name[32];
     sprintf(name, "var_%d", i);
     grid->AddVariable(name, NumberType::FLOAT_NUMBER_TYPE, 32);
   }
 
-  std::shared_ptr<DataSource> lat_file(new DataSource("latitude", "file_path"));
-  
+  // Define a new domain, group and file for a different set of variables
   std::shared_ptr<SpatialDomain> lat_dom(new SpatialDomain("Latitude"));
   lat_dom->SetTopology(TopologyType::DIM_1D_TOPOLOGY_TYPE, 320);
-
+  
   std::shared_ptr<Group> d1_vars(new Group("d1_vars", GroupType::SPATIAL_GROUP_TYPE, lat_dom));
+  
+  std::shared_ptr<DataSource> lat_file(new DataSource("latitude", "file_path"));
   d1_vars->AddDataSource(lat_file);
   
   Variable* temp = d1_vars->AddVariable("latitude", XidxDataType::FLOAT_32);

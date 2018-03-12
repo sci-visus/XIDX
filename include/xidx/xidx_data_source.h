@@ -32,8 +32,6 @@ public:
     xmlNodePtr variable_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataSource", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(variable_node, BAD_CAST "Url", BAD_CAST url.c_str());
-   
-    printf("data source xpath %s\n", GetXPath().c_str());
     
     return variable_node;
   }

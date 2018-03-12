@@ -110,9 +110,7 @@ public:
       if(parent_group!=nullptr){
         xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
         xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+((Parsable*)parent_group)->GetXPath()+"/DataSource[0])").c_str());
-        printf("found datasource here %s\n", ((Parsable*)parent_group)->GetXPath().c_str());
       }
-      printf("not found datasource for %s\n", name.c_str());
       
     }
     
@@ -181,7 +179,11 @@ public:
     else
       endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
-    file_ref->Deserialize(node->children);
+    if(format_type != FormatType::XML_FORMAT){
+      Parsable* parent_group = FindFirst<Parsable>(this);
+
+      file_ref->Deserialize(node->children);
+    }
     
     return 0;
   };

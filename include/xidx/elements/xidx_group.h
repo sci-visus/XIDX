@@ -114,10 +114,6 @@ public:
     
     di.format_type = FormatType::IDX_FORMAT;
     
-    // TODO generate file path
-    
-    di.text = "TODO GENERATE FILE PATH";
-    
     var.data_items.push_back(di);
     
     var.attributes = atts;

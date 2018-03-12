@@ -18,10 +18,8 @@ public:
   };
   
   int AddDomainItem(int32_t log, double phy){
-    
     log_vector.push_back(log);
     phy_vector.push_back(phy);
-    printf("adding to list domain len %lu\n", log_vector.size());
   
     return 0;
   }
