@@ -15,6 +15,10 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
 
   std::shared_ptr<Domain> dom;
 
+  std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
+  
+  time_group->AddDataSource(file);
+  
   const int n_dims = 3;
   
   if(time_hyperslab){
@@ -54,10 +58,15 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     grid->AddVariable(name, NumberType::FLOAT_NUMBER_TYPE, 32);
   }
 
+  std::shared_ptr<DataSource> lat_file(new DataSource("latitude", "file_path"));
+  
   std::shared_ptr<SpatialDomain> lat_dom(new SpatialDomain("Latitude"));
   lat_dom->SetTopology(TopologyType::DIM_1D_TOPOLOGY_TYPE, 320);
 
-  Variable* temp = grid->AddVariable("latitude", XidxDataType::FLOAT_32, lat_dom);
+  std::shared_ptr<Group> d1_vars(new Group("d1_vars", GroupType::SPATIAL_GROUP_TYPE, lat_dom));
+  d1_vars->AddDataSource(lat_file);
+  
+  Variable* temp = d1_vars->AddVariable("latitude", XidxDataType::FLOAT_32);
   if(!temp)
     printf("error\n");
 
@@ -71,16 +80,17 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   //temp->set_raw_data(adims, some_data, "./");
 
   // we can define datatypes and set to our variables
-  XidxDataType dtype(NumberType::FLOAT_NUMBER_TYPE, 32, 1);
-
-  std::shared_ptr<DataSource> f(new DataSource("file_path"));
-  DataItem data_item(FormatType::IDX_FORMAT, dtype, f);
+  XidxDataType dtype(NumberType::FLOAT_NUMBER_TYPE, 1, 32);
   
-  grid->AddVariable("custom0", data_item, space_dom); // can also get a list of XidxDataItem
-  grid->AddVariable("custom1", data_item, space_dom);
-  grid->AddVariable("custom2", data_item, space_dom);
-
+//  DataItem data_item(FormatType::IDX_FORMAT, dtype, file);
+//  
+//  grid->AddVariable("custom0", data_item, space_dom); // can also get a list of XidxDataItem
+//  grid->AddVariable("custom1", data_item, space_dom);
+//  grid->AddVariable("custom2", data_item, space_dom);
+  
   time_group->AddGroup(grid);
+  time_group->AddGroup(d1_vars);
+  
   meta.SetRootGroup(time_group);
   meta.save();
 

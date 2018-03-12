@@ -13,15 +13,24 @@ public:
   VariabilityType variabilityType;
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
+  std::vector<std::shared_ptr<DataSource> > data_sources;
   std::vector<Variable> variables;
   std::vector<Attribute> attributes;
   
-  Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
+  Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE)
+    {
     name=_name;
     groupType=_groupType;
     variabilityType=_varType;
   }
-
+  
+  Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
+    name=_name;
+    groupType=_groupType;
+    variabilityType=_varType;
+    domain=_domain;
+  }
+  
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
   Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
@@ -29,12 +38,12 @@ public:
                            const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const int n_components=1, const char* dimensions=NULL){
-    Variable var;
+    Variable var(this);
     
     var.name = name;
     var.center_type = center;
     
-    DataItem di;
+    DataItem di(this);
     di.number_type = numberType;
     di.bit_precision = string_format("%d", bit_precision);
     di.endian_type = endian;
@@ -46,16 +55,18 @@ public:
       di.dimensions = dimensions;
     
     di.format_type = FormatType::IDX_FORMAT;
-
-    // TODO generate file path
-    
-    di.text = "TODO GENERATE FILE PATH";
     
     var.data_items.push_back(di);
     
     var.attributes = atts;
     
     return AddVariable(var);
+  }
+  
+  int AddDataSource(std::shared_ptr<DataSource> ds) {
+    ds->SetParent(this);
+    data_sources.push_back(ds);
+    return 0;
   }
   
   Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
@@ -67,21 +78,10 @@ public:
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
   }
   
-  Variable* AddVariable(const char* name, std::string dtype, std::shared_ptr<Domain> domain,
-                        const CenterType center=CenterType::CELL_CENTER,
-                        const EndianType endian=EndianType::LITTLE_ENDIANESS,
-                        const std::vector<Attribute>& atts=std::vector<Attribute>(),
-                        const char* dimensions=NULL){
-    
-    SetDomain(domain);
-    
-    return AddVariable(name, dtype, center, endian, atts, dimensions);
-  }
-  
   Variable* AddVariable(const char* name, DataItem item, std::shared_ptr<Domain> domain,
                          const std::vector<Attribute>& atts=std::vector<Attribute>()){
     
-    Variable var;
+    Variable var(this);
     var.name = name;
     SetDomain(domain);
     var.data_items.push_back(item);
@@ -95,12 +95,12 @@ public:
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const char* dimensions=NULL){
-    Variable var;
+    Variable var(this);
     
     var.name = name;
     //printf("comp %s ntype %s prec %d\n", dtype.substr(0,comp_idx).c_str(), num_idx, precision);
     
-    DataItem di(dtype);
+    DataItem di(dtype, this);
     
     var.center_type = center;
     
@@ -131,6 +131,7 @@ public:
   }
   
   int AddGroup(std::shared_ptr<Group> group){
+    group->SetParent(this);
     groups.push_back(group);
     return 0;
   }
@@ -141,6 +142,9 @@ public:
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(group_node, BAD_CAST "GroupType", BAD_CAST ToString(groupType));
     xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variabilityType));
+    
+    for(auto data: data_sources)
+      xmlNodePtr data_node = data->Serialize(group_node);
     
     xmlNodePtr domain_node = domain->Serialize(group_node);
 
@@ -189,9 +193,24 @@ public:
 
     return 0;
   };
+  
+protected:
+  
+  virtual std::string GetXPath() override {
+    if(parent == nullptr)
+      xpath_prefix="//Xidx";
+    else
+      xpath_prefix=parent->GetXPath();
+      
+    xpath_prefix+="/Group";
+    xpath_prefix+="[@Name="+name+"]";
+//    xpath_prefix+="[@Name=\""+name+"\"]";
+    
+    return xpath_prefix;
+  };
 
 };
-
+  
 }
 
 #endif

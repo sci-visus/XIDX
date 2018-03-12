@@ -5,6 +5,8 @@
 
 namespace xidx{
 
+class Variable;
+
 namespace defaults{
   const FormatType DATAITEM_FORMAT_TYPE = FormatType::XML_FORMAT;
   const NumberType DATAITEM_NUMBER_TYPE = NumberType::FLOAT_NUMBER_TYPE;
@@ -14,7 +16,8 @@ namespace defaults{
 }
 
 class DataItem : public xidx::Parsable{
-
+  friend class DataSource;
+  
 public:
   std::string name;
   std::string dimensions;
@@ -28,27 +31,54 @@ public:
   std::shared_ptr<DataSource> file_ref;
   std::vector<Attribute> attributes;
   
-  DataItem(){
+  DataItem(Parsable* _parent){
+    parent = _parent;
     format_type=defaults::DATAITEM_FORMAT_TYPE;
     number_type=defaults::DATAITEM_NUMBER_TYPE;
     bit_precision=defaults::DATAITEM_BIT_PRECISION;
     n_components=defaults::DATAITEM_N_COMPONENTS;
     endian_type=defaults::DATAITEM_ENDIAN_TYPE;
+    file_ref=nullptr;
   }
   
-  DataItem(std::string dtype){
-    PopulateDType(dtype);
+  DataItem(std::string dtype, Parsable* _parent){
+    parent = _parent;
+    
+    size_t comp_idx= dtype.find_last_of("*\\");
+    // TODO this uses only 1 digit component
+    n_components = dtype.substr(0,comp_idx);
+    
+    size_t num_idx=0;
+    for(int i=comp_idx;i<dtype.size(); i++)
+      if(!std::isdigit(dtype[i]))
+        num_idx++;
+      else
+        break;
+    
+    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
+    bit_precision = dtype.substr(num_idx+1);
+    
+    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
+      std::string numType = ToString(static_cast<NumberType>(t));
+      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
+      
+      if (strcmp(numType.c_str(), ntype.c_str())==0){
+        number_type = static_cast<NumberType>(t);
+        break;
+      }
+    }
   }
   
-  DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file){
+  DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
+    parent = _parent;
+    
     format_type=format;
     
     number_type=dtype.type;
-    bit_precision=dtype.bit_precision;
-    n_components=dtype.n_components;
-    printf("populated dtype\n");
-    // TODO
-    file_ref=file;
+    bit_precision=std::to_string(dtype.bit_precision);
+    n_components=std::to_string(dtype.n_components);
+    
+    file_ref=nullptr;
     
   }
 
@@ -72,8 +102,19 @@ public:
 
     xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
-    // TODO serialize data source
-    //xmlNodePtr file_node = file_ref->Serialize(data_node);
+    if(file_ref != nullptr)
+      xmlNodePtr file_node = file_ref->Serialize(data_node);
+    else if(format_type != FormatType::XML_FORMAT){
+      Parsable* parent_group = FindFirst<Parsable>(this);
+      
+      if(parent_group!=nullptr){
+        xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
+        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+((Parsable*)parent_group)->GetXPath()+"/DataSource[0])").c_str());
+        printf("found datasource here %s\n", ((Parsable*)parent_group)->GetXPath().c_str());
+      }
+      printf("not found datasource for %s\n", name.c_str());
+      
+    }
     
     for(auto att: attributes){
       xmlNodePtr att_node = att.Serialize(data_node);
@@ -144,40 +185,7 @@ public:
     
     return 0;
   };
-  
-private:
-  
-  void PopulateDType(XidxDataType dtype){
-    bit_precision = dtype.bit_precision;
-    number_type = dtype.type;
-    n_components = dtype.n_components;
-  }
-  
-  void PopulateDType(std::string dtype){
-    size_t comp_idx= dtype.find_last_of("*\\");
-    // TODO this uses only 1 digit component
-    n_components = dtype.substr(0,comp_idx);
-    
-    size_t num_idx=0;
-    for(int i=comp_idx;i<dtype.size(); i++)
-      if(!std::isdigit(dtype[i]))
-        num_idx++;
-      else
-        break;
-    
-    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
-    bit_precision = dtype.substr(num_idx+1);
-    
-    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
-      std::string numType = ToString(static_cast<NumberType>(t));
-      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
-      
-      if (strcmp(numType.c_str(), ntype.c_str())==0){
-        number_type = static_cast<NumberType>(t);
-        break;
-      }
-    }
-  }
+
   
 };
   

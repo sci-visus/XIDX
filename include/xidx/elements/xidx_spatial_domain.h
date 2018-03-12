@@ -49,12 +49,12 @@ public:
                   const double* dx_dy_dz) {
     geometry.type = type;
     
-    DataItem item_o;
+    DataItem item_o(this);
     item_o.format_type = FormatType::XML_FORMAT;
     item_o.number_type = NumberType::FLOAT_NUMBER_TYPE;
     item_o.bit_precision = "32";
     item_o.endian_type = EndianType::LITTLE_ENDIANESS;
-    DataItem item_d;
+    DataItem item_d(this);
     item_d.format_type = FormatType::XML_FORMAT;
     item_d.number_type = NumberType::FLOAT_NUMBER_TYPE;
     item_d.bit_precision = "32";
@@ -71,6 +71,8 @@ public:
     
     geometry.items.push_back(item_o);
     geometry.items.push_back(item_d);
+    
+    return 0;
   }
   
   virtual int Deserialize(xmlNodePtr node) override{

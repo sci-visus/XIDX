@@ -9,6 +9,9 @@
 
 namespace xidx{
 
+class Group;
+class DataItem;
+  
 namespace defaults{
   const CenterType VARIABLE_CENTER_TYPE = CenterType::CELL_CENTER;
 }
@@ -19,7 +22,12 @@ public:
   std::vector<DataItem > data_items;
   CenterType center_type;
   std::vector<Attribute> attributes;
+  Parsable* parent;
 
+  Variable(Parsable* _parent){
+    parent = _parent;
+  }
+  
   // int get_n_components(){
   //   size_t found=data.dimensions.find_last_of(" \\");
   //   return stoi(data.dimensions.substr(found));
@@ -127,7 +135,7 @@ public:
         attributes.push_back(att);
       }
       if(IsNodeName(inner_node, "DataItem")){
-        DataItem ditem;
+        DataItem ditem(this);
         ditem.Deserialize(inner_node);
         data_items.push_back(ditem);
       }

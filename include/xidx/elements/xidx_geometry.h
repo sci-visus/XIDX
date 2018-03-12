@@ -38,7 +38,7 @@ public:
     int data_items_count = 0;
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(IsNodeName(inner_node, "DataItem")){
-        DataItem geo_dataitem;
+        DataItem geo_dataitem(this);
         geo_dataitem.Deserialize(inner_node);
 
         items.push_back(geo_dataitem);

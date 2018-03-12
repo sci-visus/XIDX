@@ -14,21 +14,31 @@ private:
 
 public:
 
-  DataSource(std::string path) : url(path){};
-
+  DataSource() {
+    url = "undefined";
+    name = "undefined";
+  };
+  
+  DataSource(std::string _name, std::string path){
+    url = path;
+    name = _name;
+  };
+  
   std::string GetUrl(){ return url; }
   
   int SetFilePath(std::string path){ url = path; return 0; }
   
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
-    xmlNodePtr variable_node = xmlNewChild(parent, NULL, BAD_CAST "DataSource", NULL);
+  xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
+    xmlNodePtr variable_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataSource", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(variable_node, BAD_CAST "Url", BAD_CAST url.c_str());
+   
+    printf("data source xpath %s\n", GetXPath().c_str());
     
     return variable_node;
   }
   
-  int Deserialize(xmlNodePtr node){
+  virtual int Deserialize(xmlNodePtr node) override{
     if(!xidx::IsNodeName(node,"DataSource"))
       return -1;
     
@@ -37,8 +47,19 @@ public:
     
     return 0;
   }
+
+
+  virtual std::string GetXPath() override {
+    xpath_prefix=parent->GetXPath();
+    xpath_prefix+="/DataSource";
+    xpath_prefix+="[@Name="+name+"]";
+//    xpath_prefix+="[@Name=\""+name+"\"]";
+    
+    return xpath_prefix;
+  };
   
 };
+
 
 };
 

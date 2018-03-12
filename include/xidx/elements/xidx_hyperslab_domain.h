@@ -11,13 +11,14 @@ public:
   DataItem physical;
   DataItem logical;
   
-  HyperSlabDomain(const HyperSlabDomain* c) {
+  HyperSlabDomain(const HyperSlabDomain* c) : physical(DataItem(this)), logical(DataItem(this)){
     name = c->name;
     physical = c->physical;
     logical = c->logical;
   };
   
-  HyperSlabDomain(std::string _name) : Domain(_name) {physical.name = "Physical";
+  HyperSlabDomain(std::string _name) : Domain(_name), physical(DataItem(this)), logical(DataItem(this)) {
+    physical.name = "Physical";
     physical.name = "Physical";
     physical.format_type = FormatType::XML_FORMAT;
     physical.number_type = NumberType::FLOAT_NUMBER_TYPE;

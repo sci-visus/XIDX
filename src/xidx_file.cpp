@@ -46,7 +46,6 @@ int XidxFile::save(){
   xmlCreateIntSubset(doc, BAD_CAST "Xidx", NULL, BAD_CAST "Xidx.dtd");
 
   xmlNodePtr main_grid_node = xmlNewChild(root_node, NULL, BAD_CAST "Group", NULL);
-
   root_group->Serialize(main_grid_node);
 
   /* 

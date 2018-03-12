@@ -19,7 +19,7 @@ private:
 
 public:
 
-  XidxFile(std::string path) : file_path(path){};
+  XidxFile(std::string path) : file_path(path){ };
 
   int load();
   int save();
