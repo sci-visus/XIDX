@@ -84,8 +84,7 @@ public:
     Variable var;
     var.name = name;
     SetDomain(domain);
-    DataItem di = item;
-    var.data_items.push_back(di);
+    var.data_items.push_back(item);
     
     var.attributes = atts;
 
@@ -139,10 +138,10 @@ public:
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
 
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
+    xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(group_node, BAD_CAST "GroupType", BAD_CAST ToString(groupType));
     xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variabilityType));
-    xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
-
+    
     xmlNodePtr domain_node = domain->Serialize(group_node);
 
     for(auto a:attributes)

@@ -43,15 +43,21 @@ public:
   DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file){
     format_type=format;
     
-    PopulateDType(dtype);
-    
+    number_type=dtype.type;
+    bit_precision=dtype.bit_precision;
+    n_components=dtype.n_components;
+    printf("populated dtype\n");
     // TODO
     file_ref=file;
     
   }
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
-    xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST text);
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+    xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST this->text.c_str());
+    
+    if(name.size())
+      xmlNewProp(data_node, BAD_CAST "Name", BAD_CAST name.c_str());
+    
     if(format_type != defaults::DATAITEM_FORMAT_TYPE)
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
     //if(numberType != defaults::DATAITEM_NUMBER_TYPE || formatType == FormatType::IDX_FORMAT)
@@ -61,12 +67,13 @@ public:
     if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endian_type));
 
-    //if(formatType != FormatType::IDX_FORMAT) // Ignore dimensions for IDX datasets
-    xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
+    if(dimensions.size())
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
 
     xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
-    xmlNodePtr file_node = file_ref->Serialize(data_node);
+    // TODO serialize data source
+    //xmlNodePtr file_node = file_ref->Serialize(data_node);
     
     for(auto att: attributes){
       xmlNodePtr att_node = att.Serialize(data_node);
@@ -75,7 +82,7 @@ public:
     return data_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  virtual int Deserialize(xmlNodePtr node) override{
     if(!xidx::IsNodeName(node,"DataItem"))
       return -1;
 

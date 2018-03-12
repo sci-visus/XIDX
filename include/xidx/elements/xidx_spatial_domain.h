@@ -9,19 +9,20 @@ class SpatialDomain : public Domain{
 
 public:
   
-  SpatialDomain(std::string _name) : Domain(_name){};
+  SpatialDomain(std::string _name) : Domain(_name){
+    type = DomainType::SPATIAL_DOMAIN_TYPE;
+  };
   
   Topology topology;
   Geometry geometry;
 
-  xmlNodePtr Serialize(xmlNode* parent){
-    Domain::Serialize(parent);
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+    xmlNodePtr domain_node = Domain::Serialize(parent, text);
+    xmlNodePtr topology_node = topology.Serialize(domain_node);
 
-    xmlNodePtr topology_node = topology.Serialize(parent);
+    xmlNodePtr geometry_node = geometry.Serialize(domain_node);
 
-    xmlNodePtr geometry_node = geometry.Serialize(parent);
-
-    return parent;
+    return domain_node;
   };
   
   int SetTopology(Topology _topology) { topology = _topology; return 0; }
@@ -72,7 +73,7 @@ public:
     geometry.items.push_back(item_d);
   }
   
-  int Deserialize(xmlNodePtr node){
+  virtual int Deserialize(xmlNodePtr node) override{
     Domain::Deserialize(node);
 
     for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {

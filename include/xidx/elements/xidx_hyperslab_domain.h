@@ -17,14 +17,13 @@ public:
     logical = c->logical;
   };
   
-  HyperSlabDomain(std::string _name) : Domain(_name) {
-  
+  HyperSlabDomain(std::string _name) : Domain(_name) {physical.name = "Physical";
     physical.name = "Physical";
     physical.format_type = FormatType::XML_FORMAT;
     physical.number_type = NumberType::FLOAT_NUMBER_TYPE;
     physical.bit_precision = "64";
     
-    logical.name = "Physical";
+    logical.name = "Logical";
     logical.format_type = FormatType::XML_FORMAT;
     logical.number_type = NumberType::FLOAT_NUMBER_TYPE;
     logical.bit_precision = "64";
@@ -42,17 +41,17 @@ public:
     return 0;
   }
   
-  xmlNodePtr Serialize(xmlNode* parent){
-    Domain::Serialize(parent);
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+    xmlNodePtr domain_ptr = Domain::Serialize(parent);
+    printf("serilize hyperslab\n");
 
-    physical.Serialize(parent);
-    logical.Serialize(parent);
+    physical.Serialize(domain_ptr);
+    logical.Serialize(domain_ptr);
 
-    return parent;
+    return domain_ptr;
   };
   
-  int Deserialize(xmlNodePtr node){
-    Domain::Deserialize(node);
+  virtual int Deserialize(xmlNodePtr node) override{
     
     for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
       for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {

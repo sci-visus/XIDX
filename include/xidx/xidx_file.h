@@ -30,7 +30,7 @@ public:
 
   // int clear(){ groups.clear(); return 0; }
 
-  int setRootGroup(std::shared_ptr<Group> _root_group){
+  int SetRootGroup(std::shared_ptr<Group> _root_group){
     root_group = _root_group;
     return 0;
   }

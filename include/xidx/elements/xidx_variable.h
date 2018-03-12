@@ -35,8 +35,8 @@ public:
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
     xmlNodePtr variable_node = xmlNewChild(parent, NULL, BAD_CAST "Variable", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    if(center_type != defaults::VARIABLE_CENTER_TYPE)
-      xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(center_type));
+    //if(center_type != defaults::VARIABLE_CENTER_TYPE)
+    xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(center_type));
 
     for(auto item: data_items)
       xmlNodePtr data_node = item.Serialize(variable_node);

@@ -179,7 +179,8 @@ enum DomainType{
   SINGLE_DOMAIN_TYPE = 0,
   HYPER_SLAB_DOMAIN_TYPE = 1,
   LIST_DOMAIN_TYPE = 2,
-  RANGE_DOMAIN_TYPE = 3
+  SPATIAL_DOMAIN_TYPE = 4,
+  RANGE_DOMAIN_TYPE = 5
 };
 
 inline const char* ToString(DomainType v)
@@ -189,6 +190,7 @@ inline const char* ToString(DomainType v)
     case SINGLE_DOMAIN_TYPE:      return "Single";
     case HYPER_SLAB_DOMAIN_TYPE:  return "HyperSlab";
     case LIST_DOMAIN_TYPE:        return "List";
+    case SPATIAL_DOMAIN_TYPE:     return "Spatial";
     case RANGE_DOMAIN_TYPE:       return "Range";
     default:                      return "[Unknown]";
   }

@@ -20,19 +20,20 @@ public:
   DomainType type;
   std::vector<std::shared_ptr<DataItem> > data_items;
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+    printf("serialize general domain\n");
     //Parsable::Serialize(parent);
 
-    xmlNodePtr curr_grid_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
-    xmlNewProp(curr_grid_node, BAD_CAST "DomainType", BAD_CAST ToString(type));
+    xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
+    xmlNewProp(domain_node, BAD_CAST "DomainType", BAD_CAST ToString(type));
 
     for(auto item: data_items)
-      xmlNodePtr item_node = item->Serialize(curr_grid_node);
+      xmlNodePtr item_node = item->Serialize(domain_node);
 
-    return parent;
+    return domain_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  virtual int Deserialize(xmlNodePtr node){
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
 
     const char* domain_type = GetProp(node, "DomainType");

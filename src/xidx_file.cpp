@@ -8,14 +8,15 @@
 
 using namespace xidx;
 
-const std::string XidxDataType::FLOAT_32="float32";
-const std::string XidxDataType::FLOAT_64="float64";
-const std::string XidxDataType::INT_32="int32";
-const std::string XidxDataType::UINT_32="uint32";
-const std::string XidxDataType::INT_16="int16";
-const std::string XidxDataType::UINT_16="int16";
-const std::string XidxDataType::INT_8="int8";
-const std::string XidxDataType::UINT_8="uint8";
+// TODO add vector default types
+const std::string XidxDataType::FLOAT_32="1*float32";
+const std::string XidxDataType::FLOAT_64="1*float64";
+const std::string XidxDataType::INT_32="1*int32";
+const std::string XidxDataType::UINT_32="1*uint32";
+const std::string XidxDataType::INT_16="1*int16";
+const std::string XidxDataType::UINT_16="1*int16";
+const std::string XidxDataType::INT_8="1*int8";
+const std::string XidxDataType::UINT_8="1*uint8";
 
 // std::string XidsFile::get_idx_file_path(int timestep, int level, CenterType ctype){
 //     return metadata->get_md_file_path()+generate_vars_filename(ctype);

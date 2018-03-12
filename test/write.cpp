@@ -21,13 +21,13 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     dom = std::make_shared<HyperSlabDomain>(new HyperSlabDomain("Time"));
     int32_t log_time[n_dims] = {0,1,static_cast<int32_t>(n_timesteps)};
     double phy_time[n_dims] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
-    std::static_pointer_cast<HyperSlabDomain>(dom)->setDomain(n_dims, phy_time, log_time);
+    std::dynamic_pointer_cast<HyperSlabDomain>(dom)->setDomain(n_dims, phy_time, log_time);
   }
   else{
     dom = std::make_shared<ListDomain>(new ListDomain("Time"));
     // Create series of timestep values
     for(int i=0; i < n_timesteps; i++){
-      std::static_pointer_cast<ListDomain>(dom)->AddDomainItem(i, float(i+10));
+      std::dynamic_pointer_cast<ListDomain>(dom)->AddDomainItem(i, float(i+10));
     }
   }
 
@@ -81,7 +81,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   grid->AddVariable("custom2", data_item, space_dom);
 
   time_group->AddGroup(grid);
-  //meta.AddRootGroup(time_group);
+  meta.SetRootGroup(time_group);
   meta.save();
 
   printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
@@ -102,17 +102,15 @@ int main(int argc, char** argv){
   int n_timesteps = 3;
   int n_levels = 2;
 
+
   if(argc > 2)
-    layout_type = atoi(argv[2]);
+    n_attributes = atoi(argv[2]);
 
   if(argc > 3)
-    n_attributes = atoi(argv[3]);
+    n_timesteps = atoi(argv[3]);
 
   if(argc > 4)
-    n_timesteps = atoi(argv[4]);
-
-  if(argc > 5)
-    n_levels = atoi(argv[5]);
+    n_levels = atoi(argv[4]);
 
   clock_t start, finish;
   start = clock();
