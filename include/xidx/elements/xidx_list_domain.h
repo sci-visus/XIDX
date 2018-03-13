@@ -45,6 +45,8 @@ public:
     return domain_node;
   }
   
+  virtual std::string GetClassName() override { return "ListDomain"; };
+  
 private:
   std::vector<T> values_vector;
 

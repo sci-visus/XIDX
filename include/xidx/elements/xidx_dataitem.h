@@ -76,8 +76,8 @@ public:
     file_ref=file;
   }
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
-    xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST this->text.c_str());
+  virtual xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
+    xmlNodePtr data_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataItem", BAD_CAST this->text.c_str());
     
     if(name.size())
       xmlNewProp(data_node, BAD_CAST "Name", BAD_CAST name.c_str());
@@ -99,13 +99,21 @@ public:
 
     if(file_ref != nullptr)
       xmlNodePtr file_node = file_ref->Serialize(data_node);
+    
 #if XIDX_DEBUG_XPATHS
     else if(format_type != FormatType::XML_FORMAT){
-      Parsable* parent_group = FindFirst<Parsable>(this);
       
-      if(parent_group!=nullptr){
+      Parsable* source=nullptr;
+      Parsable* curr_parent=parent;
+      while(curr_parent!=nullptr){
+        Parsable* parent_group=FindParent("Group", curr_parent);
+        source = parent_group->FindChild("DataSource");
+        curr_parent = parent_group->parent;
+      }
+      
+      if(source!=nullptr){
         xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
-        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+((Parsable*)parent_group)->GetXPath()+"/DataSource[0])").c_str());
+        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+source->GetXPath()+")").c_str());
       }
     }
 #endif
@@ -176,13 +184,15 @@ public:
       endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
     if(format_type != FormatType::XML_FORMAT){
-      Parsable* parent_group = FindFirst<Parsable>(this);
+      Parsable* parent_group = FindParent("Group", parent);
 
       file_ref->Deserialize(node->children);
     }
     
     return 0;
   };
+  
+  virtual std::string GetClassName() override { return "DataItem"; };
   
 private:
   

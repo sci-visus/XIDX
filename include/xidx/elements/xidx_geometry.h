@@ -58,6 +58,8 @@ public:
 
     return 0;
   };
+  
+  virtual std::string GetClassName() override { return "Geometry"; };
 };
 
 }

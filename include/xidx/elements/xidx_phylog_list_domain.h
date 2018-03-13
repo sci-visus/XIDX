@@ -51,6 +51,8 @@ public:
     return domain_node;
   }
   
+  virtual std::string GetClassName() override { return "PhyLogListDomain"; };
+  
 private:
   std::vector<int> log_vector;
   std::vector<double> phy_vector;

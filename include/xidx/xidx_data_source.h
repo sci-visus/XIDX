@@ -50,12 +50,13 @@ public:
   virtual std::string GetXPath() override {
     xpath_prefix=parent->GetXPath();
     xpath_prefix+="/DataSource";
-    xpath_prefix+="[@Name="+name+"]";
-//    xpath_prefix+="[@Name=\""+name+"\"]";
+//    xpath_prefix+="[@Name="+name+"]";
+    xpath_prefix+="[@Name=\""+name+"\"]";
     
     return xpath_prefix;
   };
   
+  virtual std::string GetClassName() override { return "DataSource"; };
 };
 
 };

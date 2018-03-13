@@ -191,6 +191,15 @@ public:
     return 0;
   };
   
+  virtual std::string GetClassName() override { return "Group"; };
+  
+  virtual Parsable* FindChild(const std::string& class_name) const override {
+    if(class_name == "DataSource" && data_sources.size() > 0)
+      return data_sources[0].get();
+    else
+      return nullptr;
+  }
+  
 protected:
   
   virtual std::string GetXPath() override {
@@ -200,8 +209,8 @@ protected:
       xpath_prefix=parent->GetXPath();
       
     xpath_prefix+="/Group";
-    xpath_prefix+="[@Name="+name+"]";
-//    xpath_prefix+="[@Name=\""+name+"\"]";
+//    xpath_prefix+="[@Name="+name+"]";
+    xpath_prefix+="[@Name=\""+name+"\"]";
     
     return xpath_prefix;
   };

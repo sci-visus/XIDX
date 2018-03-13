@@ -4,11 +4,10 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#include "xidx_parse_utils.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
-class Group;
 class Domain;
 class DataSource;
   
@@ -33,27 +32,48 @@ public:
 
   virtual std::string GetXPath() { return xpath_prefix; }
   
+  virtual std::string GetClassName() = 0;
+  
+  virtual Parsable* FindParent(const std::string& class_name, Parsable* obj2) const{
+    if(obj2 == nullptr)
+      return nullptr;
+    //printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
+    if(obj2->GetClassName() == class_name){
+      return obj2;
+    }
+    else
+      return FindParent(class_name, obj2->parent);
+  }
+  
+  virtual Parsable* FindChild(const std::string& class_name) const{
+    return nullptr;
+  }
+  
 protected:
   std::string xpath_prefix="//";
   
-  template<typename T>
-  Parsable* FindFirst(T* obj1){
-    return FindFirst(obj1, this->parent);
-  }
+//  template<typename T>
+//  Parsable* FindFirst(T* obj1){
+//    return FindParent(obj1, this->parent);
+//  }
+//  
+//  template<class T, class U>
+//  T* FindParent(T* obj1, U* obj2){
+//    if(obj2 == nullptr)
+//      return nullptr;
+//    printf("same Group1 %d\n", std::is_same<Group,Group>::value);
+//    printf("same Group2 %d\n", std::is_same<Group*,Group*>::value);
+//    printf("same Group3 %d\n", std::is_same<T*,U*>::value);
+//    printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
+//    if(std::is_same<T*, U*>::value){
+//      return (T*)obj2;
+//    }
+//    else
+//      return FindParent(obj1, obj2->parent);
+//      
+//  }
   
-  template<typename T, typename U>
-  Parsable* FindFirst(T* obj1, U* obj2){
-    if(obj2 == nullptr)
-      return nullptr;
-    
-    //printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
-    if(std::is_same<T, U>::value){
-      return (T*)obj2;
-    }
-    else
-      return FindFirst(obj1, ((Parsable*)obj2)->parent);
-      
-  }
+  
   
 };
 

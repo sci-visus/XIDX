@@ -55,6 +55,8 @@ public:
     return parent;
   }
   
+  virtual std::string GetClassName() override { return "MultiAxisDomain"; };
+  
 private:
   std::vector<ListDomain<T>> lists;
 };

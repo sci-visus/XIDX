@@ -2,6 +2,7 @@
 #define XIDX_HYPERSLAB_DOMAIN_H_
 
 #include "xidx/xidx.h"
+#include "xidx_parse_utils.h"
 
 namespace xidx{
 
@@ -57,6 +58,7 @@ public:
     return 0;
   };
 
+  virtual std::string GetClassName() override { return "HyperSlabDomain"; };
 };
 
 }
