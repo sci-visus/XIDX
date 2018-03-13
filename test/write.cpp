@@ -25,16 +25,16 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   std::shared_ptr<Domain> time_dom;
   
   if(time_hyperslab){// Create an hyperslab time domain (start, step, count)
-    time_dom = std::make_shared<HyperSlabDomain>(new HyperSlabDomain("Time"));
+    time_dom = std::make_shared<TemporalHyperSlabDomain>(new TemporalHyperSlabDomain("Time"));
     int32_t log_time[n_dims] = {0,1,static_cast<int32_t>(n_timesteps)};
     double phy_time[n_dims] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
-    std::dynamic_pointer_cast<HyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
+    std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
   }
   else{// Create series of timestep values
-    time_dom = std::make_shared<ListDomain>(new ListDomain("Time"));
+    time_dom = std::make_shared<TemporalListDomain>(new ListDomain("Time"));
     
     for(int i=0; i < n_timesteps; i++){
-      std::dynamic_pointer_cast<ListDomain>(time_dom)->AddDomainItem(i, float(i+10));
+      std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(i, float(i+10));
     }
   }
 
@@ -116,7 +116,6 @@ int main(int argc, char** argv){
     return 1;
   }
 
-  int layout_type = 0;
   int n_attributes = 4;
   int n_timesteps = 3;
   int n_levels = 2;

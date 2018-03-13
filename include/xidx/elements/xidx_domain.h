@@ -18,16 +18,21 @@ public:
   Domain(std::string _name) { name=_name; };
   
   DomainType type;
-  std::vector<std::shared_ptr<DataItem> > data_items;
+  std::vector<DataItem > data_items;
 
+  int AddDataItem(DataItem& item){
+    data_items.push_back(item);
+    return 0;
+  }
+  
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
     //Parsable::Serialize(parent);
 
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
-    xmlNewProp(domain_node, BAD_CAST "DomainType", BAD_CAST ToString(type));
+    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
 
     for(auto item: data_items)
-      xmlNodePtr item_node = item->Serialize(domain_node);
+      xmlNodePtr item_node = item.Serialize(domain_node);
 
     return domain_node;
   };
@@ -35,9 +40,9 @@ public:
   virtual int Deserialize(xmlNodePtr node){
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
 
-    const char* domain_type = GetProp(node, "DomainType");
+    const char* domain_type = GetProp(node, "Type");
 
-    for(int t=DomainType::SINGLE_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
+    for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
       if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
           type = static_cast<DomainType>(t);
 

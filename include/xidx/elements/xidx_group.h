@@ -136,7 +136,7 @@ public:
 
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    xmlNewProp(group_node, BAD_CAST "GroupType", BAD_CAST ToString(groupType));
+    xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(groupType));
     xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variabilityType));
     
     for(auto data: data_sources)

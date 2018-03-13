@@ -9,31 +9,27 @@ class ListDomain : public HyperSlabDomain{
 
 public:
   
-  ListDomain(std::string _name) : HyperSlabDomain(_name) {};
+  ListDomain(std::string _name) : HyperSlabDomain(_name) { };
   
   ListDomain(const ListDomain* c) : HyperSlabDomain(c){
     name = c->name;
-    physical = c->physical;
-    logical = c->logical;
+    data_items = c->data_items;
   };
   
-  int AddDomainItem(int32_t log, double phy){
-    log_vector.push_back(log);
+  int AddDomainItem(double phy){
     phy_vector.push_back(phy);
   
     return 0;
   }
   
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
-     
+    assert(data_items.size() >= 1);
+    DataItem& physical = data_items[0];
+    
     for(auto phy: phy_vector)
       physical.text+=std::to_string(phy)+" ";
-     
-    for(auto log: log_vector)
-      logical.text+=std::to_string(log)+" ";
     
     physical.dimensions=std::to_string(phy_vector.size());
-    logical.dimensions=std::to_string(log_vector.size());
     
     xmlNodePtr domain_node = HyperSlabDomain::Serialize(parent, text);
       
@@ -41,7 +37,6 @@ public:
   }
   
 private:
-  std::vector<int> log_vector;
   std::vector<double> phy_vector;
 
 };

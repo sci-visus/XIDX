@@ -31,18 +31,29 @@ public:
   std::shared_ptr<DataSource> file_ref;
   std::vector<Attribute> attributes;
   
-  DataItem(Parsable* _parent){
-    parent = _parent;
+  int SetDefaults(){
     format_type=defaults::DATAITEM_FORMAT_TYPE;
     number_type=defaults::DATAITEM_NUMBER_TYPE;
     bit_precision=defaults::DATAITEM_BIT_PRECISION;
     n_components=defaults::DATAITEM_N_COMPONENTS;
     endian_type=defaults::DATAITEM_ENDIAN_TYPE;
     file_ref=nullptr;
+    return 0;
+  }
+  
+  DataItem(Parsable* _parent){
+    parent = _parent;
+    SetDefaults();
   }
   
   DataItem(std::string dtype, Parsable* _parent){
     parent = _parent;
+    
+    if(!std::isdigit(dtype[0])){ // passed name, not dtype
+      name = dtype;
+      SetDefaults();
+      return;
+    }
     
     size_t comp_idx= dtype.find_last_of("*\\");
     // TODO this uses only 1 digit component
