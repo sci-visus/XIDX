@@ -14,6 +14,10 @@ public:
     data_items.push_back(DataItem(name, this));
   };
   
+  ListDomain(std::string _name, DataItem& item) : Domain(_name) {
+    data_items.push_back(item);
+  };
+  
   ListDomain(const ListDomain& c) : Domain(c){
     name = c.name;
     data_items = c.data_items;
@@ -30,11 +34,12 @@ public:
     assert(data_items.size() >= 1);
     DataItem& physical = data_items[0];
     
-    for(auto phy: values_vector)
-      physical.text+=std::to_string(phy)+" ";
-    
-    physical.dimensions=std::to_string(values_vector.size());
-    
+    if(!std::is_same<T, DataSource>::value){
+      for(auto phy: values_vector)
+        physical.text+=std::to_string(phy)+" ";
+      
+      physical.dimensions=std::to_string(values_vector.size());
+    }
     xmlNodePtr domain_node = Domain::Serialize(parent, text);
       
     return domain_node;

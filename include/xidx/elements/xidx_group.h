@@ -49,7 +49,8 @@ public:
     di.endian_type = endian;
     if(dimensions==NULL){
       di.dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
-      di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
+//      if(n_components > 1)
+//        di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
     }
     else
       di.dimensions = dimensions;

@@ -41,6 +41,12 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   // Set the time group domain to use the time domain we just created
   time_group->SetDomain(time_dom);
 
+  ////////////////////////////////////////////////////////////
+  //
+  //  Spatial grid with shared dataset
+  //
+  ////////////////////////////////////////////////////////////
+  
   // Create a new group to collect a set of variables that share the same spatial domain
   std::shared_ptr<Group> grid(new Group("L0", GroupType::SPATIAL_GROUP_TYPE)); // default static group
   
@@ -66,48 +72,77 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     grid->AddVariable(name, NumberType::FLOAT_NUMBER_TYPE, 32);
   }
 
+  ///////////////////////////////////////////////////////////////
+  //
+  //  Spatial grid defined by an explicit set of axis (Climate)
+  //
+  ///////////////////////////////////////////////////////////////
+  
   // Define a new domain, group and file for a different set of variables
   std::shared_ptr<MultiAxisDomain<double>> geo_dom(new MultiAxisDomain<double>("Geospatial"));
   Axis<double> latitude_axis("latitude");
+  Axis<double> longitude_axis("longitude");
   
   // populate the axis with explicit values (will be written in the XML)
-  for(int i=0; i < 10; i++)
+  for(int i=0; i < 10; i++){
     latitude_axis.AddDomainItem((double)i);
+    longitude_axis.AddDomainItem((double)i*2);
+  }
   
   // Add this axis to the domain
   geo_dom->AddAxis(latitude_axis);
+  geo_dom->AddAxis(longitude_axis);
   
-  std::shared_ptr<Group> d1_vars(new Group("d1_vars", GroupType::SPATIAL_GROUP_TYPE, geo_dom));
+  // Create group for the variables defined in the geospatial domain
+  std::shared_ptr<Group> geo_vars(new Group("geo_vars", GroupType::SPATIAL_GROUP_TYPE, geo_dom));
   
-  std::shared_ptr<DataSource> lat_file(new DataSource("latitude", "file_path"));
-  d1_vars->AddDataSource(lat_file);
-  
-  Variable* temp = d1_vars->AddVariable("latitude", XidxDataType::FLOAT_32);
+  // Create and add a variable to the group
+  Variable* temp = geo_vars->AddVariable("geo_temperature", XidxDataType::FLOAT_32);
   if(!temp)
     printf("error\n");
 
-  temp->AddAttribute("unit", "deg");
-  temp->AddAttribute("valid_min", "0");
-  temp->AddAttribute("valid_max", "180.0");
+  // Add attribute to the variable (key-value) pairs
+  temp->AddAttribute("unit", "Celsius");
+  temp->AddAttribute("valid_min", "-100.0");
+  temp->AddAttribute("valid_max", "200.0");
 
-//  char some_data[64];
-//  std::vector<uint32_t> adims = {64,1};
-  // TODO use dummy raw writer for this, no metadata API
-  //temp->set_raw_data(adims, some_data, "./");
-
-  // we can define datatypes and set to our variables
-  XidxDataType dtype(NumberType::FLOAT_NUMBER_TYPE, 1, 32);
   
-//  DataItem data_item(FormatType::IDX_FORMAT, dtype, file);
-//  
-//  grid->AddVariable("custom0", data_item, space_dom); // can also get a list of XidxDataItem
-//  grid->AddVariable("custom1", data_item, space_dom);
-//  grid->AddVariable("custom2", data_item, space_dom);
+  ///////////////////////////////////////////////////////////////
+  //
+  //  Rectilinear grid with coordinates saved on file
+  //
+  ///////////////////////////////////////////////////////////////
   
+  /// Use a binary file to define a rectilinear grid coordinates
+  int file_n_dims = 2;
+  uint32_t file_dims[2] = {100, 200};
+  
+  std::shared_ptr<SpatialDomain> file_dom(new SpatialDomain("FileBasedDomain"));
+  file_dom->SetTopology(TopologyType::RECT_2D_MESH_TOPOLOGY_TYPE, file_n_dims,
+                         file_dims);
+  
+  // Create a DataSource that points to the file
+  std::shared_ptr<DataSource> rect_grid_file(new DataSource("grid_data", "file_path"));
+  
+  // Create a DataItem which describes the content of the data
+  DataItem file_item(FormatType::BINARY_FORMAT, XidxDataType::FLOAT_64, rect_grid_file, file_dom.get());
+  
+  // Create a geometry which will point to the file
+  Geometry file_geom(GeometryType::XY_GEOMETRY_TYPE, file_item);
+  
+  file_dom->SetGeometry(file_geom);
+  
+  // Create group for the variables defined in the geospatial domain
+  std::shared_ptr<Group> rect_grid_vars(new Group("rect_grid_vars", GroupType::SPATIAL_GROUP_TYPE, file_dom));
+  
+  // Add all the groups of variables to the time series
   time_group->AddGroup(grid);
-  time_group->AddGroup(d1_vars);
+  time_group->AddGroup(geo_vars);
+  time_group->AddGroup(rect_grid_vars);
   
+  // Set the root group of the metadata
   meta.SetRootGroup(time_group);
+  // Write to disk
   meta.save();
 
   printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);

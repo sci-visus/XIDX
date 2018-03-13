@@ -11,11 +11,22 @@ public:
   std::string name;
   GeometryType type;
   std::vector<DataItem> items;
+  
+  Geometry(){}
+  
+  Geometry(GeometryType _type){
+    type = _type;
+  }
+  
+  Geometry(GeometryType _type, DataItem item){
+    type = _type;
+    items.push_back(item);
+  }
 
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
 
     xmlNodePtr geometry_node = xmlNewChild(parent, NULL, BAD_CAST "Geometry", NULL);
-    xmlNewProp(geometry_node, BAD_CAST "GeometryType", BAD_CAST ToString(type));
+    xmlNewProp(geometry_node, BAD_CAST "Type", BAD_CAST ToString(type));
     
     for(auto item: items)
       xmlNodePtr item_node = item.Serialize(geometry_node);
@@ -29,7 +40,7 @@ public:
 
     //name = xidx::getProp(node, "Name");
             
-    const char* geo_type = GetProp(node, "GeometryType");
+    const char* geo_type = GetProp(node, "Type");
 
     for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= ORIGIN_DXDY_GEOMETRY_TYPE; t++)
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)

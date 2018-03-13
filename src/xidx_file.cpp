@@ -18,6 +18,13 @@ const std::string XidxDataType::UINT_16="1*int16";
 const std::string XidxDataType::INT_8="1*int8";
 const std::string XidxDataType::UINT_8="1*uint8";
 
+
+namespace std{
+  std::string to_string(xidx::DataSource const& d){
+    return "";
+  }
+}
+
 // std::string XidsFile::get_idx_file_path(int timestep, int level, CenterType ctype){
 //     return metadata->get_md_file_path()+generate_vars_filename(ctype);
 // }
@@ -45,8 +52,7 @@ int XidxFile::save(){
    */
   xmlCreateIntSubset(doc, BAD_CAST "Xidx", NULL, BAD_CAST "Xidx.dtd");
 
-  xmlNodePtr main_grid_node = xmlNewChild(root_node, NULL, BAD_CAST "Group", NULL);
-  root_group->Serialize(main_grid_node);
+  root_group->Serialize(root_node);
 
   /* 
    * Dumping document to stdio or file

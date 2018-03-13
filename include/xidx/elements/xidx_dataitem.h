@@ -48,40 +48,14 @@ public:
   
   DataItem(std::string dtype, Parsable* _parent){
     parent = _parent;
+    SetDefaults();
     
-    if(!std::isdigit(dtype[0])){ // passed name, not dtype
-      name = dtype;
-      SetDefaults();
-      return;
-    }
-    
-    size_t comp_idx= dtype.find_last_of("*\\");
-    // TODO this uses only 1 digit component
-    n_components = dtype.substr(0,comp_idx);
-    
-    size_t num_idx=0;
-    for(int i=comp_idx;i<dtype.size(); i++)
-      if(!std::isdigit(dtype[i]))
-        num_idx++;
-      else
-        break;
-    
-    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
-    bit_precision = dtype.substr(num_idx+1);
-    
-    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
-      std::string numType = ToString(static_cast<NumberType>(t));
-      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
-      
-      if (strcmp(numType.c_str(), ntype.c_str())==0){
-        number_type = static_cast<NumberType>(t);
-        break;
-      }
-    }
+    ParseDType(dtype);
   }
   
   DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
     parent = _parent;
+    SetDefaults();
     
     format_type=format;
     
@@ -92,7 +66,16 @@ public:
     file_ref=nullptr;
     
   }
-
+  
+  DataItem(FormatType format, std::string dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
+    parent = _parent;
+    SetDefaults();
+    
+    format_type=format;
+    ParseDType(dtype);
+    file_ref=file;
+  }
+  
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     xmlNodePtr data_node = xmlNewChild(parent, NULL, BAD_CAST "DataItem", BAD_CAST this->text.c_str());
     
@@ -101,7 +84,7 @@ public:
     
     if(format_type != defaults::DATAITEM_FORMAT_TYPE)
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
-    //if(numberType != defaults::DATAITEM_NUMBER_TYPE || formatType == FormatType::IDX_FORMAT)
+    
       xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(number_type));
     if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION.c_str()) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
@@ -111,7 +94,8 @@ public:
     if(dimensions.size())
       xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
 
-    xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
+    if(n_components != defaults::DATAITEM_N_COMPONENTS)
+      xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
     if(file_ref != nullptr)
       xmlNodePtr file_node = file_ref->Serialize(data_node);
@@ -198,6 +182,42 @@ public:
     
     return 0;
   };
+  
+private:
+  
+  int ParseDType(std::string dtype){
+    if(!std::isdigit(dtype[0])){ // passed name, not dtype
+      name = dtype;
+      SetDefaults();
+      return 0;
+    }
+    
+    size_t comp_idx= dtype.find_last_of("*\\");
+    // TODO this uses only 1 digit component
+    n_components = dtype.substr(0,comp_idx);
+    
+    size_t num_idx=0;
+    for(int i=comp_idx;i<dtype.size(); i++)
+      if(!std::isdigit(dtype[i]))
+        num_idx++;
+      else
+        break;
+    
+    std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
+    bit_precision = dtype.substr(num_idx+1);
+    
+    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
+      std::string numType = ToString(static_cast<NumberType>(t));
+      std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
+      
+      if (strcmp(numType.c_str(), ntype.c_str())==0){
+        number_type = static_cast<NumberType>(t);
+        break;
+      }
+    }
+    
+    return 0;
+  }
 
   
 };

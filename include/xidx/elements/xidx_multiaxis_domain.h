@@ -24,31 +24,26 @@ public:
     for (int i = 0; i < count; ++i) {
       std::string arg_name = std::string(va_arg(args, const char*));
       lists[i]= ListDomain<T>(arg_name, this);
-//      data_items.push_back(DataItem(arg_name, this));
-      printf("adding %s\n", arg_name.c_str());
     }
     
     va_end(args);
   };
   
-//  MultiAxisDomain(const Domain* c) : Domain(c){
-//    type = DomainType::DOUBLE_LIST_DOMAIN_TYPE;
-//    
-//    name = c->name;
-//    data_items = c->data_items;
-//  };
-  
   int SetAxis(int index, ListDomain<T>& list){
     assert(index < list.data_items.size());
     
     lists[index] = list;
-    //data_items[index] = list.data_items[0];
+    lists[index].parent = this;
+    lists[index].type = DomainType::MULTIAXIS_DOMAIN_TYPE;
+    
     return 0;
   }
   
   int AddAxis(ListDomain<T>& list){
     lists.push_back(list);
-    //data_items.push_back(list.data_items[0]);
+    lists.back().parent = this;
+    lists.back().type = DomainType::MULTIAXIS_DOMAIN_TYPE;
+    
     return 0;
   }
   
