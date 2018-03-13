@@ -164,16 +164,16 @@ inline const char* ToString(CenterType v)
 }
 
 // TODO externalize this function (for Uintah)
-static std::string GenerateVarsFilename(CenterType ctype){
-  switch(ctype){
-    case NODE_CENTER:   return std::string("NCVars").append(IDX_FILE_EXTENSION);
-    case CELL_CENTER:   return std::string("CCVars").append(IDX_FILE_EXTENSION);
-    case GRID_CENTER:   return std::string("GCVars").append(IDX_FILE_EXTENSION);
-    case FACE_CENTER:   return std::string("FCVars").append(IDX_FILE_EXTENSION);
-    case EDGE_CENTER:   return std::string("EGVars").append(IDX_FILE_EXTENSION);
-    default:            return std::string("UNKVars").append(IDX_FILE_EXTENSION);
-  }
-}
+//static std::string GenerateVarsFilename(CenterType ctype){
+//  switch(ctype){
+//    case NODE_CENTER:   return std::string("NCVars").append(IDX_FILE_EXTENSION);
+//    case CELL_CENTER:   return std::string("CCVars").append(IDX_FILE_EXTENSION);
+//    case GRID_CENTER:   return std::string("GCVars").append(IDX_FILE_EXTENSION);
+//    case FACE_CENTER:   return std::string("FCVars").append(IDX_FILE_EXTENSION);
+//    case EDGE_CENTER:   return std::string("EGVars").append(IDX_FILE_EXTENSION);
+//    default:            return std::string("UNKVars").append(IDX_FILE_EXTENSION);
+//  }
+//}
 
 enum DomainType{
   HYPER_SLAB_DOMAIN_TYPE = 0,

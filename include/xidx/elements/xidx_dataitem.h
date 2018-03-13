@@ -99,6 +99,7 @@ public:
 
     if(file_ref != nullptr)
       xmlNodePtr file_node = file_ref->Serialize(data_node);
+#if XIDX_DEBUG_XPATHS
     else if(format_type != FormatType::XML_FORMAT){
       Parsable* parent_group = FindFirst<Parsable>(this);
       
@@ -106,8 +107,8 @@ public:
         xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
         xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+((Parsable*)parent_group)->GetXPath()+"/DataSource[0])").c_str());
       }
-      
     }
+#endif
     
     for(auto att: attributes){
       xmlNodePtr att_node = att.Serialize(data_node);
