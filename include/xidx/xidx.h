@@ -17,11 +17,14 @@
 #include "elements/xidx_attribute.h"
 #include "xidx_data_source.h"
 #include "elements/xidx_dataitem.h"
-#include "elements/xidx_hyperslab_domain.h"
-#include "elements/xidx_double_hyperslab_domain.h"
-#include "elements/xidx_list_domain.h"
-#include "elements/xidx_double_list_domain.h"
+
 #include "elements/xidx_domain.h"
+#include "elements/xidx_list_domain.h"
+#include "elements/xidx_phylog_list_domain.h"
+#include "elements/xidx_multiaxis_domain.h"
+#include "elements/xidx_hyperslab_domain.h"
+#include "elements/xidx_phylog_hyperslab_domain.h"
+
 #include "elements/xidx_topology.h"
 #include "elements/xidx_geometry.h"
 #include "elements/xidx_spatial_domain.h"
@@ -31,7 +34,12 @@
 
 #include "xidx_file.h"
 
-typedef xidx::DoubleHyperSlabDomain TemporalHyperSlabDomain;
-typedef xidx::DoubleListDomain TemporalListDomain;
+namespace xidx {
+typedef PhyLogHyperSlabDomain TemporalHyperSlabDomain;
+typedef PhyLogListDomain TemporalListDomain;
+  
+template<typename T>
+using Axis = ListDomain<T>;
+}
 
 #endif

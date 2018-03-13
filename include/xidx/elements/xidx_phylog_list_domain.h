@@ -1,29 +1,28 @@
-#ifndef XIDX_DOUBLE_LIST_DOMAIN_H_
-#define XIDX_DOUBLE_LIST_DOMAIN_H_
+#ifndef XIDX_PHYLOG_LIST_DOMAIN_H_
+#define XIDX_PHYLOG_LIST_DOMAIN_H_
 
 #include "xidx/xidx.h"
 
 namespace xidx{
   
-class DoubleListDomain : public ListDomain{
+class PhyLogListDomain : public ListDomain<double>{
 
 public:
   
-  DoubleListDomain(std::string _name) : ListDomain(_name) {
-    type = DomainType::DOUBLE_LIST_DOMAIN_TYPE;
+  PhyLogListDomain(std::string _name) : ListDomain(_name) {
+    type = DomainType::PHYLOG_LIST_DOMAIN_TYPE;
     
     data_items.push_back(DataItem("Logical", this));
-    
-    type = DomainType::DOUBLE_LIST_DOMAIN_TYPE;
   };
   
-  DoubleListDomain(const ListDomain* c) : ListDomain(c){
-    type = DomainType::DOUBLE_LIST_DOMAIN_TYPE;
+  PhyLogListDomain(const ListDomain* c) : ListDomain(*c){
+    type = DomainType::PHYLOG_LIST_DOMAIN_TYPE;
     
     name = c->name;
     data_items = c->data_items;
     
-    data_items.push_back(DataItem("Logical", this));
+    if(data_items.size() < 2)
+      data_items.push_back(DataItem("Logical", this));
   };
   
   int AddDomainItem(int32_t log, double phy){
@@ -47,7 +46,7 @@ public:
     physical.dimensions=std::to_string(phy_vector.size());
     logical.dimensions=std::to_string(log_vector.size());
     
-    xmlNodePtr domain_node = HyperSlabDomain::Serialize(parent, text);
+    xmlNodePtr domain_node = ListDomain::Serialize(parent, text);
       
     return domain_node;
   }

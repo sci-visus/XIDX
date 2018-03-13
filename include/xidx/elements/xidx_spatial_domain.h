@@ -15,15 +15,6 @@ public:
   
   Topology topology;
   Geometry geometry;
-
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
-    xmlNodePtr domain_node = Domain::Serialize(parent, text);
-    xmlNodePtr topology_node = topology.Serialize(domain_node);
-
-    xmlNodePtr geometry_node = geometry.Serialize(domain_node);
-
-    return domain_node;
-  };
   
   int SetTopology(Topology _topology) { topology = _topology; return 0; }
   
@@ -60,13 +51,12 @@ public:
     item_d.bit_precision = "32";
     item_d.endian_type = EndianType::LITTLE_ENDIANESS;
     
-    
     item_o.dimensions = string_format("%d", n_dims);
     item_d.dimensions = string_format("%d", n_dims);
     
     for(int i=0; i< n_dims; i++){
-      item_o.text +=string_format("%f ",ox_oy_oz[i]);
-      item_d.text +=string_format("%f ",dx_dy_dz[i]);
+      item_o.text += std::to_string(ox_oy_oz[i])+" ";
+      item_d.text += std::to_string(dx_dy_dz[i])+" ";
     }
     
     geometry.items.push_back(item_o);
@@ -74,6 +64,15 @@ public:
     
     return 0;
   }
+  
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+    xmlNodePtr domain_node = Domain::Serialize(parent, text);
+    xmlNodePtr topology_node = topology.Serialize(domain_node);
+    
+    xmlNodePtr geometry_node = geometry.Serialize(domain_node);
+    
+    return domain_node;
+  };
   
   virtual int Deserialize(xmlNodePtr node) override{
     Domain::Deserialize(node);

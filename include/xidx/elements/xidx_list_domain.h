@@ -5,19 +5,23 @@
 
 namespace xidx{
 
-class ListDomain : public HyperSlabDomain{
+template<typename T>
+class ListDomain : public Domain{
 
 public:
   
-  ListDomain(std::string _name) : HyperSlabDomain(_name) { };
-  
-  ListDomain(const ListDomain* c) : HyperSlabDomain(c){
-    name = c->name;
-    data_items = c->data_items;
+  ListDomain(std::string _name) : Domain(_name) {
+    data_items.push_back(DataItem(name, this));
   };
   
-  int AddDomainItem(double phy){
-    phy_vector.push_back(phy);
+  ListDomain(const ListDomain& c) : Domain(c){
+    name = c.name;
+    data_items = c.data_items;
+    values_vector = c.values_vector;
+  };
+  
+  int AddDomainItem(T phy){
+    values_vector.push_back(phy);
   
     return 0;
   }
@@ -26,18 +30,18 @@ public:
     assert(data_items.size() >= 1);
     DataItem& physical = data_items[0];
     
-    for(auto phy: phy_vector)
+    for(auto phy: values_vector)
       physical.text+=std::to_string(phy)+" ";
     
-    physical.dimensions=std::to_string(phy_vector.size());
+    physical.dimensions=std::to_string(values_vector.size());
     
-    xmlNodePtr domain_node = HyperSlabDomain::Serialize(parent, text);
+    xmlNodePtr domain_node = Domain::Serialize(parent, text);
       
     return domain_node;
   }
   
 private:
-  std::vector<double> phy_vector;
+  std::vector<T> values_vector;
 
 };
 

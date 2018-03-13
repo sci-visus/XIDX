@@ -177,12 +177,13 @@ static std::string GenerateVarsFilename(CenterType ctype){
 
 enum DomainType{
   HYPER_SLAB_DOMAIN_TYPE = 0,
-  DOUBLE_HYPER_SLAB_DOMAIN_TYPE = 1,
+  PHYLOG_HYPER_SLAB_DOMAIN_TYPE = 1,
   LIST_DOMAIN_TYPE = 2,
-  DOUBLE_LIST_DOMAIN_TYPE = 3,
-  SPATIAL_DOMAIN_TYPE = 4,
-  TEMPORAL_DOMAIN_TYPE = 5,
-  RANGE_DOMAIN_TYPE = 6
+  MULTIAXIS_DOMAIN_TYPE = 3,
+  PHYLOG_LIST_DOMAIN_TYPE = 4,
+  SPATIAL_DOMAIN_TYPE = 5,
+  TEMPORAL_DOMAIN_TYPE = 6,
+  RANGE_DOMAIN_TYPE = 7
 };
 
 inline const char* ToString(DomainType v)
@@ -190,9 +191,10 @@ inline const char* ToString(DomainType v)
   switch (v)
   {
     case HYPER_SLAB_DOMAIN_TYPE:         return "HyperSlab";
-    case DOUBLE_HYPER_SLAB_DOMAIN_TYPE:  return "DoubleHyperSlab";
+    case PHYLOG_HYPER_SLAB_DOMAIN_TYPE:  return "PhyLogHyperSlab";
     case LIST_DOMAIN_TYPE:               return "List";
-    case DOUBLE_LIST_DOMAIN_TYPE:        return "DoubleList";
+    case MULTIAXIS_DOMAIN_TYPE:          return "MultiAxisDomain";
+    case PHYLOG_LIST_DOMAIN_TYPE:        return "PhyLogList";
     case SPATIAL_DOMAIN_TYPE:            return "Spatial";
     case RANGE_DOMAIN_TYPE:              return "Range";
     default:                             return "[Unknown]";

@@ -25,6 +25,12 @@ public:
     return 0;
   }
   
+  virtual int AddDataItem(std::string name, Parsable* parent){
+    data_items.push_back(DataItem(name, parent));
+    return 0;
+  }
+
+  
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
     //Parsable::Serialize(parent);
 

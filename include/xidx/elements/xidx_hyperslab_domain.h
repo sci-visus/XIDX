@@ -1,24 +1,15 @@
 #ifndef XIDX_HYPERSLAB_DOMAIN_H_
 #define XIDX_HYPERSLAB_DOMAIN_H_
 
-#include "xidx_domain.h"
+#include "xidx/xidx.h"
 
 namespace xidx{
 
-class HyperSlabDomain : public Domain{
+class HyperSlabDomain : public ListDomain<double>{
 
-public:
-  
-  HyperSlabDomain(const HyperSlabDomain* c){
+public:  
+  HyperSlabDomain(std::string _name) : ListDomain(_name){
     type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
-    name = c->name;
-    data_items = c->data_items;
-  };
-  
-  HyperSlabDomain(std::string _name) : Domain(_name){
-    type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
-    
-    data_items.push_back(DataItem("Physical", this));
     
     DataItem& physical = data_items[0];
     

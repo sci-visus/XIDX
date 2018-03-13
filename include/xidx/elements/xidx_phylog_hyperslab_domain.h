@@ -1,23 +1,25 @@
-#ifndef XIDX_DOUBLE_HYPERSLAB_DOMAIN_H_
-#define XIDX_DOUBLE_HYPERSLAB_DOMAIN_H_
+#ifndef XIDX_PHYLOG_HYPERSLAB_DOMAIN_H_
+#define XIDX_PHYLOG_HYPERSLAB_DOMAIN_H_
 
 #include "xidx_domain.h"
 
 namespace xidx{
   
-class DoubleHyperSlabDomain : public HyperSlabDomain{
+class PhyLogHyperSlabDomain : public HyperSlabDomain{
 
 public:
   
-  DoubleHyperSlabDomain(const HyperSlabDomain* c): HyperSlabDomain(c->name){
-    type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
+  PhyLogHyperSlabDomain(const HyperSlabDomain* c): HyperSlabDomain(c->name){
+    type = DomainType::PHYLOG_HYPER_SLAB_DOMAIN_TYPE;
     name = c->name;
     data_items = c->data_items;
-    data_items.push_back(DataItem("Logical", this));
+    
+    if(data_items.size() < 2)
+      data_items.push_back(DataItem("Logical", this));
   };
   
-  DoubleHyperSlabDomain(std::string _name) : HyperSlabDomain(_name) {
-    type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
+  PhyLogHyperSlabDomain(std::string _name) : HyperSlabDomain(_name) {
+    type = DomainType::PHYLOG_HYPER_SLAB_DOMAIN_TYPE;
     
     data_items.push_back(DataItem("Logical", this));
     

@@ -31,7 +31,7 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
     std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
   }
   else{// Create series of timestep values
-    time_dom = std::make_shared<TemporalListDomain>(new ListDomain("Time"));
+    time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
     
     for(int i=0; i < n_timesteps; i++){
       std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(i, float(i+10));
@@ -67,10 +67,17 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   }
 
   // Define a new domain, group and file for a different set of variables
-  std::shared_ptr<SpatialDomain> lat_dom(new SpatialDomain("Latitude"));
-  lat_dom->SetTopology(TopologyType::DIM_1D_TOPOLOGY_TYPE, 320);
+  std::shared_ptr<MultiAxisDomain<double>> geo_dom(new MultiAxisDomain<double>("Geospatial"));
+  Axis<double> latitude_axis("latitude");
   
-  std::shared_ptr<Group> d1_vars(new Group("d1_vars", GroupType::SPATIAL_GROUP_TYPE, lat_dom));
+  // populate the axis with explicit values (will be written in the XML)
+  for(int i=0; i < 10; i++)
+    latitude_axis.AddDomainItem((double)i);
+  
+  // Add this axis to the domain
+  geo_dom->AddAxis(latitude_axis);
+  
+  std::shared_ptr<Group> d1_vars(new Group("d1_vars", GroupType::SPATIAL_GROUP_TYPE, geo_dom));
   
   std::shared_ptr<DataSource> lat_file(new DataSource("latitude", "file_path"));
   d1_vars->AddDataSource(lat_file);
