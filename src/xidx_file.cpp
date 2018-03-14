@@ -29,7 +29,7 @@ namespace std{
 //     return metadata->get_md_file_path()+generate_vars_filename(ctype);
 // }
 
-int XidxFile::save(){
+int XidxFile::Save(){
 
   xmlDocPtr doc = NULL;       /* document pointer */
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
@@ -76,7 +76,7 @@ int XidxFile::save(){
   return 0; 
 }
 
-int XidxFile::load(){
+int XidxFile::Load(){
 
   LIBXML_TEST_VERSION;
 

@@ -108,6 +108,10 @@ public:
       while(curr_parent!=nullptr){
         Parsable* parent_group=FindParent("Group", curr_parent);
         source = parent_group->FindChild("DataSource");
+        
+        if(source!=nullptr && source->GetClassName()=="DataSource")
+          break;
+        
         curr_parent = parent_group->parent;
       }
       

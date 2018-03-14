@@ -5,30 +5,35 @@
 
 namespace xidx{
 
+typedef int DomainIndex;
+  
 class Group : public Parsable{
 
 public:
 
   GroupType groupType;
-  VariabilityType variabilityType;
+  VariabilityType variability_type;
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
   std::vector<std::shared_ptr<DataSource> > data_sources;
   std::vector<Variable> variables;
   std::vector<Attribute> attributes;
+  DomainIndex domain_index;
+  DomainIndex variable_groups_count;
   
-  Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE)
-    {
+  Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
     groupType=_groupType;
-    variabilityType=_varType;
+    variability_type=_varType;
+    variable_groups_count=0;
   }
   
   Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
     name=_name;
     groupType=_groupType;
-    variabilityType=_varType;
+    variability_type=_varType;
     domain=_domain;
+    variable_groups_count=0;
   }
   
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
@@ -127,7 +132,12 @@ public:
     return &variables.back();
   }
   
-  int AddGroup(std::shared_ptr<Group> group){
+  int AddGroup(std::shared_ptr<Group> group, DomainIndex=0){
+    if(group->variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE){
+      group->domain_index = variable_groups_count;
+      variable_groups_count++;
+    }
+    
     group->SetParent(this);
     groups.push_back(group);
     return 0;
@@ -138,7 +148,10 @@ public:
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(groupType));
-    xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variabilityType));
+    xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variability_type));
+    
+    if(variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE)
+      xmlNewProp(group_node, BAD_CAST "DomainIndex", BAD_CAST std::to_string(domain_index).c_str());
     
     for(auto data: data_sources)
       xmlNodePtr data_node = data->Serialize(group_node);

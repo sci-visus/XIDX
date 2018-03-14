@@ -5,6 +5,6 @@
 
 #define XIDX_MAX_PATH_FILE_LENGTH 1024
 
-#define XIDX_DEBUG_XPATHS 1
+#define XIDX_DEBUG_XPATHS 0
 
 #endif

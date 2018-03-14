@@ -21,8 +21,8 @@ public:
 
   XidxFile(std::string path) : file_path(path){ };
 
-  int load();
-  int save();
+  int Load();
+  int Save();
 
   // std::string get_idx_file_path(int timestep, int level, CenterType ctype);
   // std::string get_md_file_path(){ return file_path; }
