@@ -54,6 +54,9 @@ public:
     item_o.dimensions = string_format("%d", n_dims);
     item_d.dimensions = string_format("%d", n_dims);
     
+    if(type == GeometryType::BOX_P1P2_GEOMETRY_TYPE)
+      n_dims *= 2; // two points per dimension
+    
     for(int i=0; i< n_dims; i++){
       item_o.text += std::to_string(ox_oy_oz[i])+" ";
       item_d.text += std::to_string(dx_dy_dz[i])+" ";
