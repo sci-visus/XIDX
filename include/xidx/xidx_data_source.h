@@ -19,6 +19,11 @@ public:
     name = "undefined";
   };
   
+  DataSource(const DataSource* ds){
+    url=ds->url;
+    name=ds->name;
+  }
+  
   DataSource(std::string _name, std::string path){
     url = path;
     name = _name;

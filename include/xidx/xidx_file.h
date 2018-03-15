@@ -23,6 +23,11 @@ public:
 
   int Load();
   int Save();
+  
+  int Save(std::string path){
+    file_path = path;
+    return Save();
+  };
 
   // std::string get_idx_file_path(int timestep, int level, CenterType ctype);
   // std::string get_md_file_path(){ return file_path; }

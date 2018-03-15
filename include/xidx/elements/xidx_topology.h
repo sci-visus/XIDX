@@ -20,7 +20,7 @@ public:
 
     xmlNodePtr topology_node = xmlNewChild(parent, NULL, BAD_CAST "Topology", NULL);
 
-    xmlNewProp(topology_node, BAD_CAST "TopologyType", BAD_CAST ToString(type));
+    xmlNewProp(topology_node, BAD_CAST "Type", BAD_CAST ToString(type));
     xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
     
     for(auto item: items)
@@ -33,7 +33,7 @@ public:
     if(!IsNodeName(node,"Topology"))
       return -1;
 
-    const char* topo_type = GetProp(node, "TopologyType");
+    const char* topo_type = GetProp(node, "Type");
 
     for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
       if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)

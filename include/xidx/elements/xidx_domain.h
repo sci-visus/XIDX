@@ -51,6 +51,32 @@ public:
     for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
       if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
           type = static_cast<DomainType>(t);
+    
+    for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
+      if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
+        type = static_cast<DomainType>(t);
+    
+    int data_items_count=0;
+    for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
+      
+      if (cur_node->type == XML_ELEMENT_NODE) {
+        
+        if(IsNodeName(cur_node, "DataItem")){
+          if(data_items.size() > data_items_count){
+            DataItem& d = data_items[data_items_count];
+            d.Deserialize(cur_node);
+          }
+          else{
+            DataItem d(this);
+            d.Deserialize(cur_node);
+            data_items.push_back(d);
+          }
+          
+          data_items_count++;
+        }
+      }
+      
+    }
 
     return 0;
   };

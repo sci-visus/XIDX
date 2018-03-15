@@ -133,6 +133,9 @@ public:
     if(!xidx::IsNodeName(node,"DataItem"))
       return -1;
 
+    if(node->children != nullptr)
+      text = (char*)(node->children->content);
+    
     const char* form_type = xidx::GetProp(node, "Format");
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
@@ -166,10 +169,10 @@ public:
     else 
       n_components = val_components;
 
-    //if(formatType != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
+    //if(format_type != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
       const char* val_dimensions = xidx::GetProp(node, "Dimensions");
       if(val_dimensions == NULL){
-        assert(false);
+        //assert(false);
         fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
       }
       else 
@@ -190,7 +193,18 @@ public:
     if(format_type != FormatType::XML_FORMAT){
       Parsable* parent_group = FindParent("Group", parent);
 
-      file_ref->Deserialize(node->children);
+//      if(node != nullptr)
+//        file_ref->Deserialize(node->children);
+    }
+    
+    for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+          if(IsNodeName(cur_node, "DataSource")){
+            file_ref = std::make_shared<DataSource>(new DataSource());
+            file_ref->Deserialize(cur_node);
+            
+          }
+      }
     }
     
     return 0;

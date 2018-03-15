@@ -8,7 +8,7 @@ namespace xidx{
 
 class HyperSlabDomain : public ListDomain<double>{
 
-public:  
+public:
   HyperSlabDomain(std::string _name) : ListDomain(_name){
     type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
     
@@ -17,6 +17,10 @@ public:
     physical.format_type = FormatType::XML_FORMAT;
     physical.number_type = NumberType::FLOAT_NUMBER_TYPE;
     physical.bit_precision = "64";
+  }
+  
+  HyperSlabDomain(const HyperSlabDomain* d) : ListDomain(d->name){
+    data_items = d->data_items;
   }
   
   int setDomain(uint32_t dims, double* phy_hyperslab){
@@ -48,7 +52,7 @@ public:
       for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (inner_node->type == XML_ELEMENT_NODE) {
           
-          if(IsNodeName(inner_node, "Physical")){
+          if(IsNodeName(inner_node, "DataItem")){
             physical.Deserialize(inner_node);
           }
         }

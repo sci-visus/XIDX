@@ -9,6 +9,7 @@ template<typename T>
 class ListDomain : public Domain{
 
 public:
+  std::vector<T> values_vector;
   
   ListDomain(std::string _name) : Domain(_name) {
     data_items.push_back(DataItem(name, this));
@@ -23,6 +24,11 @@ public:
     data_items = c.data_items;
     values_vector = c.values_vector;
   };
+  
+  ListDomain(const ListDomain* d) : Domain(d->name){
+    data_items = d->data_items;
+    values_vector = d->values_vector;
+  }
   
   int AddDomainItem(T phy){
     values_vector.push_back(phy);
@@ -46,9 +52,6 @@ public:
   }
   
   virtual std::string GetClassName() override { return "ListDomain"; };
-  
-private:
-  std::vector<T> values_vector;
 
 };
 

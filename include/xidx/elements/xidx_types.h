@@ -193,6 +193,7 @@ inline const char* ToString(DomainType v)
     case HYPER_SLAB_DOMAIN_TYPE:         return "HyperSlab";
     case PHYLOG_HYPER_SLAB_DOMAIN_TYPE:  return "PhyLogHyperSlab";
     case LIST_DOMAIN_TYPE:               return "List";
+    case TEMPORAL_DOMAIN_TYPE:           return "Temporal";
     case MULTIAXIS_DOMAIN_TYPE:          return "MultiAxisDomain";
     case PHYLOG_LIST_DOMAIN_TYPE:        return "PhyLogList";
     case SPATIAL_DOMAIN_TYPE:            return "Spatial";

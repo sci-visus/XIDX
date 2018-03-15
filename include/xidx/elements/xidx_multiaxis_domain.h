@@ -29,6 +29,10 @@ public:
     va_end(args);
   };
   
+  MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
+    lists = d->lists;
+  }
+  
   int SetAxis(int index, ListDomain<T>& list){
     assert(index < list.data_items.size());
     
@@ -48,9 +52,21 @@ public:
   }
   
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+    xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
+    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
+    
     for(auto& l: lists){
-     xmlNodePtr list_node = l.Serialize(parent);
+      for(auto item: l.data_items){
+        for(auto phy: l.values_vector)
+          item.text+=std::to_string(phy)+" ";
+          
+        item.dimensions=std::to_string(l.values_vector.size());
+        data_items.push_back(item);
+      }
     }
+    
+    for(auto item: data_items)
+      item.Serialize(domain_node);
     
     return parent;
   }

@@ -11,7 +11,7 @@ class Group : public Parsable{
 
 public:
 
-  GroupType groupType;
+  GroupType group_type;
   VariabilityType variability_type;
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
@@ -21,19 +21,27 @@ public:
   DomainIndex domain_index;
   DomainIndex variable_groups_count;
   
-  Group(std::string _name, GroupType _groupType, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE){
+  Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
-    groupType=_groupType;
+    group_type=_groupType;
     variability_type=_varType;
     variable_groups_count=0;
   }
   
   Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
     name=_name;
-    groupType=_groupType;
+    group_type=_groupType;
     variability_type=_varType;
     domain=_domain;
     variable_groups_count=0;
+  }
+  
+  Group(const Group* g){
+    name=g->name;
+    group_type=g->group_type;
+    variability_type=g->variability_type;
+    domain=g->domain;
+    variable_groups_count=g->variable_groups_count;
   }
   
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
@@ -147,7 +155,7 @@ public:
 
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(groupType));
+    xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(group_type));
     xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variability_type));
     
     if(variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE)
@@ -167,40 +175,91 @@ public:
     for(auto g:groups)
        xmlNodePtr g_node = g->Serialize(group_node);
 
-    // if(groupType == GroupType::SPATIAL_GRID_TYPE){
-    //   xmlNodePtr topology_node = topology.objToXML(group_node);
-    //   xmlNodePtr geometry_node = geometry.objToXML(group_node);
-    // }else if(groupType == GroupType::TEMPORAL_GRID_TYPE){
-
-    //   if(groupType == CollectionType::TEMPORAL_COLLECTION_TYPE){
-    //     xmlNodePtr curr_time_node = xmlNewChild(time_group_node, NULL, BAD_CAST "Group", NULL);
-    //     xmlNewProp(curr_time_node, BAD_CAST "Name", BAD_CAST string_format(xidx_TIME_FORMAT,i).c_str());
-    //     xmlNewProp(curr_time_node, BAD_CAST "GroupType", BAD_CAST ToString(GroupType::COLLECTION_GRID_TYPE));
-    //     xmlNewProp(curr_time_node, BAD_CAST "CollectionType", BAD_CAST ToString(CollectionType::SPATIAL_COLLECTION_TYPE));
-
-    //     xmlNodePtr info_node = curr_group->get_log_time_info().objToXML(curr_time_node);
-
-    //     xmlNodePtr time_node = xmlNewChild(curr_time_node, NULL, BAD_CAST "Time", NULL);
-    //     xmlNewProp(time_node, BAD_CAST "Value", BAD_CAST curr_group->get_physical_time_str());
-    //   }
-
-    // }
-
     return group_node;
   };
   
   int Deserialize(xmlNodePtr node){
-    // if(!xidx::is_node_name(node,"Topology"))
-    //   return -1;
+    if(!IsNodeName(node,"Group"))
+      return -1;
 
-    // const char* topo_type = xidx::getProp(node, "TopologyType");
+    name = GetProp(node, "Name");
+    
+    const char* type_s = GetProp(node, "Type");
+    for(int t=GroupType::SPATIAL_GROUP_TYPE; t <= GroupType::TEMPORAL_GROUP_TYPE; t++)
+      if (strcmp(type_s, ToString(static_cast<GroupType>(t)))==0)
+             group_type = static_cast<GroupType>(t);
 
-    // for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
-    //   if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
-    //       topologyType = static_cast<TopologyType>(t);
+    const char* vtype_s = GetProp(node, "VariabilityType");
+    for(int t=VariabilityType::STATIC_VARIABILITY_TYPE; t <= VariabilityType::VARIABLE_VARIABILITY_TYPE; t++)
+      if (strcmp(vtype_s, ToString(static_cast<VariabilityType>(t)))==0)
+        variability_type = static_cast<VariabilityType>(t);
+    
+    const char* dindex_s = GetProp(node, "DomainIndex");
+    
+    if(dindex_s != nullptr)
+      domain_index = atoi(dindex_s);
+    else
+      domain_index = 0;
 
-    // dimensions = xidx::getProp(node, "Dimensions");
+    for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
+      
+      if(IsNodeName(cur_node,"DataSource")){
+        std::shared_ptr<DataSource> ds(new DataSource());
+        ds->Deserialize(cur_node);
+        data_sources.push_back(ds);
+      }
+      else if(IsNodeName(cur_node,"Domain")){
+        const char* domtype_s = GetProp(cur_node, "Type");
+        DomainType dom_type;
+        
+        for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
+          if (strcmp(domtype_s, ToString(static_cast<DomainType>(t)))==0)
+            dom_type = static_cast<DomainType>(t);
 
+        switch(dom_type){
+          case DomainType::HYPER_SLAB_DOMAIN_TYPE:
+            domain = std::make_shared<HyperSlabDomain>(new HyperSlabDomain(""));
+            break;
+          case DomainType::LIST_DOMAIN_TYPE:
+            domain = std::make_shared<ListDomain<double>>(new ListDomain<double>(""));
+            break;
+          case DomainType::MULTIAXIS_DOMAIN_TYPE:
+            domain = std::make_shared<MultiAxisDomain<double>>(new MultiAxisDomain<double>(""));
+            break;
+          case DomainType::PHYLOG_HYPER_SLAB_DOMAIN_TYPE:
+            domain = std::make_shared<PhyLogHyperSlabDomain>(new PhyLogHyperSlabDomain(""));
+            break;
+          case DomainType::PHYLOG_LIST_DOMAIN_TYPE:
+            domain = std::make_shared<PhyLogListDomain>(new PhyLogListDomain(""));
+            break;
+          case DomainType::SPATIAL_DOMAIN_TYPE:
+            domain = std::make_shared<SpatialDomain>(new SpatialDomain(""));
+            break;
+          case DomainType::TEMPORAL_DOMAIN_TYPE:
+            domain = std::make_shared<PhyLogListDomain>(new PhyLogListDomain(""));
+            break;
+        }
+        
+        if(domain != nullptr)
+          domain->Deserialize(cur_node);
+      }
+      else if(IsNodeName(cur_node,"Attribute")){
+        Attribute att;
+        att.Deserialize(cur_node);
+        attributes.push_back(att);
+      }
+      else if(IsNodeName(cur_node,"Variable")){
+        Variable var(this);
+        var.Deserialize(cur_node);
+        variables.push_back(var);
+      }
+      else if(IsNodeName(cur_node,"Group")){
+        std::shared_ptr<Group> gr(new Group(this));
+        gr->Deserialize(cur_node);
+        groups.push_back(gr);
+      }
+    }
+    
     return 0;
   };
   

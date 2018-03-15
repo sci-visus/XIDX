@@ -90,47 +90,17 @@ int XidxFile::Load(){
 
   xmlNode* root_element = xmlDocGetRootElement(doc);
 
-  // if(!root_element || !(root_element->children) || !(root_element->children->next))
-  //   return 1;
+  if(!root_element || !(root_element->children) || !(root_element->children->next))
+     return 1;
 
-  // xmlNode *space_grid = root_element->children->next->children->next->children;
-
-  // xmlNode *time_grid = root_element->children->next->children->next->next->next->children;
-
-  // std::shared_ptr<Level> lvl(new Level());
-  // lvl->XMLToObj(space_grid);
-
-  // // Time
-  // for (xmlNode* cur_node = time_grid; cur_node; cur_node = cur_node->next) {
-  //   if (cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Grid")) {
-  //     std::shared_ptr<TimeStep> ts(new TimeStep());
-
-  //     int log_time = -1;
-  //     double phy_time = -1.0;
-
-  //     for (xmlNode* cur_time_node = cur_node->children; cur_time_node; cur_time_node = cur_time_node->next){ 
-  //       if(cur_time_node->type == XML_ELEMENT_NODE && is_node_name(cur_time_node,"Time")){
-  //         Time t;
-  //         t.XMLToObj(cur_time_node);
-  //         phy_time = stod(t.value);
-
-  //         for(auto info:t.information)
-  //           if(strcmp(info.name.c_str(), "LogicalTime")==0)
-  //             log_time = stoi(info.value);
-  //       }
-  //     }
-  //     //printf("timestep %d %f\n", log_time, phy_time);
-  //     ts->set_timestep(log_time, phy_time);
-
-  //     ts->add_level(lvl);
-  //     metadata->add_timestep(ts);
-  //   }
-  //   else if(cur_node->type == XML_ELEMENT_NODE && is_node_name(cur_node,"Time")){
-
-  //     metadata->get_time().XMLToObj(cur_node);
-
-  //   }
-  // }
+  for (xmlNode* cur_node = root_element->children->next; cur_node; cur_node = cur_node->next) {
+    
+    
+    if(IsNodeName(cur_node,"Group")){
+      root_group = std::make_shared<Group>(new Group("root"));
+      root_group->Deserialize(cur_node);
+    }
+  }
 
   xmlFreeDoc(doc);
 

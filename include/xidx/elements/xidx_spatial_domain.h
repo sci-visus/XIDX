@@ -13,6 +13,11 @@ public:
     type = DomainType::SPATIAL_DOMAIN_TYPE;
   };
   
+  SpatialDomain(const SpatialDomain* dom) : Domain(dom->name){
+    topology = dom->topology;
+    geometry = dom->geometry;
+  }
+  
   Topology topology;
   Geometry geometry;
   
@@ -80,17 +85,17 @@ public:
   virtual int Deserialize(xmlNodePtr node) override{
     Domain::Deserialize(node);
 
-    for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
-      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
-        if (inner_node->type == XML_ELEMENT_NODE) {
+    for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
+//      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
           
-          if(IsNodeName(inner_node, "Topology")){
-            topology.Serialize(inner_node);
+          if(IsNodeName(cur_node, "Topology")){
+            topology.Deserialize(cur_node);
           }
-          else if(IsNodeName(inner_node, "Geometry")){
-            geometry.Serialize(inner_node);
+          else if(IsNodeName(cur_node, "Geometry")){
+            geometry.Deserialize(cur_node);
           }
-        }
+//        }
       }
     }
 
