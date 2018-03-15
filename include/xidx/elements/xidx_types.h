@@ -225,5 +225,23 @@ public:
     bit_precision=_bit_precision;
   }
 };
+
+// TODO add vector types
+const std::string XidxDataType::FLOAT_32="1*float32";
+const std::string XidxDataType::FLOAT_64="1*float64";
+const std::string XidxDataType::INT_32="1*int32";
+const std::string XidxDataType::UINT_32="1*uint32";
+const std::string XidxDataType::INT_16="1*int16";
+const std::string XidxDataType::UINT_16="1*int16";
+const std::string XidxDataType::INT_8="1*int8";
+const std::string XidxDataType::UINT_8="1*uint8";
+  
 }
+
+namespace std{
+  std::string to_string(xidx::DataSource const& d){
+    return "";
+  }
+}
+
 #endif
