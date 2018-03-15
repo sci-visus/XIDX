@@ -56,12 +56,22 @@ public:
     xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
     
     for(auto& l: lists){
-      for(auto item: l.data_items){
+      
+      for(int i=0; i< l.data_items.size(); i++){
+        if(data_items.size() >= l.data_items.size())
+          data_items[i] = l.data_items[i];
+        else {
+          DataItem item(this);
+          data_items.push_back(item);
+        }
+        
+        DataItem& item = data_items[i];
+        
         for(auto phy: l.values_vector)
           item.text+=std::to_string(phy)+" ";
           
         item.dimensions=std::to_string(l.values_vector.size());
-        data_items.push_back(item);
+        data_items[i] = item;
       }
     }
     

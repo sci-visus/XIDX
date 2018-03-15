@@ -64,15 +64,15 @@ public:
     DataItem& logical = data_items[1];
     
     int length = stoi(physical.dimensions);
-    std::string::size_type sz_phy;
     
-    std::stringstream stream(logical.text);
+    std::stringstream stream_log(logical.text);
+    std::stringstream stream_phy(physical.text);
     
     phy_vector.resize(length);
     log_vector.resize(length);
     for(int i=0; i< length; i++){
-      phy_vector[i] = std::stod(physical.text, &sz_phy);
-      stream >> log_vector[i];
+      stream_phy >> phy_vector[i];
+      stream_log >> log_vector[i];
     }
     
     return 0;

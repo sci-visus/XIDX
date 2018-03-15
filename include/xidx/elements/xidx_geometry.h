@@ -42,7 +42,7 @@ public:
             
     const char* geo_type = GetProp(node, "Type");
 
-    for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= ORIGIN_DXDY_GEOMETRY_TYPE; t++)
+    for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= BOX_P1P2_GEOMETRY_TYPE; t++)
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
           type = static_cast<GeometryType>(t);
 

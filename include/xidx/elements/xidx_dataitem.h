@@ -46,6 +46,20 @@ public:
     SetDefaults();
   }
   
+  DataItem(const DataItem& i){
+    name=i.name;
+    dimensions=i.dimensions;
+    number_type=i.number_type;
+    bit_precision=i.bit_precision;
+    n_components=i.n_components;
+    reference=i.reference;
+    text=i.text;
+    endian_type=i.endian_type;
+    format_type=i.format_type;
+    file_ref=i.file_ref;
+    attributes=i.attributes;
+  }
+  
   DataItem(std::string dtype, Parsable* _parent){
     parent = _parent;
     SetDefaults();
@@ -136,6 +150,11 @@ public:
     if(node->children != nullptr)
       text = (char*)(node->children->content);
     
+    const char* name_s = xidx::GetProp(node, "Name");
+    
+    if(name_s != nullptr)
+      name = name_s;
+    
     const char* form_type = xidx::GetProp(node, "Format");
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
@@ -197,13 +216,15 @@ public:
 //        file_ref->Deserialize(node->children);
     }
     
-    for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
-        if (cur_node->type == XML_ELEMENT_NODE) {
-          if(IsNodeName(cur_node, "DataSource")){
-            file_ref = std::make_shared<DataSource>(new DataSource());
-            file_ref->Deserialize(cur_node);
-            
-          }
+    if(node->children != nullptr){
+      for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
+          if (cur_node->type == XML_ELEMENT_NODE) {
+            if(IsNodeName(cur_node, "DataSource")){
+              file_ref = std::make_shared<DataSource>(new DataSource());
+              file_ref->Deserialize(cur_node);
+              
+            }
+        }
       }
     }
     
