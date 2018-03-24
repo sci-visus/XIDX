@@ -21,9 +21,11 @@ public:
     return att_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  int Deserialize(xmlNodePtr node, Parsable* _parent){
     if(!xidx::IsNodeName(node,"Attribute"))
       return -1;
+    
+    parent = _parent;
 
     name = xidx::GetProp(node, "Name");
     value = xidx::GetProp(node, "Value");

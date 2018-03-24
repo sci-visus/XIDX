@@ -28,7 +28,7 @@ public:
   int SetParent(Parsable* _parent){ parent = _parent; return 0;}
   
   virtual xmlNode* Serialize(xmlNode* parent, const char* text=NULL) = 0;
-  virtual int Deserialize(xmlNode* node) = 0;
+  virtual int Deserialize(xmlNode* node, Parsable* parent) = 0;
 
   virtual std::string GetXPath() { return xpath_prefix; }
   
@@ -37,7 +37,7 @@ public:
   virtual Parsable* FindParent(const std::string& class_name, Parsable* obj2) const{
     if(obj2 == nullptr)
       return nullptr;
-    //printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
+    printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
     if(obj2->GetClassName() == class_name){
       return obj2;
     }

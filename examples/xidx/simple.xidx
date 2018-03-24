@@ -6,7 +6,13 @@
 
     <Domain Name="Time" Type="HyperSlab">
       <DataItem Name="Physical" Format="XML" NumberType="Float" Precision="8" Dimensions="3">2.000000 0.200000 3.000000</DataItem>
-      <DataItem Name="Logical" Format="XML" NumberType="Int" Precision="4" Dimensions="3">2 1 3</DataItem>
+    </Domain>
+
+    <Domain>
+      <Topology Type="Linear" Dimensions="3"/>
+      <Geometry Type="X">
+        <DataItem Name="Time" Type="HyperSlab" Format="XML" NumberType="Float" Precision="8" Dimensions="3">2.000000 0.200000 3.000000</DataItem>
+      </Geometry>
     </Domain>
 
     <Group VariabilityType="Static">
@@ -14,7 +20,7 @@
       <DataSource Name="lat_raw" Url="latitude.raw"/>
 
       <Group Name="L0">
-        <Domain Name="Grid" DomainType="Spatial">
+        <IndexSpace Name="Grid" DomainType="Spatial">
           <Topology Type="3DCoRectMesh" Dimensions="10 20 30"/>
 
           <!-- Define the geometry as Origin and Delta vectors -->
@@ -22,10 +28,10 @@
             <DataItem Format="XML" NumberType="Float" Precision="8" Dimensions="3">0.000000 0.000000 0.000000</DataItem>
             <DataItem Format="XML" NumberType="Float" Precision="8" Dimensions="3">1.000000 1.000000 1.000000</DataItem>
           </Geometry>
-        </Domain>
+        </IndexSpace>
 
         <Variable Name="var_1" Center="Cell">
-          <DataItem Format="IDX" NumberComponents="1" SampleType="Float" BitsPerSample="32" Endian="Little">
+          <DataItem Type="Uniform" Format="IDX" NumberComponents="1" SampleType="Float" BitsPerSample="32" Endian="Little">
             <xi:include xpointer='xpointer(//Xidx/Group/DataSource[@Name="main_idx"])'/>
           </DataItem>
         </Variable>

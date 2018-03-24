@@ -14,6 +14,7 @@ public:
   };
   
   SpatialDomain(const SpatialDomain* dom) : Domain(dom->name){
+    parent = dom->parent;
     topology = dom->topology;
     geometry = dom->geometry;
   }
@@ -42,7 +43,7 @@ public:
   int SetGeometry(Geometry _geometry) { geometry = _geometry; return 0; }
 
   int SetGeometry(GeometryType type, int n_dims, const double* ox_oy_oz,
-                  const double* dx_dy_dz) {
+                  const double* dx_dy_dz=NULL) {
     geometry.type = type;
     
     DataItem item_o(this);
@@ -59,16 +60,22 @@ public:
     item_o.dimensions = string_format("%d", n_dims);
     item_d.dimensions = string_format("%d", n_dims);
     
-    if(type == GeometryType::BOX_P1P2_GEOMETRY_TYPE)
+    if(type == GeometryType::RECT_GEOMETRY_TYPE){
       n_dims *= 2; // two points per dimension
-    
-    for(int i=0; i< n_dims; i++){
-      item_o.text += std::to_string(ox_oy_oz[i])+" ";
-      item_d.text += std::to_string(dx_dy_dz[i])+" ";
+      for(int i=0; i< n_dims; i++)
+        item_o.text += std::to_string(ox_oy_oz[i])+" ";
+      
+      geometry.items.push_back(item_o);
     }
-    
-    geometry.items.push_back(item_o);
-    geometry.items.push_back(item_d);
+    else{
+      for(int i=0; i< n_dims; i++){
+        item_o.text += std::to_string(ox_oy_oz[i])+" ";
+        item_d.text += std::to_string(dx_dy_dz[i])+" ";
+      }
+      
+      geometry.items.push_back(item_o);
+      geometry.items.push_back(item_d);
+    }
     
     return 0;
   }
@@ -82,18 +89,20 @@ public:
     return domain_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node) override{
-    Domain::Deserialize(node);
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
+    Domain::Deserialize(node, _parent);
 
+    parent = _parent;
+    
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
 //      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
           
           if(IsNodeName(cur_node, "Topology")){
-            topology.Deserialize(cur_node);
+            topology.Deserialize(cur_node, this);
           }
           else if(IsNodeName(cur_node, "Geometry")){
-            geometry.Deserialize(cur_node);
+            geometry.Deserialize(cur_node, this);
           }
 //        }
       }
@@ -103,6 +112,14 @@ public:
   };
   
   virtual std::string GetClassName() override { return "SpatialDomain"; };
+  
+  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+    // TODO NOT IMPLEMENTED
+    fprintf(stderr, "GetLinearizedIndexSpace() for SpatialDomain not implemented yet, please\
+            use GetLinearizedIndexSpace(int index)\n");
+    assert(false);
+    return IndexSpace<PHY_TYPE>();
+  };
 
 };
 

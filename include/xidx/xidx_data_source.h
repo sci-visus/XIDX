@@ -41,7 +41,9 @@ public:
     return variable_node;
   }
   
-  virtual int Deserialize(xmlNodePtr node) override{
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
+    parent = _parent;
+    
     if(!xidx::IsNodeName(node,"DataSource"))
       return -1;
     

@@ -12,6 +12,7 @@ public:
   Domain(){};
   
   Domain(const Domain& c) {
+    parent = c.parent;
     name = c.name;
   };
   
@@ -29,9 +30,8 @@ public:
     data_items.push_back(DataItem(name, parent));
     return 0;
   }
-
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     //Parsable::Serialize(parent);
 
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
@@ -43,9 +43,13 @@ public:
     return domain_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node){
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
 
+    parent = _parent;
+    
+    assert(parent!=nullptr);
+    
     const char* domain_type = GetProp(node, "Type");
 
     for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
@@ -64,11 +68,11 @@ public:
         if(IsNodeName(cur_node, "DataItem")){
           if(data_items.size() > data_items_count){
             DataItem& d = data_items[data_items_count];
-            d.Deserialize(cur_node);
+            d.Deserialize(cur_node, this);
           }
           else{
             DataItem d(this);
-            d.Deserialize(cur_node);
+            d.Deserialize(cur_node, this);
             data_items.push_back(d);
           }
           
@@ -80,6 +84,8 @@ public:
 
     return 0;
   };
+  
+  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() = 0;
   
   virtual std::string GetClassName() override { return "Domain"; };
 

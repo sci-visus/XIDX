@@ -5,6 +5,8 @@
 
 using namespace xidx;
 
+#define IndexSpace3d IndexSpace<3>
+
 int main(int argc, char** argv){
 
   if(argc < 2){
@@ -16,15 +18,64 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
 
-  XidxFile meta(argv[1]);
+  XidxFile metadata(argv[1]);
 
-  int ret = meta.Load();
+  int ret = metadata.Load();
 
   finish = clock();
 
   printf("Time taken %fms\n",(double(finish)-double(start))/CLOCKS_PER_SEC);
 
-  meta.Save("verify.xidx");
+  std::shared_ptr<Group> root_group = metadata.GetRootGroup();
+  
+  std::shared_ptr<Domain> time_domain = root_group->GetDomain();
+  
+  //DomainType dom_type = time_domain->type;
+  
+  std::shared_ptr<TemporalListDomain> domain = std::static_pointer_cast<TemporalListDomain>(time_domain);
+  
+  printf("Time Domain[%s]:\n", ToString(domain->type));
+  
+  for(auto t : domain->GetLinearizedIndexSpace()){
+    printf("Timestep %f\n", t);
+    
+    for(auto grid: root_group->groups){
+      std::shared_ptr<Domain> domain = grid->GetDomain();
+      
+      printf("\tGrid Domain[%s]:\n", ToString(domain->type));
+      
+      for(auto var: grid->variables){
+        printf("\t\tVariable: %s %s\n", var->name.c_str(), var->data_items[0].GetXPath().c_str());
+        
+      }
+    }
+    
+  }
+  
+  
+//    auto it = domain->GetLogicalIterator();
+//    
+//    IndexSpace3d is = domain->GetIndexSpace<3>();
+//    IndexSpaceIterator<3> isit(is);
+//    Rect<3> r = isit.rect;
+//    PointInRectIterator<3, PHY_TYPE> pit(r);
+    
+    
+    
+    
+    
+//
+//    Rect<3> r = is.bounds;
+    // for(auto idx: is)
+    //   //IndexSpaceSelection iss(domain, idx);
+    //   Group g = root_group->GetInstance(idx)
+    //   IndexSpace gis = g.GetIndexSpace()
+    //   vector<SubSpace>
+  
+  
+  
+  
+  metadata.Save("verify.xidx");
   
   if (argc < 3) // if no args just load, otherwise debug
     return 0;

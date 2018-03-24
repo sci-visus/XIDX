@@ -9,14 +9,17 @@ typedef int DomainIndex;
   
 class Group : public Parsable{
 
+private:
+  std::shared_ptr<Domain> domain;
+  
 public:
 
   GroupType group_type;
   VariabilityType variability_type;
-  std::shared_ptr<Domain> domain;
+  
   std::vector<std::shared_ptr<Group> > groups;
   std::vector<std::shared_ptr<DataSource> > data_sources;
-  std::vector<Variable> variables;
+  std::vector<std::shared_ptr<Variable> > variables;
   std::vector<Attribute> attributes;
   DomainIndex domain_index;
   DomainIndex variable_groups_count;
@@ -37,6 +40,7 @@ public:
   }
   
   Group(const Group* g){
+    parent=g->parent;
     name=g->name;
     group_type=g->group_type;
     variability_type=g->variability_type;
@@ -44,17 +48,19 @@ public:
     variable_groups_count=g->variable_groups_count;
   }
   
+  inline std::shared_ptr<Domain> GetDomain() { return domain; }
+  
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
-  Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
+  std::shared_ptr<Variable> AddVariable(const char* name, NumberType numberType, const short bit_precision,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const int n_components=1, const char* dimensions=NULL){
-    Variable var(this);
+    std::shared_ptr<Variable> var(new Variable(this));
     
-    var.name = name;
-    var.center_type = center;
+    var->name = name;
+    var->center_type = center;
     
     DataItem di(this);
     di.number_type = numberType;
@@ -70,9 +76,9 @@ public:
     
     di.format_type = FormatType::IDX_FORMAT;
     
-    var.data_items.push_back(di);
+    var->data_items.push_back(di);
     
-    var.attributes = atts;
+    var->attributes = atts;
     
     return AddVariable(var);
   }
@@ -83,7 +89,7 @@ public:
     return 0;
   }
   
-  Variable* AddVariable(const char* name, NumberType numberType, const short bit_precision,
+  std::shared_ptr<Variable> AddVariable(const char* name, NumberType numberType, const short bit_precision,
                            const int n_components,
                            const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
@@ -92,31 +98,31 @@ public:
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
   }
   
-  Variable* AddVariable(const char* name, DataItem item, std::shared_ptr<Domain> domain,
+  std::shared_ptr<Variable> AddVariable(const char* name, DataItem item, std::shared_ptr<Domain> domain,
                          const std::vector<Attribute>& atts=std::vector<Attribute>()){
     
-    Variable var(this);
-    var.name = name;
+    std::shared_ptr<Variable> var(new Variable(this));
+    var->name = name;
     SetDomain(domain);
-    var.data_items.push_back(item);
+    var->data_items.push_back(item);
     
-    var.attributes = atts;
+    var->attributes = atts;
 
     return AddVariable(var);
   }
   
-  Variable* AddVariable(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
+  std::shared_ptr<Variable> AddVariable(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const char* dimensions=NULL){
-    Variable var(this);
+    std::shared_ptr<Variable> var(new Variable(this));
     
-    var.name = name;
+    var->name = name;
     //printf("comp %s ntype %s prec %d\n", dtype.substr(0,comp_idx).c_str(), num_idx, precision);
     
     DataItem di(dtype, this);
     
-    var.center_type = center;
+    var->center_type = center;
     
     di.endian_type = endian;
     if(dimensions==NULL){
@@ -128,16 +134,16 @@ public:
     
     di.format_type = FormatType::IDX_FORMAT;
     
-    var.data_items.push_back(di);
+    var->data_items.push_back(di);
     
-    var.attributes = atts;
+    var->attributes = atts;
     
     return AddVariable(var);
   }
   
-  Variable* AddVariable(Variable& attribute){
+  std::shared_ptr<Variable> AddVariable(std::shared_ptr<Variable> attribute){
     variables.push_back(attribute);
-    return &variables.back();
+    return variables.back();
   }
   
   int AddGroup(std::shared_ptr<Group> group, DomainIndex=0){
@@ -170,7 +176,7 @@ public:
       xmlNodePtr a_node = a.Serialize(group_node);
     
     for(auto v:variables)
-      xmlNodePtr v_node = v.Serialize(group_node);
+      xmlNodePtr v_node = v->Serialize(group_node);
       
     for(auto g:groups)
        xmlNodePtr g_node = g->Serialize(group_node);
@@ -178,11 +184,15 @@ public:
     return group_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  int Deserialize(xmlNodePtr node, Parsable* _parent){
     if(!IsNodeName(node,"Group"))
       return -1;
-
+    
+    parent = _parent;
+  
     name = GetProp(node, "Name");
+  
+    assert(parent!=nullptr || name=="TimeSeries");
     
     const char* type_s = GetProp(node, "Type");
     for(int t=GroupType::SPATIAL_GROUP_TYPE; t <= GroupType::TEMPORAL_GROUP_TYPE; t++)
@@ -205,7 +215,7 @@ public:
       
       if(IsNodeName(cur_node,"DataSource")){
         std::shared_ptr<DataSource> ds(new DataSource());
-        ds->Deserialize(cur_node);
+        ds->Deserialize(cur_node, this);
         data_sources.push_back(ds);
       }
       else if(IsNodeName(cur_node,"Domain")){
@@ -221,41 +231,35 @@ public:
             domain = std::make_shared<HyperSlabDomain>(new HyperSlabDomain(""));
             break;
           case DomainType::LIST_DOMAIN_TYPE:
-            domain = std::make_shared<ListDomain<double>>(new ListDomain<double>(""));
+            domain = std::make_shared<ListDomain<PHY_TYPE>>(new ListDomain<PHY_TYPE>(""));
             break;
           case DomainType::MULTIAXIS_DOMAIN_TYPE:
-            domain = std::make_shared<MultiAxisDomain<double>>(new MultiAxisDomain<double>(""));
-            break;
-          case DomainType::PHYLOG_HYPER_SLAB_DOMAIN_TYPE:
-            domain = std::make_shared<PhyLogHyperSlabDomain>(new PhyLogHyperSlabDomain(""));
-            break;
-          case DomainType::PHYLOG_LIST_DOMAIN_TYPE:
-            domain = std::make_shared<PhyLogListDomain>(new PhyLogListDomain(""));
+            domain = std::make_shared<MultiAxisDomain<PHY_TYPE>>(new MultiAxisDomain<PHY_TYPE>(""));
             break;
           case DomainType::SPATIAL_DOMAIN_TYPE:
             domain = std::make_shared<SpatialDomain>(new SpatialDomain(""));
             break;
           case DomainType::TEMPORAL_DOMAIN_TYPE:
-            domain = std::make_shared<PhyLogListDomain>(new PhyLogListDomain(""));
+            domain = std::make_shared<ListDomain<PHY_TYPE>>(new ListDomain<PHY_TYPE>(""));
             break;
         }
         
         if(domain != nullptr)
-          domain->Deserialize(cur_node);
+          domain->Deserialize(cur_node, this);
       }
       else if(IsNodeName(cur_node,"Attribute")){
         Attribute att;
-        att.Deserialize(cur_node);
+        att.Deserialize(cur_node, this);
         attributes.push_back(att);
       }
       else if(IsNodeName(cur_node,"Variable")){
-        Variable var(this);
-        var.Deserialize(cur_node);
+        std::shared_ptr<Variable> var(new Variable(this));
+        var->Deserialize(cur_node, this);
         variables.push_back(var);
       }
       else if(IsNodeName(cur_node,"Group")){
         std::shared_ptr<Group> gr(new Group(this));
-        gr->Deserialize(cur_node);
+        gr->Deserialize(cur_node, this);
         groups.push_back(gr);
       }
     }

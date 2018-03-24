@@ -29,9 +29,11 @@ public:
     return topology_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  int Deserialize(xmlNodePtr node, Parsable* _parent){
     if(!IsNodeName(node,"Topology"))
       return -1;
+    
+    parent = _parent;
 
     const char* topo_type = GetProp(node, "Type");
 

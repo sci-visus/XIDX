@@ -34,15 +34,16 @@ public:
     return geometry_node;
   };
   
-  int Deserialize(xmlNodePtr node){
+  int Deserialize(xmlNodePtr node, Parsable* _parent){
     if(!IsNodeName(node,"Geometry"))
       return -1;
 
+    parent = _parent;
     //name = xidx::getProp(node, "Name");
             
     const char* geo_type = GetProp(node, "Type");
 
-    for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= BOX_P1P2_GEOMETRY_TYPE; t++)
+    for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= RECT_GEOMETRY_TYPE; t++)
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
           type = static_cast<GeometryType>(t);
 
@@ -50,7 +51,7 @@ public:
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(IsNodeName(inner_node, "DataItem")){
         DataItem geo_dataitem(this);
-        geo_dataitem.Deserialize(inner_node);
+        geo_dataitem.Deserialize(inner_node, this);
 
         items.push_back(geo_dataitem);
       }

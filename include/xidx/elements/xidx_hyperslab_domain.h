@@ -44,19 +44,20 @@ public:
     return domain_ptr;
   };
   
-  virtual int Deserialize(xmlNodePtr node) override{
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     assert(data_items.size() >= 1);
+    parent = _parent;
     DataItem& physical = data_items[0];
     
-    for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
-      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
-        if (inner_node->type == XML_ELEMENT_NODE) {
+    for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
+      //for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
           
-          if(IsNodeName(inner_node, "DataItem")){
-            physical.Deserialize(inner_node);
+          if(IsNodeName(cur_node, "DataItem")){
+            physical.Deserialize(cur_node, this);
           }
         }
-      }
+      //}
     }
 
     return 0;

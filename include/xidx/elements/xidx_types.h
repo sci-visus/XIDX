@@ -5,6 +5,13 @@
 #include <string>
 #include "xidx/xidx_config.h"
 
+//TODO change name to ToString since it returns a const char*
+
+namespace xidx{
+  typedef uint32_t INDEX_TYPE;
+  typedef double PHY_TYPE;
+}
+
 enum GroupType{
   SPATIAL_GROUP_TYPE = 0,
   TEMPORAL_GROUP_TYPE = 1
@@ -65,7 +72,7 @@ enum GeometryType{
   VXVYVZ_GEOMETRY_TYPE = 3,
   ORIGIN_DXDYDZ_GEOMETRY_TYPE = 4,
   ORIGIN_DXDY_GEOMETRY_TYPE = 5,
-  BOX_P1P2_GEOMETRY_TYPE = 6
+  RECT_GEOMETRY_TYPE = 6
 };
 
 inline const char* ToString(GeometryType v)
@@ -78,7 +85,7 @@ inline const char* ToString(GeometryType v)
     case VXVYVZ_GEOMETRY_TYPE:            return "VXVYVZ";
     case ORIGIN_DXDYDZ_GEOMETRY_TYPE:     return "ORIGIN_DXDYDZ";
     case ORIGIN_DXDY_GEOMETRY_TYPE:       return "ORIGIN_DXDY";
-    case BOX_P1P2_GEOMETRY_TYPE:          return "BOX_P1P2";
+    case RECT_GEOMETRY_TYPE:              return "RECT";
     default:                              return "[Unknown]";
   }
 }
@@ -177,13 +184,11 @@ inline const char* ToString(CenterType v)
 
 enum DomainType{
   HYPER_SLAB_DOMAIN_TYPE = 0,
-  PHYLOG_HYPER_SLAB_DOMAIN_TYPE = 1,
-  LIST_DOMAIN_TYPE = 2,
-  MULTIAXIS_DOMAIN_TYPE = 3,
-  PHYLOG_LIST_DOMAIN_TYPE = 4,
-  SPATIAL_DOMAIN_TYPE = 5,
-  TEMPORAL_DOMAIN_TYPE = 6,
-  RANGE_DOMAIN_TYPE = 7
+  LIST_DOMAIN_TYPE = 1,
+  MULTIAXIS_DOMAIN_TYPE = 2,
+  SPATIAL_DOMAIN_TYPE = 3,
+  TEMPORAL_DOMAIN_TYPE = 4,
+  RANGE_DOMAIN_TYPE = 5
 };
 
 inline const char* ToString(DomainType v)
@@ -191,11 +196,9 @@ inline const char* ToString(DomainType v)
   switch (v)
   {
     case HYPER_SLAB_DOMAIN_TYPE:         return "HyperSlab";
-    case PHYLOG_HYPER_SLAB_DOMAIN_TYPE:  return "PhyLogHyperSlab";
     case LIST_DOMAIN_TYPE:               return "List";
     case TEMPORAL_DOMAIN_TYPE:           return "Temporal";
     case MULTIAXIS_DOMAIN_TYPE:          return "MultiAxisDomain";
-    case PHYLOG_LIST_DOMAIN_TYPE:        return "PhyLogList";
     case SPATIAL_DOMAIN_TYPE:            return "Spatial";
     case RANGE_DOMAIN_TYPE:              return "Range";
     default:                             return "[Unknown]";

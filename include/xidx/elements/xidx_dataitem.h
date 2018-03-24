@@ -47,6 +47,7 @@ public:
   }
   
   DataItem(const DataItem& i){
+    parent=i.parent;
     name=i.name;
     dimensions=i.dimensions;
     number_type=i.number_type;
@@ -143,10 +144,12 @@ public:
     return data_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node) override{
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!xidx::IsNodeName(node,"DataItem"))
       return -1;
 
+    parent = _parent;
+    
     if(node->children != nullptr)
       text = (char*)(node->children->content);
     
@@ -154,6 +157,9 @@ public:
     
     if(name_s != nullptr)
       name = name_s;
+    
+    if(parent==nullptr)
+      printf("%s has no parent\n", name.c_str());
     
     const char* form_type = xidx::GetProp(node, "Format");
     if(form_type != NULL){
@@ -192,7 +198,8 @@ public:
       const char* val_dimensions = xidx::GetProp(node, "Dimensions");
       if(val_dimensions == NULL){
         //assert(false);
-        fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
+        dimensions = "";
+        //fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
       }
       else 
         dimensions = val_dimensions;
@@ -221,7 +228,7 @@ public:
           if (cur_node->type == XML_ELEMENT_NODE) {
             if(IsNodeName(cur_node, "DataSource")){
               file_ref = std::make_shared<DataSource>(new DataSource());
-              file_ref->Deserialize(cur_node);
+              file_ref->Deserialize(cur_node, this);
               
             }
         }
@@ -230,6 +237,32 @@ public:
     
     return 0;
   };
+  
+  virtual std::string GetXPath() override {
+    Parsable* source=nullptr;
+    Parsable* curr_parent=parent;
+    if(parent == nullptr)
+      printf("parent of %s null\n", name.c_str());
+    
+    while(curr_parent!=nullptr){
+      Parsable* parent_group = FindParent("Group", curr_parent);
+      if(parent_group==nullptr)
+        break;
+      
+      source = parent_group->FindChild("DataSource");
+      
+      if(source!=nullptr && source->GetClassName()=="DataSource")
+        break;
+      printf("pass through %s\n", source->GetClassName().c_str());
+      curr_parent = parent_group->parent;
+    }
+    
+    if(source!=nullptr){
+      return source->GetXPath();
+    }
+    else return "";
+    
+  }
   
   virtual std::string GetClassName() override { return "DataItem"; };
   

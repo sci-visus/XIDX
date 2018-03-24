@@ -1,3 +1,5 @@
+#if 0
+
 #ifndef XIDX_PHYLOG_HYPERSLAB_DOMAIN_H_
 #define XIDX_PHYLOG_HYPERSLAB_DOMAIN_H_
 
@@ -48,6 +50,13 @@ public:
       logical.text  += string_format("%d ", log_hyperslab[i]);
     }
     
+    phy_vector.resize(dims);
+    log_vector.resize(dims);
+    for(int i=0; i< dims; i++){
+      phy_vector[i] = phy_hyperslab[i];
+      log_vector[i] = log_hyperslab[i];
+    }
+
     return 0;
   }
   
@@ -69,6 +78,24 @@ public:
     DataItem& physical = data_items[0];
     DataItem& logical = data_items[1];
     
+    int length = stoi(physical.dimensions);
+    
+    if(physical.format_type == FormatType::XML_FORMAT && physical.format_type == FormatType::XML_FORMAT){
+      
+      std::stringstream stream_log(logical.text);
+      std::stringstream stream_phy(physical.text);
+      
+      phy_vector.resize(length);
+      log_vector.resize(length);
+      for(int i=0; i< length; i++){
+        stream_phy >> phy_vector[i];
+        stream_log >> log_vector[i];
+      }
+    }
+    else{
+      fprintf(stderr, "Deserialization of data items for type != XML is not implemented yet!\n");
+    }
+    
     for (xmlNode* cur_node = node; cur_node; cur_node = cur_node->next) {
       for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (inner_node->type == XML_ELEMENT_NODE) {
@@ -86,9 +113,37 @@ public:
     return 0;
   };
   
+//  virtual std::vector<INDEX_TYPE>::const_iterator GetLogicalIterator() override{
+//    INDEX_TYPE count = log_vector[2]; // last elem of hyperslab element is count
+//    log_indices.resize(count);
+//    
+//    for(INDEX_TYPE i=0; i < count; i++)
+//      log_indices[i] = log_vector[0] + i*log_vector[1];
+//    
+//    return log_indices.begin();
+//  }
+  
+  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+    INDEX_TYPE count = phy_vector[2]; // last elem of hyperslab element is count
+    phy_indices.resize(count);
+    
+    for(INDEX_TYPE i=0; i < count; i++)
+      phy_indices[i] = phy_vector[0] + i*phy_vector[1];
+    
+    return phy_indices;
+  }
+  
   virtual std::string GetClassName() override { return "PhyLogHyperSlabDomain"; };
 
+protected:
+  std::vector<INDEX_TYPE> log_vector;
+  std::vector<PHY_TYPE> phy_vector;
+  
+  std::vector<INDEX_TYPE> log_indices;
+  std::vector<PHY_TYPE> phy_indices;
 };
 
 }
+#endif
+
 #endif

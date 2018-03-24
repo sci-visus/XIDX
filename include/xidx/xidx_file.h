@@ -42,7 +42,7 @@ public:
       
       if(IsNodeName(cur_node,"Group")){
         root_group = std::make_shared<Group>(new Group("root"));
-        root_group->Deserialize(cur_node);
+        root_group->Deserialize(cur_node, nullptr);//(Parsable*)(root_group->get()));
       }
     }
     
@@ -113,6 +113,10 @@ public:
   int SetRootGroup(std::shared_ptr<Group> _root_group){
     root_group = _root_group;
     return 0;
+  }
+  
+  std::shared_ptr<Group> GetRootGroup(){
+    return root_group;
   }
   
   inline size_t GetNumberOfGroups() const { return root_group->groups.size(); };

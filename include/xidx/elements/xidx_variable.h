@@ -113,10 +113,14 @@ public:
     return 0;
   }
   
-  int Deserialize(xmlNodePtr node){
+  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!IsNodeName(node,"Variable"))
       return -1;
 
+    parent = _parent;
+    
+    assert(parent!=nullptr);
+    
     name = GetProp(node, "Name");
 
     const char* center_type_value = GetProp(node, "Center");
@@ -131,12 +135,12 @@ public:
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(IsNodeName(inner_node, "Attribute")){
         Attribute att;
-        att.Deserialize(inner_node);
+        att.Deserialize(inner_node, this);
         attributes.push_back(att);
       }
       if(IsNodeName(inner_node, "DataItem")){
         DataItem ditem(this);
-        ditem.Deserialize(inner_node);
+        ditem.Deserialize(inner_node, this);
         data_items.push_back(ditem);
       }
     }

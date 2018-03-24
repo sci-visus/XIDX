@@ -18,6 +18,7 @@
 #include "xidx_data_source.h"
 #include "elements/xidx_dataitem.h"
 
+#include "xidx_index_space.h"
 #include "elements/xidx_domain.h"
 #include "elements/xidx_list_domain.h"
 #include "elements/xidx_phylog_list_domain.h"
@@ -35,8 +36,8 @@
 #include "xidx_file.h"
 
 namespace xidx {
-typedef PhyLogHyperSlabDomain TemporalHyperSlabDomain;
-typedef PhyLogListDomain TemporalListDomain;
+typedef HyperSlabDomain TemporalHyperSlabDomain;
+typedef ListDomain<PHY_TYPE> TemporalListDomain;
   
 template<typename T>
 using Axis = ListDomain<T>;

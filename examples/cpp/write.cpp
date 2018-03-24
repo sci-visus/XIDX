@@ -26,15 +26,14 @@ int write_simple(const char* filepath, int n_attributes, int n_timesteps, bool t
   
   if(time_hyperslab){// Create an hyperslab time domain (start, step, count)
     time_dom = std::make_shared<TemporalHyperSlabDomain>(new TemporalHyperSlabDomain("Time"));
-    int32_t log_time[n_dims] = {0,1,static_cast<int32_t>(n_timesteps)};
     double phy_time[n_dims] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
-    std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
+    std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time);
   }
   else{// Create series of timestep values
     time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
     
     for(int i=0; i < n_timesteps; i++){
-      std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(i, float(i+10));
+      std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
     }
   }
 
@@ -168,15 +167,14 @@ int write_time_variant(const char* filepath, int n_attributes, int n_timesteps, 
   
   if(time_hyperslab){// Create an hyperslab time domain (start, step, count)
     time_dom = std::make_shared<TemporalHyperSlabDomain>(new TemporalHyperSlabDomain("Time"));
-    int32_t log_time[n_dims] = {0,1,static_cast<int32_t>(n_timesteps)};
     double phy_time[n_dims] = {2.0,float(n_timesteps-1)*0.1,float(n_timesteps)};
-    std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time, log_time);
+    std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time);
   }
   else{// Create series of timestep values
     time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
     
     for(int i=0; i < n_timesteps; i++){
-      std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(i, float(i+10));
+      std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
     }
   }
   
@@ -196,13 +194,12 @@ int write_time_variant(const char* filepath, int n_attributes, int n_timesteps, 
     std::shared_ptr<SpatialDomain> space_dom(new SpatialDomain("Grid"));
     
     uint32_t dims[6] = {10, 20, 30}; // logical box (p1x,p2x,p1y,p2y,p1z,p2z)
-    double box_log[6] = {0, 9, 0, 19, 0, 29};         // origin x y z
     double box_phy[6] = {0.3, 4.2, 0.0, 9.4, 2.5, 19.0};   // dx dy dz
     
     // Set topology and geometry of the spatial domain
     int ret = space_dom->SetTopology(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
                                      dims);
-    ret = space_dom->SetGeometry(GeometryType::BOX_P1P2_GEOMETRY_TYPE, n_dims, box_log, box_log);
+    ret = space_dom->SetGeometry(GeometryType::RECT_GEOMETRY_TYPE, n_dims, box_phy);
     
     // Set the domain for the spatial group
     grid->SetDomain(space_dom);
