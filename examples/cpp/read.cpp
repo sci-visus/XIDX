@@ -1,3 +1,32 @@
+/*
+ * Copyright (c) 2017 University of Utah
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <libxml/xmlreader.h>
 #include <libxml/xinclude.h>
 
@@ -5,13 +34,10 @@
 
 using namespace xidx;
 
-#define IndexSpace3d IndexSpace<3>
-
 int main(int argc, char** argv){
 
   if(argc < 2){
     fprintf(stderr, "Usage: read file_path [debug]\n");
-
     return 1;
   }
 
@@ -30,8 +56,6 @@ int main(int argc, char** argv){
   
   std::shared_ptr<Domain> time_domain = root_group->GetDomain();
   
-  //DomainType dom_type = time_domain->type;
-  
   std::shared_ptr<TemporalListDomain> domain = std::static_pointer_cast<TemporalListDomain>(time_domain);
   
   printf("Time Domain[%s]:\n", ToString(domain->type));
@@ -44,106 +68,39 @@ int main(int argc, char** argv){
       
       printf("\tGrid Domain[%s]:\n", ToString(domain->type));
       
-      for(auto& var: grid->GetVariables()){
-        printf("\t\tVariable: %s %s\n", var->name.c_str(), var->data_items[0]->GetXPath().c_str());
-        
+      if(domain->type == DomainType::SPATIAL_DOMAIN_TYPE){
+        std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
+        printf("\tTopology %s volume %lu\n", ToString(sdom->topology.type), sdom->GetVolume());
+        printf("\tGeometry %s", ToString(sdom->geometry.type));
       }
-    }
-    
-  }
-  
-  
-//    auto it = domain->GetLogicalIterator();
-//    
-//    IndexSpace3d is = domain->GetIndexSpace<3>();
-//    IndexSpaceIterator<3> isit(is);
-//    Rect<3> r = isit.rect;
-//    PointInRectIterator<3, PHY_TYPE> pit(r);
-    
-    
-    
-    
-    
-//
-//    Rect<3> r = is.bounds;
-    // for(auto idx: is)
-    //   //IndexSpaceSelection iss(domain, idx);
-    //   Group g = root_group->GetInstance(idx)
-    //   IndexSpace gis = g.GetIndexSpace()
-    //   vector<SubSpace>
-  
-  
-  
-  
-  metadata.Save("verify.xidx");
-  
-  if (argc < 3) // if no args just load, otherwise debug
-    return 0;
-
-#if 0
-  //typedef std::list<std::shared_ptr<XidxGroup> > XidxGroupList
-  XidxGroup root = meta.getRootGroup();
-
-  XidxDomain time_dom = root.getDomain();
-
-  //print time_dom
-
-  for(auto item : root.getGroups()){
-    
-    for(auto grid : item.getGroups()){
-      XidxDomain dom = grid.getDomain();
-      
-      for(auto var : grid->getVariables()){
-
-        // print var
-
-        // get pointer to the data 
-        var.getFilePointers();
-
-        // printf("Variable %s cent %s type %s num_type %s prec %s endian %s DType %s Format %s\n",
-        //   var.name.c_str(), ToString(att.centerType), ToString(att.attributeType),
-        //   ToString(att.data.numberType), att.data.precision.c_str(), ToString(att.data.endianType), att.get_dtype_str().c_str(), ToString(att.data.formatType));
-
-          // if(var.data.formatType == FormatType::BINARY_FORMAT){
-          //   std::vector<int> idims;
-          //   std::istringstream f(att.data.dimensions);
-
-          //   std::string s;
-          //   while (getline(f, s, ' ')) {
-          //     idims.push_back(atoi(s.c_str()));
-          //   }
-
-          //   size_t size = 1;
-          //   for(auto d:idims)
-          //     size *= d;
-          //   char data[size];
-          //   att.get_raw_data(data,size);
-          //   printf("\t<< reading binary attribute of size %zu\n", size);
-          // }
-
-        for(auto att: var.getAttributes()){
-          printf("\t Info %s = %s \n", att.name.c_str(), att.value.c_str());
+      else if(domain->type == DomainType::MULTIAXIS_DOMAIN_TYPE)
+      {
+        std::shared_ptr<MultiAxisDomain<double>> mdom = std::dynamic_pointer_cast<MultiAxisDomain<double>>(domain);
+        for(int a=0; a < mdom->GetNumberOfAxis(); a++){
+          const Axis<double>& axis = mdom->GetAxis(a);
+          printf("\tAxis %s volume %lu", axis.name.c_str(), axis.GetVolume());
         }
       }
-
+      
+      printf("\n");
+      
+      for(auto& var: grid->GetVariables()){
+        DataSource* source = var->GetDataItems()[0]->GetDataSource();
+        printf("\t\tVariable: %s ", var->name.c_str());
+        if(source != nullptr)
+          printf("data source url: %s\n", source->GetUrl().c_str());
+        else printf("\n");
+        
+        for(auto att: var->GetAttributes()){
+          printf("\t\t\tAttribute %s value %s\n", att.name.c_str(), att.value.c_str());
+        }
+      }
     }
-
+    
   }
-
-#endif
-
-  // add a timestep to the current metadata
-  // std::shared_ptr<TimeStep> ts(new TimeStep());
-  // std::shared_ptr<Level> level = meta.get_timestep(0)->get_level(0);
-
-  // ret = ts->add_level(level);
-
-  // ts->set_timestep(777, float(7777));
-  // meta.add_timestep(ts);
-
-  // write the metadata to compare with original
-  //meta.set_md_file_path("load/test_hpc.xmf");
-  // meta.save();
+  
+  // (Debug) Saving the content in a different file to compare with the original
+  metadata.Save("verify.xidx");
 
   return ret;
 }
