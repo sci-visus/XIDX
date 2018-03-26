@@ -57,6 +57,7 @@ public:
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
     xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
+    data_items.clear();
     
     int items_count = 0;
     for(auto& l: lists){
@@ -65,17 +66,10 @@ public:
       data_items.push_back(itemt);
       
       for(int i=0; i< l.data_items.size(); i++){        
-        data_items[items_count] = l.data_items[i];
-        DataItem& item = data_items.back();
-        
-        for(auto phy: l.values_vector)
-          item.text+=std::to_string(phy)+" ";
-          
-        item.dimensions.push_back(l.values_vector.size());
-        data_items[items_count] = item;
-        
-        items_count++;
+        data_items[items_count] = l.data_items[i];      
       }
+      
+      items_count++;
     }
     
     for(auto item: data_items)
@@ -126,7 +120,7 @@ public:
         std::stringstream stream_data(item.text);
         
         ListDomain<T> list(item.name);
-        list.data_items[0] = data_items[0];
+        list.data_items[0] = item;
         list.values_vector.resize(length);
         for(int i=0; i< length; i++){
           stream_data >> list.values_vector[i];

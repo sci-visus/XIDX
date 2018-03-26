@@ -64,7 +64,7 @@ public:
       n_dims *= 2; // two points per dimension
       for(int i=0; i< n_dims; i++)
         item_o.text += std::to_string(ox_oy_oz[i])+" ";
-      
+      trim(item_o.text);
       geometry.items.push_back(item_o);
     }
     else{
@@ -72,7 +72,8 @@ public:
         item_o.text += std::to_string(ox_oy_oz[i])+" ";
         item_d.text += std::to_string(dx_dy_dz[i])+" ";
       }
-      
+      trim(item_o.text);
+      trim(item_d.text);
       geometry.items.push_back(item_o);
       geometry.items.push_back(item_d);
     }

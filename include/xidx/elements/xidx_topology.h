@@ -14,7 +14,7 @@ public:
   TopologyType type;
   std::vector<INDEX_TYPE> dimensions;
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
 
     xmlNodePtr topology_node = xmlNewChild(parent, NULL, BAD_CAST "Topology", NULL);
 
@@ -27,7 +27,7 @@ public:
     return topology_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent){
+  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!IsNodeName(node,"Topology"))
       return -1;
     

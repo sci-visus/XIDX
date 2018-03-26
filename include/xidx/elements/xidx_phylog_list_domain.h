@@ -46,9 +46,13 @@ public:
     
     for(auto phy: phy_vector)
       physical.text+=std::to_string(phy)+" ";
+    
+    trim(physical.text);
      
     for(auto log: log_vector)
       logical.text+=std::to_string(log)+" ";
+    
+    trim(logical.text);
     
     physical.dimensions=std::to_string(phy_vector.size());
     logical.dimensions=std::to_string(log_vector.size());

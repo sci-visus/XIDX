@@ -34,6 +34,8 @@ public:
       physical.text += std::to_string(phy_hyperslab[i]) +" ";
     }
     
+    trim(physical.text);
+    
     return 0;
   }
   
@@ -87,7 +89,7 @@ public:
     
     start = stof(tokens[0]);
     step  = stof(tokens[1]);
-    count = stoi(tokens[2]);
+    count = stoi(s);
 
     return 0;
   };

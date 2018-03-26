@@ -48,13 +48,16 @@ public:
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     assert(data_items.size() >= 1);
     DataItem& physical = data_items[0];
+    physical.text="";
+    physical.dimensions.clear();
+    physical.dimensions.push_back(values_vector.size());
     
     if(!std::is_same<T, DataSource>::value){
       for(auto phy: values_vector)
         physical.text+=std::to_string(phy)+" ";
-      
-      physical.dimensions.push_back(values_vector.size());
     }
+    
+    trim(physical.text);
     xmlNodePtr domain_node = Domain::Serialize(parent, text);
       
     return domain_node;

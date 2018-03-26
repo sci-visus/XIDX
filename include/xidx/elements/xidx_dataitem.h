@@ -28,7 +28,7 @@ public:
   std::string text;
   EndianType endian_type;
   FormatType format_type;
-  std::shared_ptr<DataSource> file_ref;
+  std::shared_ptr<DataSource> data_source;
   std::vector<Attribute> attributes;
   
   int SetDefaults(){
@@ -37,7 +37,7 @@ public:
     bit_precision=defaults::DATAITEM_BIT_PRECISION;
     n_components=defaults::DATAITEM_N_COMPONENTS;
     endian_type=defaults::DATAITEM_ENDIAN_TYPE;
-    file_ref=nullptr;
+    data_source=nullptr;
     return 0;
   }
   
@@ -57,7 +57,7 @@ public:
     text=i.text;
     endian_type=i.endian_type;
     format_type=i.format_type;
-    file_ref=i.file_ref;
+    data_source=i.data_source;
     attributes=i.attributes;
   }
   
@@ -78,17 +78,17 @@ public:
     bit_precision=std::to_string(dtype.bit_precision);
     n_components=std::to_string(dtype.n_components);
     
-    file_ref=nullptr;
+    data_source=nullptr;
     
   }
   
-  DataItem(FormatType format, std::string dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
+  DataItem(FormatType format, std::string dtype, std::shared_ptr<DataSource> ds, Parsable* _parent){
     SetParent(_parent);
     SetDefaults();
     
     format_type=format;
     ParseDType(dtype);
-    file_ref=file;
+    data_source=ds;
   }
   
   virtual xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
@@ -112,8 +112,8 @@ public:
     if(n_components != defaults::DATAITEM_N_COMPONENTS)
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
-    if(file_ref != nullptr)
-      xmlNodePtr file_node = file_ref->Serialize(data_node);
+    if(data_source != nullptr)
+      xmlNodePtr ds_node = data_source->Serialize(data_node);
     
 #if XIDX_DEBUG_XPATHS
     else if(format_type != FormatType::XML_FORMAT){
@@ -222,8 +222,8 @@ public:
       for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
           if (cur_node->type == XML_ELEMENT_NODE) {
             if(IsNodeName(cur_node, "DataSource")){
-              file_ref = std::make_shared<DataSource>(new DataSource());
-              file_ref->Deserialize(cur_node, this);
+              data_source = std::make_shared<DataSource>(new DataSource());
+              data_source->Deserialize(cur_node, this);
               
             }
         }

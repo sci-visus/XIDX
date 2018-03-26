@@ -57,7 +57,6 @@ public:
   virtual std::string GetDataSourceXPath() override {
     xpath_prefix=this->GetParent()->GetDataSourceXPath();
     xpath_prefix+="/DataSource";
-//    xpath_prefix+="[@Name="+name+"]";
     xpath_prefix+="[@Name=\""+name+"\"]";
     
     return xpath_prefix;
