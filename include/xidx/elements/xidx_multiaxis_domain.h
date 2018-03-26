@@ -31,7 +31,7 @@ public:
   };
   
   MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
-    parent = d->parent;
+    SetParent(d->GetParent());
     lists = d->lists;
   }
   
@@ -98,13 +98,13 @@ public:
   
   int GetNumberOfAxis(){ return lists.size(); }
   
-  virtual std::string GetClassName() override { return "MultiAxisDomain"; };
+  virtual std::string GetClassName() const override { return "MultiAxisDomain"; };
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     Domain::Deserialize(node, _parent);
-    parent = _parent;
+    SetParent(_parent);
     
-    assert(parent!=nullptr);
+    assert(GetParent()!=nullptr);
     
     int count = data_items.size();
     

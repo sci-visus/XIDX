@@ -12,7 +12,7 @@ public:
   Domain(){};
   
   Domain(const Domain& c) {
-    parent = c.parent;
+    SetParent(c.GetParent());
     name = c.name;
   };
   
@@ -46,9 +46,9 @@ public:
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
 
-    parent = _parent;
+    SetParent(_parent);
     
-    assert(parent!=nullptr);
+    assert(this->GetParent()!=nullptr);
     
     const char* domain_type = GetProp(node, "Type");
 
@@ -87,7 +87,7 @@ public:
   
   virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() = 0;
   
-  virtual std::string GetClassName() override { return "Domain"; };
+  virtual std::string GetClassName() const override { return "Domain"; };
 
 };
 

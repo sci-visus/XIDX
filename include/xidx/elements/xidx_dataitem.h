@@ -42,12 +42,12 @@ public:
   }
   
   DataItem(Parsable* _parent){
-    parent = _parent;
+    SetParent(_parent);
     SetDefaults();
   }
   
   DataItem(const DataItem& i){
-    parent=i.parent;
+    SetParent(i.GetParent());
     name=i.name;
     dimensions=i.dimensions;
     number_type=i.number_type;
@@ -62,14 +62,14 @@ public:
   }
   
   DataItem(std::string dtype, Parsable* _parent){
-    parent = _parent;
+    SetParent(_parent);
     SetDefaults();
     
     ParseDType(dtype);
   }
   
   DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
-    parent = _parent;
+    SetParent(_parent);
     SetDefaults();
     
     format_type=format;
@@ -83,7 +83,7 @@ public:
   }
   
   DataItem(FormatType format, std::string dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
-    parent = _parent;
+    SetParent(_parent);
     SetDefaults();
     
     format_type=format;
@@ -148,7 +148,7 @@ public:
     if(!xidx::IsNodeName(node,"DataItem"))
       return -1;
 
-    parent = _parent;
+    SetParent(_parent);
     
     if(node->children != nullptr)
       text = (char*)(node->children->content);
@@ -158,7 +158,7 @@ public:
     if(name_s != nullptr)
       name = name_s;
     
-    if(parent==nullptr)
+    if(this->GetParent()==nullptr)
       printf("%s has no parent\n", name.c_str());
     
     const char* form_type = xidx::GetProp(node, "Format");
@@ -216,12 +216,12 @@ public:
     else
       endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
-    if(format_type != FormatType::XML_FORMAT){
-      Parsable* parent_group = FindParent("Group", parent);
-
-//      if(node != nullptr)
-//        file_ref->Deserialize(node->children);
-    }
+//    if(format_type != FormatType::XML_FORMAT){
+//      Parsable* parent_group = FindParent("Group", parent);
+//
+////      if(node != nullptr)
+////        file_ref->Deserialize(node->children);
+//    }
     
     if(node->children != nullptr){
       for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
@@ -240,12 +240,12 @@ public:
   
   virtual std::string GetXPath() override {
     Parsable* source=nullptr;
-    Parsable* curr_parent=parent;
-    if(parent == nullptr)
+    Parsable* curr_parent=this->GetParent();
+    if(GetParent() == nullptr)
       printf("parent of %s null\n", name.c_str());
     
     while(curr_parent!=nullptr){
-      Parsable* parent_group = FindParent("Group", curr_parent);
+      const Parsable* parent_group = FindParent("Group", curr_parent);
       if(parent_group==nullptr)
         break;
       
@@ -253,8 +253,8 @@ public:
       
       if(source!=nullptr && source->GetClassName()=="DataSource")
         break;
-      printf("pass through %s\n", source->GetClassName().c_str());
-      curr_parent = parent_group->parent;
+      //printf("pass through %s\n", source->GetClassName().c_str());
+      curr_parent = parent_group->GetParent();
     }
     
     if(source!=nullptr){
@@ -264,7 +264,7 @@ public:
     
   }
   
-  virtual std::string GetClassName() override { return "DataItem"; };
+  virtual std::string GetClassName() const override { return "DataItem"; };
   
 private:
   

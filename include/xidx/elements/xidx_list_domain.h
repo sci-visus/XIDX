@@ -63,9 +63,9 @@ public:
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     Domain::Deserialize(node, _parent);
     
-    parent = _parent;
+    SetParent(_parent);
   
-    assert(parent!=nullptr);
+    assert(GetParent()!=nullptr);
       
     int count = data_items.size();
   
@@ -90,7 +90,7 @@ public:
     return 0;
   }
   
-  virtual std::string GetClassName() override { return "ListDomain"; };
+  virtual std::string GetClassName() const override { return "ListDomain"; };
 
 private:
   std::vector<INDEX_TYPE> log_indices;

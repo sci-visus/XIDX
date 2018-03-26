@@ -14,7 +14,7 @@ public:
   };
   
   SpatialDomain(const SpatialDomain* dom) : Domain(dom->name){
-    parent = dom->parent;
+    SetParent(dom->GetParent());
     topology = dom->topology;
     geometry = dom->geometry;
   }
@@ -92,7 +92,7 @@ public:
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     Domain::Deserialize(node, _parent);
 
-    parent = _parent;
+    SetParent(_parent);
     
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
 //      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
@@ -111,7 +111,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "SpatialDomain"; };
+  virtual std::string GetClassName() const override { return "SpatialDomain"; };
   
   virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED

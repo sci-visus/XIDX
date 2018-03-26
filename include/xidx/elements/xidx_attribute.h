@@ -25,7 +25,7 @@ public:
     if(!xidx::IsNodeName(node,"Attribute"))
       return -1;
     
-    parent = _parent;
+    SetParent(_parent);
 
     name = xidx::GetProp(node, "Name");
     value = xidx::GetProp(node, "Value");
@@ -33,7 +33,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "Attribute"; };
+  virtual std::string GetClassName() const override { return "Attribute"; };
 
 };
 }

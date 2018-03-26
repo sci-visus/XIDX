@@ -36,16 +36,16 @@ int main(int argc, char** argv){
   
   printf("Time Domain[%s]:\n", ToString(domain->type));
   
-  for(auto t : domain->GetLinearizedIndexSpace()){
+  for(auto& t : domain->GetLinearizedIndexSpace()){
     printf("Timestep %f\n", t);
     
-    for(auto grid: root_group->groups){
+    for(auto& grid: root_group->GetGroups()){
       std::shared_ptr<Domain> domain = grid->GetDomain();
       
       printf("\tGrid Domain[%s]:\n", ToString(domain->type));
       
-      for(auto var: grid->variables){
-        printf("\t\tVariable: %s %s\n", var->name.c_str(), var->data_items[0].GetXPath().c_str());
+      for(auto& var: grid->GetVariables()){
+        printf("\t\tVariable: %s %s\n", var->name.c_str(), var->data_items[0]->GetXPath().c_str());
         
       }
     }

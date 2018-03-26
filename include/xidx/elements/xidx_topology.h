@@ -33,7 +33,7 @@ public:
     if(!IsNodeName(node,"Topology"))
       return -1;
     
-    parent = _parent;
+    SetParent(_parent);
 
     const char* topo_type = GetProp(node, "Type");
 
@@ -46,7 +46,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "Topology"; };
+  virtual std::string GetClassName() const override { return "Topology"; };
 
 };
 

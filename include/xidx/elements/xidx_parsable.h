@@ -21,9 +21,12 @@ inline bool IsNodeName(xmlNode* node, std::string name){
 
 class Parsable{
   
+private:
+  Parsable* parent=nullptr;
+  
 public:
   std::string name;
-  Parsable* parent=nullptr;
+  
     
   int SetParent(Parsable* _parent){ parent = _parent; return 0;}
   
@@ -32,12 +35,11 @@ public:
 
   virtual std::string GetXPath() { return xpath_prefix; }
   
-  virtual std::string GetClassName() = 0;
+  virtual std::string GetClassName() const = 0;
   
-  virtual Parsable* FindParent(const std::string& class_name, Parsable* obj2) const{
+  virtual const Parsable* FindParent(const std::string& class_name, const Parsable* obj2) const{
     if(obj2 == nullptr)
       return nullptr;
-    printf(">>going through %s\n", ((Parsable*)obj2)->name.c_str());
     if(obj2->GetClassName() == class_name){
       return obj2;
     }
@@ -48,6 +50,8 @@ public:
   virtual Parsable* FindChild(const std::string& class_name) const{
     return nullptr;
   }
+  
+  virtual Parsable* GetParent() const { return parent; };
   
 protected:
   std::string xpath_prefix="//";

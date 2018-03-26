@@ -46,7 +46,7 @@ public:
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     assert(data_items.size() >= 1);
-    parent = _parent;
+    SetParent(_parent);
     DataItem& physical = data_items[0];
     
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
@@ -63,7 +63,7 @@ public:
     return 0;
   };
 
-  virtual std::string GetClassName() override { return "HyperSlabDomain"; };
+  virtual std::string GetClassName() const override { return "HyperSlabDomain"; };
 };
 
 }

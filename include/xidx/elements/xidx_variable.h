@@ -19,14 +19,27 @@ namespace defaults{
 class Variable : public Parsable{
 
 public:
-  std::vector<DataItem > data_items;
+  std::vector<std::shared_ptr<DataItem> > data_items;
   CenterType center_type;
   std::vector<Attribute> attributes;
-  Parsable* parent;
 
   Variable(Parsable* _parent){
-    parent = _parent;
+    SetParent(_parent);
   }
+  
+//  Variable(const Variable* v){
+//    SetParent(v->GetParent());
+//    attributes = v->attributes;
+//    center_type = v->center_type;
+//    data_items = v->data_items;
+//  }
+//  
+//  Variable(const Variable& v){
+//    parent = v.parent;
+//    attributes = v.attributes;
+//    center_type = v.center_type;
+//    data_items = v.data_items;
+//  }
   
   // int get_n_components(){
   //   size_t found=data.dimensions.find_last_of(" \\");
@@ -47,7 +60,7 @@ public:
     xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(center_type));
 
     for(auto item: data_items)
-      xmlNodePtr data_node = item.Serialize(variable_node);
+      xmlNodePtr data_node = item->Serialize(variable_node);
 
     for(auto& curr_att : attributes){
       xmlNodePtr info_node = curr_att.Serialize(variable_node);
@@ -117,9 +130,9 @@ public:
     if(!IsNodeName(node,"Variable"))
       return -1;
 
-    parent = _parent;
+    SetParent(_parent);
     
-    assert(parent!=nullptr);
+    assert(GetParent()!=nullptr);
     
     name = GetProp(node, "Name");
 
@@ -139,8 +152,8 @@ public:
         attributes.push_back(att);
       }
       if(IsNodeName(inner_node, "DataItem")){
-        DataItem ditem(this);
-        ditem.Deserialize(inner_node, this);
+        std::shared_ptr<DataItem> ditem(new DataItem(this));
+        ditem->Deserialize(inner_node, ditem->GetParent());
         data_items.push_back(ditem);
       }
     }
@@ -148,7 +161,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "Variable"; };
+  virtual std::string GetClassName() const override { return "Variable"; };
 
 };
 }

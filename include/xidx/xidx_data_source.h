@@ -42,7 +42,7 @@ public:
   }
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    parent = _parent;
+    SetParent(_parent);
     
     if(!xidx::IsNodeName(node,"DataSource"))
       return -1;
@@ -55,7 +55,7 @@ public:
 
 
   virtual std::string GetXPath() override {
-    xpath_prefix=parent->GetXPath();
+    xpath_prefix=this->GetParent()->GetXPath();
     xpath_prefix+="/DataSource";
 //    xpath_prefix+="[@Name="+name+"]";
     xpath_prefix+="[@Name=\""+name+"\"]";
@@ -63,7 +63,8 @@ public:
     return xpath_prefix;
   };
   
-  virtual std::string GetClassName() override { return "DataSource"; };
+  virtual std::string GetClassName() const override { return "DataSource"; };
+  
 };
 
 };

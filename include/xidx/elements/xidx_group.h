@@ -11,24 +11,22 @@ class Group : public Parsable{
 
 private:
   std::shared_ptr<Domain> domain;
+  std::vector<std::shared_ptr<Group> > groups;
+  std::vector<std::shared_ptr<Variable> > variables;
   
 public:
 
   GroupType group_type;
   VariabilityType variability_type;
-  
-  std::vector<std::shared_ptr<Group> > groups;
+
   std::vector<std::shared_ptr<DataSource> > data_sources;
-  std::vector<std::shared_ptr<Variable> > variables;
   std::vector<Attribute> attributes;
   DomainIndex domain_index;
-  DomainIndex variable_groups_count;
   
   Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
     group_type=_groupType;
     variability_type=_varType;
-    variable_groups_count=0;
   }
   
   Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
@@ -36,16 +34,19 @@ public:
     group_type=_groupType;
     variability_type=_varType;
     domain=_domain;
-    variable_groups_count=0;
   }
   
   Group(const Group* g){
-    parent=g->parent;
+    SetParent(g->GetParent());
     name=g->name;
     group_type=g->group_type;
     variability_type=g->variability_type;
     domain=g->domain;
-    variable_groups_count=g->variable_groups_count;
+    variables = g->variables;
+    groups = g->groups;
+    data_sources = g->data_sources;
+    attributes = g->attributes;
+    domain_index = g->domain_index;
   }
   
   inline std::shared_ptr<Domain> GetDomain() { return domain; }
@@ -62,19 +63,19 @@ public:
     var->name = name;
     var->center_type = center;
     
-    DataItem di(this);
-    di.number_type = numberType;
-    di.bit_precision = string_format("%d", bit_precision);
-    di.endian_type = endian;
+    std::shared_ptr<DataItem> di(new DataItem(this));
+    di->number_type = numberType;
+    di->bit_precision = string_format("%d", bit_precision);
+    di->endian_type = endian;
     if(dimensions==NULL){
-      di.dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
+      di->dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
 //      if(n_components > 1)
 //        di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
     }
     else
-      di.dimensions = dimensions;
+      di->dimensions = dimensions;
     
-    di.format_type = FormatType::IDX_FORMAT;
+    di->format_type = FormatType::IDX_FORMAT;
     
     var->data_items.push_back(di);
     
@@ -89,6 +90,10 @@ public:
     return 0;
   }
   
+  const std::vector<std::shared_ptr<Group> >& GetGroups(){ return groups; }
+  
+  const std::vector<std::shared_ptr<Variable> >& GetVariables(){ return variables; }
+  
   std::shared_ptr<Variable> AddVariable(const char* name, NumberType numberType, const short bit_precision,
                            const int n_components,
                            const CenterType center=CenterType::CELL_CENTER,
@@ -98,7 +103,7 @@ public:
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
   }
   
-  std::shared_ptr<Variable> AddVariable(const char* name, DataItem item, std::shared_ptr<Domain> domain,
+  std::shared_ptr<Variable> AddVariable(const char* name, std::shared_ptr<DataItem> item, std::shared_ptr<Domain> domain,
                          const std::vector<Attribute>& atts=std::vector<Attribute>()){
     
     std::shared_ptr<Variable> var(new Variable(this));
@@ -120,19 +125,19 @@ public:
     var->name = name;
     //printf("comp %s ntype %s prec %d\n", dtype.substr(0,comp_idx).c_str(), num_idx, precision);
     
-    DataItem di(dtype, this);
+    std::shared_ptr<DataItem> di(new DataItem(dtype, this));
     
     var->center_type = center;
     
-    di.endian_type = endian;
+    di->endian_type = endian;
     if(dimensions==NULL){
-      di.dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
+      di->dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
       
     }
     else
-      di.dimensions = dimensions;
+      di->dimensions = dimensions;
     
-    di.format_type = FormatType::IDX_FORMAT;
+    di->format_type = FormatType::IDX_FORMAT;
     
     var->data_items.push_back(di);
     
@@ -148,8 +153,7 @@ public:
   
   int AddGroup(std::shared_ptr<Group> group, DomainIndex=0){
     if(group->variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE){
-      group->domain_index = variable_groups_count;
-      variable_groups_count++;
+      group->domain_index = groups.size();
     }
     
     group->SetParent(this);
@@ -188,11 +192,11 @@ public:
     if(!IsNodeName(node,"Group"))
       return -1;
     
-    parent = _parent;
+    SetParent(_parent);
   
     name = GetProp(node, "Name");
   
-    assert(parent!=nullptr || name=="TimeSeries");
+    assert(this->GetParent()!=nullptr || name=="TimeSeries");
     
     const char* type_s = GetProp(node, "Type");
     for(int t=GroupType::SPATIAL_GROUP_TYPE; t <= GroupType::TEMPORAL_GROUP_TYPE; t++)
@@ -256,9 +260,11 @@ public:
         std::shared_ptr<Variable> var(new Variable(this));
         var->Deserialize(cur_node, this);
         variables.push_back(var);
+        
+        //printf("added var %s parent %s\n", variables.back()->name.c_str(), variables.back()->parent->name.c_str());
       }
       else if(IsNodeName(cur_node,"Group")){
-        std::shared_ptr<Group> gr(new Group(this));
+        std::shared_ptr<Group> gr(new Group(""));
         gr->Deserialize(cur_node, this);
         groups.push_back(gr);
       }
@@ -267,7 +273,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "Group"; };
+  virtual std::string GetClassName() const override { return "Group"; };
   
   virtual Parsable* FindChild(const std::string& class_name) const override {
     if(class_name == "DataSource" && data_sources.size() > 0)
@@ -279,10 +285,10 @@ public:
 protected:
   
   virtual std::string GetXPath() override {
-    if(parent == nullptr)
+    if(GetParent() == nullptr)
       xpath_prefix="//Xidx";
     else
-      xpath_prefix=parent->GetXPath();
+      xpath_prefix=GetParent()->GetXPath();
       
     xpath_prefix+="/Group";
 //    xpath_prefix+="[@Name="+name+"]";

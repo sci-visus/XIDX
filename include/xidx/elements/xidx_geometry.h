@@ -38,7 +38,7 @@ public:
     if(!IsNodeName(node,"Geometry"))
       return -1;
 
-    parent = _parent;
+    SetParent(_parent);
     //name = xidx::getProp(node, "Name");
             
     const char* geo_type = GetProp(node, "Type");
@@ -60,7 +60,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() override { return "Geometry"; };
+  virtual std::string GetClassName() const override { return "Geometry"; };
 };
 
 }

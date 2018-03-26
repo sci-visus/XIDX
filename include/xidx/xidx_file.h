@@ -119,7 +119,7 @@ public:
     return root_group;
   }
   
-  inline size_t GetNumberOfGroups() const { return root_group->groups.size(); };
+  inline size_t GetNumberOfGroups() const { return root_group->GetGroups().size(); };
 };
 
 }
