@@ -269,8 +269,8 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     // Create a spatial domain
     std::shared_ptr<SpatialDomain> space_dom(new SpatialDomain("Grid"));
     
-    uint32_t dims[6] = {10, 20, 30}; // logical box (p1x,p2x,p1y,p2y,p1z,p2z)
-    double box_phy[6] = {0.3, 4.2, 0.0, 9.4, 2.5, 19.0};   // dx dy dz
+    uint32_t dims[6] = {10, 20, 30};                     // X Y Z dimensions of the box
+    double box_phy[6] = {0.3, 4.2, 0.0, 9.4, 2.5, 19.0}; // physical box (p1x,p2x,p1y,p2y,p1z,p2z)
     
     // Set topology and geometry of the spatial domain
     int ret = space_dom->SetTopology(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
