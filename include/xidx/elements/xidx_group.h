@@ -77,9 +77,9 @@ public:
     
     di->format_type = FormatType::IDX_FORMAT;
     
-    var->data_items.push_back(di);
+    var->AddDataItem(di);
     
-    var->attributes = atts;
+    var->AddAttribute(atts);
     
     return AddVariable(var);
   }
@@ -109,10 +109,10 @@ public:
     std::shared_ptr<Variable> var(new Variable(this));
     var->name = name;
     SetDomain(domain);
-    var->data_items.push_back(item);
+    var->AddDataItem(item);
     
-    var->attributes = atts;
-
+    var->AddAttribute(atts);
+    
     return AddVariable(var);
   }
   
@@ -139,9 +139,9 @@ public:
     
     di->format_type = FormatType::IDX_FORMAT;
     
-    var->data_items.push_back(di);
+    var->AddDataItem(di);
     
-    var->attributes = atts;
+    var->AddAttribute(atts);
     
     return AddVariable(var);
   }
@@ -284,11 +284,11 @@ public:
   
 protected:
   
-  virtual std::string GetXPath() override {
+  virtual std::string GetDataSourceXPath() override {
     if(GetParent() == nullptr)
       xpath_prefix="//Xidx";
     else
-      xpath_prefix=GetParent()->GetXPath();
+      xpath_prefix=GetParent()->GetDataSourceXPath();
       
     xpath_prefix+="/Group";
 //    xpath_prefix+="[@Name="+name+"]";

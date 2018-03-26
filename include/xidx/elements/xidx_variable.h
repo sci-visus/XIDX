@@ -18,10 +18,12 @@ namespace defaults{
 
 class Variable : public Parsable{
 
-public:
-  std::vector<std::shared_ptr<DataItem> > data_items;
-  CenterType center_type;
+private:
   std::vector<Attribute> attributes;
+  std::vector<std::shared_ptr<DataItem> > data_items;
+  
+public:
+  CenterType center_type;
 
   Variable(Parsable* _parent){
     SetParent(_parent);
@@ -160,6 +162,24 @@ public:
 
     return 0;
   };
+  
+  const std::vector<Attribute>& GetAttributes() const { return attributes; }
+  
+  int AddAttribute(const Attribute& att){ attributes.push_back(att); return 0; }
+  
+  int AddAttribute(const std::vector<Attribute>& atts){
+    attributes.insert(attributes.end(), atts.begin(), atts.end());
+    return 0;
+  }
+  
+  const std::vector<std::shared_ptr<DataItem> >& GetDataItems() const { return data_items; }
+  
+  int AddDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
+  
+  int AddDataItem(const std::vector<std::shared_ptr<DataItem> >& dis){
+    data_items.insert(data_items.end(), dis.begin(), dis.end());
+    return 0;
+  }
   
   virtual std::string GetClassName() const override { return "Variable"; };
 

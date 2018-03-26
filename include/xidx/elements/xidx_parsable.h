@@ -33,7 +33,7 @@ public:
   virtual xmlNode* Serialize(xmlNode* parent, const char* text=NULL) = 0;
   virtual int Deserialize(xmlNode* node, Parsable* parent) = 0;
 
-  virtual std::string GetXPath() { return xpath_prefix; }
+  virtual std::string GetDataSourceXPath() { return xpath_prefix; }
   
   virtual std::string GetClassName() const = 0;
   

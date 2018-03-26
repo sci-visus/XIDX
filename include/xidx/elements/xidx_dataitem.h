@@ -132,7 +132,7 @@ public:
       
       if(source!=nullptr){
         xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
-        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+source->GetXPath()+")").c_str());
+        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+source->GetDataSourceXPath()+")").c_str());
       }
     }
 #endif
@@ -238,11 +238,9 @@ public:
     return 0;
   };
   
-  virtual std::string GetXPath() override {
+  virtual std::string GetDataSourceXPath() override {
     Parsable* source=nullptr;
     Parsable* curr_parent=this->GetParent();
-    if(GetParent() == nullptr)
-      printf("parent of %s null\n", name.c_str());
     
     while(curr_parent!=nullptr){
       const Parsable* parent_group = FindParent("Group", curr_parent);
@@ -258,9 +256,33 @@ public:
     }
     
     if(source!=nullptr){
-      return source->GetXPath();
+      return source->GetDataSourceXPath();
     }
     else return "";
+    
+  }
+  
+  virtual DataSource* GetDataSource() {
+    Parsable* source=nullptr;
+    Parsable* curr_parent=this->GetParent();
+    
+    while(curr_parent!=nullptr){
+      const Parsable* parent_group = FindParent("Group", curr_parent);
+      if(parent_group==nullptr)
+        break;
+      
+      source = parent_group->FindChild("DataSource");
+      
+      if(source!=nullptr && source->GetClassName()=="DataSource")
+        break;
+      //printf("pass through %s\n", source->GetClassName().c_str());
+      curr_parent = parent_group->GetParent();
+    }
+    
+    if(source!=nullptr){
+      return (DataSource*)source;
+    }
+    else return nullptr;
     
   }
   
