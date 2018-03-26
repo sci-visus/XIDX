@@ -25,7 +25,7 @@ public:
   int SetTopology(Topology _topology) { topology = _topology; return 0; }
   
   int SetTopology(TopologyType type, uint32_t dims){
-    topology.dimensions = string_format("%d", dims);
+    topology.dimensions = ToIndexVector(string_format("%d", dims));
     topology.type = type;
     
     return 0;
@@ -33,7 +33,7 @@ public:
   
   int SetTopology(TopologyType type, int n_dims, uint32_t* dims){
     for(int i=0; i< n_dims; i++)
-      topology.dimensions += std::to_string(dims[i])+" ";
+      topology.dimensions.push_back(dims[i]);
     
     topology.type = type;
     
@@ -57,8 +57,8 @@ public:
     item_d.bit_precision = "32";
     item_d.endian_type = EndianType::LITTLE_ENDIANESS;
     
-    item_o.dimensions = string_format("%d", n_dims);
-    item_d.dimensions = string_format("%d", n_dims);
+    item_o.dimensions.push_back(n_dims);
+    item_d.dimensions.push_back(n_dims);
     
     if(type == GeometryType::RECT_GEOMETRY_TYPE){
       n_dims *= 2; // two points per dimension
@@ -120,6 +120,16 @@ public:
     assert(false);
     return IndexSpace<PHY_TYPE>();
   };
+  
+  virtual size_t GetVolume() const override{
+    size_t total = 1;
+    
+    for(int i=0; i<topology.dimensions.size(); i++)
+      total *= topology.dimensions[i];
+    
+    return total;
+  }
+
 
 };
 

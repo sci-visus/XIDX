@@ -85,6 +85,14 @@ public:
     return 0;
   };
   
+  virtual size_t GetVolume() const{
+    size_t total = 1;
+    for(auto& item: this->data_items)
+      for(int i=0; i < item.dimensions.size(); i++)
+        total *= item.dimensions[i];
+    return total;
+  }
+  
   virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() = 0;
   
   virtual std::string GetClassName() const override { return "Domain"; };

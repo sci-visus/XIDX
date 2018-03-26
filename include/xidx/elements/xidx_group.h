@@ -57,7 +57,7 @@ public:
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
-                           const int n_components=1, const char* dimensions=NULL){
+                                        const int n_components=1, const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     std::shared_ptr<Variable> var(new Variable(this));
     
     var->name = name;
@@ -67,7 +67,7 @@ public:
     di->number_type = numberType;
     di->bit_precision = string_format("%d", bit_precision);
     di->endian_type = endian;
-    if(dimensions==NULL){
+    if(dimensions.size()>0){
       di->dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
 //      if(n_components > 1)
 //        di.dimensions = string_format("%s %d", di.dimensions.c_str(), n_components);
@@ -99,7 +99,7 @@ public:
                            const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
-                           const char* dimensions=NULL){
+                           const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
   }
   
@@ -119,7 +119,7 @@ public:
   std::shared_ptr<Variable> AddVariable(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
                            const EndianType endian=EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
-                           const char* dimensions=NULL){
+                           const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     std::shared_ptr<Variable> var(new Variable(this));
     
     var->name = name;
@@ -130,7 +130,7 @@ public:
     var->center_type = center;
     
     di->endian_type = endian;
-    if(dimensions==NULL){
+    if(dimensions.size()>0){
       di->dimensions = std::static_pointer_cast<SpatialDomain>(domain)->topology.dimensions; // Use same dimensions of topology
       
     }
@@ -196,7 +196,7 @@ public:
   
     name = GetProp(node, "Name");
   
-    assert(this->GetParent()!=nullptr || name=="TimeSeries");
+    //assert(this->GetParent()!=nullptr);
     
     const char* type_s = GetProp(node, "Type");
     for(int t=GroupType::SPATIAL_GROUP_TYPE; t <= GroupType::TEMPORAL_GROUP_TYPE; t++)

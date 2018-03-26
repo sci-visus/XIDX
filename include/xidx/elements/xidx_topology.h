@@ -12,16 +12,14 @@ public:
   std::vector<Attribute> attributes;
   std::vector<DataItem> items;
   TopologyType type;
-  std::string dimensions;
-  std::string order;
-  std::string nodesPerElement;
+  std::vector<INDEX_TYPE> dimensions;
 
   xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
 
     xmlNodePtr topology_node = xmlNewChild(parent, NULL, BAD_CAST "Topology", NULL);
 
     xmlNewProp(topology_node, BAD_CAST "Type", BAD_CAST ToString(type));
-    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
+    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST ToString(dimensions).c_str());
     
     for(auto item: items)
       xmlNodePtr item_node = item.Serialize(topology_node);
@@ -41,7 +39,7 @@ public:
       if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
           type = static_cast<TopologyType>(t);
 
-    dimensions = GetProp(node, "Dimensions");
+    dimensions = ToIndexVector(GetProp(node, "Dimensions"));
 
     return 0;
   };

@@ -53,7 +53,7 @@ public:
       for(auto phy: values_vector)
         physical.text+=std::to_string(phy)+" ";
       
-      physical.dimensions=std::to_string(values_vector.size());
+      physical.dimensions.push_back(values_vector.size());
     }
     xmlNodePtr domain_node = Domain::Serialize(parent, text);
       
@@ -71,7 +71,10 @@ public:
   
     if(count == 1){
       auto& item = data_items[0];
-      int length = stoi(item.dimensions);
+      
+      assert(item.dimensions.size()>0);
+      
+      size_t length = item.dimensions[0];
 
       values_vector.resize(length);
       

@@ -33,6 +33,7 @@ public:
   MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
     SetParent(d->GetParent());
     lists = d->lists;
+    data_items = d->data_items;
   }
   
   int SetAxis(int index, ListDomain<T>& list){
@@ -57,23 +58,23 @@ public:
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
     xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
     
+    int items_count = 0;
     for(auto& l: lists){
+      DataItem itemt(this);
+      itemt.name = l.name;
+      data_items.push_back(itemt);
       
-      for(int i=0; i< l.data_items.size(); i++){
-        if(data_items.size() >= l.data_items.size())
-          data_items[i] = l.data_items[i];
-        else {
-          DataItem item(this);
-          data_items.push_back(item);
-        }
-        
-        DataItem& item = data_items[i];
+      for(int i=0; i< l.data_items.size(); i++){        
+        data_items[items_count] = l.data_items[i];
+        DataItem& item = data_items.back();
         
         for(auto phy: l.values_vector)
           item.text+=std::to_string(phy)+" ";
           
-        item.dimensions=std::to_string(l.values_vector.size());
-        data_items[i] = item;
+        item.dimensions.push_back(l.values_vector.size());
+        data_items[items_count] = item;
+        
+        items_count++;
       }
     }
     
@@ -82,6 +83,10 @@ public:
     
     return parent;
   }
+  
+  virtual const ListDomain<PHY_TYPE>& GetAxis(int index){
+    return lists[index];
+  };
   
   virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace(int index){
     return lists[index].GetLinearizedIndexSpace();
@@ -111,18 +116,22 @@ public:
     lists.clear();
     
     for(int di=0; di < count; di++){
-      auto& item = data_items[di];
-      int length = stoi(item.dimensions);
+      const auto& item = data_items[di];
+      
+      assert(item.dimensions.size()>0);
+      
+      int length = item.dimensions[0];
       
       if(item.format_type == FormatType::XML_FORMAT){
         std::stringstream stream_data(item.text);
         
         ListDomain<T> list(item.name);
+        list.data_items[0] = data_items[0];
         list.values_vector.resize(length);
         for(int i=0; i< length; i++){
           stream_data >> list.values_vector[i];
         }
-        
+      
         lists.push_back(list);
       }
       else{

@@ -47,7 +47,6 @@ public:
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
           type = static_cast<GeometryType>(t);
 
-    int data_items_count = 0;
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(IsNodeName(inner_node, "DataItem")){
         DataItem geo_dataitem(this);
@@ -59,6 +58,15 @@ public:
 
     return 0;
   };
+  
+  size_t GetVolume() const{
+    size_t total = 1;
+    for(auto item: items){
+      for(int i=0; i < item.dimensions.size(); i++)
+        total *= item.dimensions[i];
+    }
+    return total;
+  }
   
   virtual std::string GetClassName() const override { return "Geometry"; };
 };

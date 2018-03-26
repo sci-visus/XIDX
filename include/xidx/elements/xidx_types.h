@@ -245,4 +245,36 @@ namespace std{
   }
 }
 
+namespace xidx{
+inline std::string ToString(const std::vector<xidx::INDEX_TYPE>& vec){
+  std::string str;
+  for(auto& v: vec)
+    str+=std::to_string(v)+" ";
+  
+  return str;
+}
+  
+
+inline std::vector<INDEX_TYPE> ToIndexVector(std::string s){
+  std::vector<INDEX_TYPE> vec;
+  
+  std::string delimiter = " ";
+  
+  if(s.find(delimiter) == std::string::npos)
+    vec.push_back(stoi(s));
+  else{
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+      token = s.substr(0, pos);
+      vec.push_back(stoi(token));
+      s.erase(0, pos + delimiter.length());
+    }
+  }
+  
+  return vec;
+}
+
+}
+
 #endif

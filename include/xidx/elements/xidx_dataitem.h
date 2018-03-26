@@ -20,7 +20,7 @@ class DataItem : public xidx::Parsable{
   
 public:
   std::string name;
-  std::string dimensions;
+  std::vector<INDEX_TYPE> dimensions;
   NumberType number_type;
   std::string bit_precision;
   std::string n_components;
@@ -107,7 +107,7 @@ public:
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endian_type));
 
     if(dimensions.size())
-      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST dimensions.c_str());
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST ToString(dimensions).c_str());
 
     if(n_components != defaults::DATAITEM_N_COMPONENTS)
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
@@ -196,13 +196,8 @@ public:
 
     //if(format_type != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
       const char* val_dimensions = xidx::GetProp(node, "Dimensions");
-      if(val_dimensions == NULL){
-        //assert(false);
-        dimensions = "";
-        //fprintf(stderr, "ERROR: Invalid dimension value for DataItem\n");
-      }
-      else 
-        dimensions = val_dimensions;
+      if(val_dimensions != NULL)
+        dimensions = ToIndexVector(val_dimensions);
     //}
 
     const char* end_type = xidx::GetProp(node, "Endian");
