@@ -47,7 +47,7 @@ public:
   
   int AddAxis(ListDomain<T>& list){
     lists.push_back(list);
-    lists.back().parent = this;
+    lists.back().SetParent(this);
     lists.back().type = DomainType::MULTIAXIS_DOMAIN_TYPE;
     
     return 0;

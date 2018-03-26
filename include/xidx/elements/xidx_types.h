@@ -82,10 +82,10 @@ inline const char* ToString(GeometryType v)
     case XYZ_GEOMETRY_TYPE:               return "XYZ";
     case XY_GEOMETRY_TYPE:                return "XY";
     case X_Y_Z_GEOMETRY_TYPE:             return "X_Y_Z";
-    case VXVYVZ_GEOMETRY_TYPE:            return "VXVYVZ";
-    case ORIGIN_DXDYDZ_GEOMETRY_TYPE:     return "ORIGIN_DXDYDZ";
-    case ORIGIN_DXDY_GEOMETRY_TYPE:       return "ORIGIN_DXDY";
-    case RECT_GEOMETRY_TYPE:              return "RECT";
+    case VXVYVZ_GEOMETRY_TYPE:            return "VxVyVz";
+    case ORIGIN_DXDYDZ_GEOMETRY_TYPE:     return "Origin_DxDyDz";
+    case ORIGIN_DXDY_GEOMETRY_TYPE:       return "Origin_DxDy";
+    case RECT_GEOMETRY_TYPE:              return "Rect";
     default:                              return "[Unknown]";
   }
 }
@@ -187,8 +187,7 @@ enum DomainType{
   LIST_DOMAIN_TYPE = 1,
   MULTIAXIS_DOMAIN_TYPE = 2,
   SPATIAL_DOMAIN_TYPE = 3,
-  TEMPORAL_DOMAIN_TYPE = 4,
-  RANGE_DOMAIN_TYPE = 5
+  RANGE_DOMAIN_TYPE = 4
 };
 
 inline const char* ToString(DomainType v)
@@ -197,7 +196,6 @@ inline const char* ToString(DomainType v)
   {
     case HYPER_SLAB_DOMAIN_TYPE:         return "HyperSlab";
     case LIST_DOMAIN_TYPE:               return "List";
-    case TEMPORAL_DOMAIN_TYPE:           return "Temporal";
     case MULTIAXIS_DOMAIN_TYPE:          return "MultiAxisDomain";
     case SPATIAL_DOMAIN_TYPE:            return "Spatial";
     case RANGE_DOMAIN_TYPE:              return "Range";

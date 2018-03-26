@@ -243,8 +243,8 @@ public:
           case DomainType::SPATIAL_DOMAIN_TYPE:
             domain = std::make_shared<SpatialDomain>(new SpatialDomain(""));
             break;
-          case DomainType::TEMPORAL_DOMAIN_TYPE:
-            domain = std::make_shared<ListDomain<PHY_TYPE>>(new ListDomain<PHY_TYPE>(""));
+          case DomainType::RANGE_DOMAIN_TYPE:
+            fprintf(stderr, "Range domain not implemented yet\n");
             break;
         }
         
