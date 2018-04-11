@@ -68,6 +68,8 @@ public:
     return 0;
   }
   
+  const std::vector<Attribute>& GetAttributes() const{ return attributes; }
+  
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     //Parsable::Serialize(parent);
 

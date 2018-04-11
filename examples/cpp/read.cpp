@@ -68,6 +68,9 @@ int main(int argc, char** argv){
       
       printf("\tGrid Domain[%s]:\n", ToString(domain->type));
       
+      for(auto& att: domain->GetAttributes())
+        printf("\t\tAttribute %s value %s\n", att.name.c_str(), att.value.c_str());
+      
       if(domain->type == DomainType::SPATIAL_DOMAIN_TYPE){
         std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
         printf("\tTopology %s volume %lu\n", ToString(sdom->topology.type), sdom->GetVolume());
@@ -75,10 +78,12 @@ int main(int argc, char** argv){
       }
       else if(domain->type == DomainType::MULTIAXIS_DOMAIN_TYPE)
       {
-        std::shared_ptr<MultiAxisDomain<double>> mdom = std::dynamic_pointer_cast<MultiAxisDomain<double>>(domain);
+        std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
         for(int a=0; a < mdom->GetNumberOfAxis(); a++){
           const Axis& axis = mdom->GetAxis(a);
           printf("\tAxis %s volume %lu", axis.name.c_str(), axis.GetVolume());
+          for(auto& att: axis.GetAttributes())
+            printf("\t\tAttribute %s value %s\n", att.name.c_str(), att.value.c_str());
         }
       }
       

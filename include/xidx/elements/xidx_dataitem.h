@@ -124,7 +124,7 @@ public:
   
   virtual xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
     
-    if(format_type == FormatType::XML_FORMAT){
+    if(values.size()>0 && format_type == FormatType::XML_FORMAT){
       std::stringstream stream_data;
       for(auto& v:values)
         stream_data<<v<<" ";
