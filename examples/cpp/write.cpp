@@ -111,11 +111,12 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   time_group->AddDataSource(file);
   
   // Create the time domain
-  
   std::shared_ptr<Domain> time_dom;
   
   // Create series of timestep values
   time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
+  time_dom->AddAttribute("units", "days since 1980");
+  time_dom->AddAttribute("calendar", "gregorian");
   
   for(int i=0; i < n_timesteps; i++){
     std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
@@ -131,15 +132,18 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   ///////////////////////////////////////////////////////////////
   
   // Define a new domain, group and file for a different set of variables
-  std::shared_ptr<MultiAxisDomain<double>> geo_dom(new MultiAxisDomain<double>("Geospatial"));
-  Axis<double> latitude_axis("latitude");
-  Axis<double> longitude_axis("longitude");
+  std::shared_ptr<MultiAxisDomain> geo_dom(new MultiAxisDomain("Geospatial"));
+  Axis latitude_axis("latitude");
+  Axis longitude_axis("longitude");
   
-  // populate the axis with explicit values (will be written in the XML)
+  // Populate the axis with explicit values (will be written in the XML)
   for(int i=0; i < 10; i++){
-    latitude_axis.AddDomainItem((double)i);
-    longitude_axis.AddDomainItem((double)i*2);
+    latitude_axis.AddValue((double)i*0.5);
+    longitude_axis.AddValue((double)i*2*0.6);
   }
+  
+  latitude_axis.AddAttribute("units", "degrees_north");
+  latitude_axis.AddAttribute("units", "degrees_east");
   
   // Add this axis to the domain
   geo_dom->AddAxis(latitude_axis);

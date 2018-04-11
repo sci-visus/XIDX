@@ -43,7 +43,7 @@ public:
   
   ListDomain(std::string _name) : Domain(_name) {
     type = LIST_DOMAIN_TYPE;
-    data_items.push_back(DataItem(name, this));
+    data_items.push_back(std::make_shared<DataItem>(new DataItem(name, this)));
   };
   
   ListDomain(std::string _name, DataItem& item) : Domain(_name) {
@@ -76,17 +76,17 @@ public:
   
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     assert(data_items.size() >= 1);
-    DataItem& physical = data_items[0];
-    physical.text="";
-    physical.dimensions.clear();
-    physical.dimensions.push_back(values_vector.size());
+    auto physical = data_items[0];
+    physical->text="";
+    physical->dimensions.clear();
+    physical->dimensions.push_back(values_vector.size());
     
     if(!std::is_same<T, DataSource>::value){
       for(auto phy: values_vector)
-        physical.text+=std::to_string(phy)+" ";
+        physical->text+=std::to_string(phy)+" ";
     }
     
-    trim(physical.text);
+    trim(physical->text);
     xmlNodePtr domain_node = Domain::Serialize(parent, text);
       
     return domain_node;
@@ -104,13 +104,13 @@ public:
     if(count == 1){
       auto& item = data_items[0];
       
-      assert(item.dimensions.size()>0);
+      assert(item->dimensions.size()>0);
       
-      size_t length = item.dimensions[0];
+      size_t length = item->dimensions[0];
 
       values_vector.resize(length);
       
-      std::stringstream stream_data(item.text);
+      std::stringstream stream_data(item->text);
       
       for(int i=0; i< length; i++){
         stream_data >> values_vector[i];

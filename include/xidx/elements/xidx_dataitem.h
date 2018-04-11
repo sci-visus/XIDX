@@ -30,6 +30,7 @@
 #ifndef xidx_dataITEM_H_
 #define xidx_dataITEM_H_
 
+#include <sstream>
 #include "xidx/xidx.h"
 
 namespace xidx{
@@ -88,6 +89,7 @@ public:
     format_type=i.format_type;
     data_source=i.data_source;
     attributes=i.attributes;
+    values=i.values;
   }
   
   DataItem(std::string dtype, Parsable* _parent){
@@ -121,6 +123,14 @@ public:
   }
   
   virtual xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
+    
+    if(format_type == FormatType::XML_FORMAT){
+      std::stringstream stream_data;
+      for(auto& v:values)
+        stream_data<<v<<" ";
+      this->text=std::string(stream_data.str());
+    }
+    
     xmlNodePtr data_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataItem", BAD_CAST this->text.c_str());
     
     if(name.size())
@@ -240,12 +250,18 @@ public:
     else
       endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
-//    if(format_type != FormatType::XML_FORMAT){
+    if(format_type != FormatType::XML_FORMAT){
+      std::stringstream stream_data(text);
+
+      values.clear();
+      double n ;
+      while( stream_data >> n ) values.push_back(n);
+
 //      Parsable* parent_group = FindParent("Group", parent);
 //
 ////      if(node != nullptr)
 ////        file_ref->Deserialize(node->children);
-//    }
+    }
     
     if(node->children != nullptr){
       for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
@@ -261,6 +277,15 @@ public:
     
     return 0;
   };
+  
+  const std::vector<double>& GetValues() const{ return values; }
+  
+  int AddValue(double v){
+    values.push_back(v);
+    dimensions.resize(1);
+    dimensions[0] = values.size();
+    return 0;
+  }
   
   virtual std::string GetDataSourceXPath() override {
     Parsable* source=nullptr;
@@ -313,6 +338,8 @@ public:
   virtual std::string GetClassName() const override { return "DataItem"; };
   
 private:
+  
+  std::vector<double> values;
   
   int ParseDType(std::string dtype){
     if(!std::isdigit(dtype[0])){ // passed name, not dtype

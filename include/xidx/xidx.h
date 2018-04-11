@@ -48,26 +48,26 @@
 #include "xidx_index_space.h"
 #include "elements/xidx_domain.h"
 #include "elements/xidx_list_domain.h"
-#include "elements/xidx_phylog_list_domain.h"
-#include "elements/xidx_multiaxis_domain.h"
 #include "elements/xidx_hyperslab_domain.h"
-#include "elements/xidx_phylog_hyperslab_domain.h"
-
 #include "elements/xidx_topology.h"
 #include "elements/xidx_geometry.h"
 #include "elements/xidx_spatial_domain.h"
 
 #include "elements/xidx_variable.h"
-#include "elements/xidx_group.h"
-
-#include "xidx_file.h"
 
 namespace xidx {
 typedef HyperSlabDomain TemporalHyperSlabDomain;
 typedef ListDomain<PHY_TYPE> TemporalListDomain;
   
-template<typename T>
-using Axis = ListDomain<T>;
+//template<typename T>
+//using Axis = ListDomain<T>;
+typedef Variable Axis;
 }
+
+#include "elements/xidx_multiaxis_domain.h"
+#include "elements/xidx_group.h"
+
+#include "xidx_file.h"
+
 
 #endif

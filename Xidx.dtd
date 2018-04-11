@@ -16,7 +16,7 @@
     accept-language CDATA  #IMPLIED >
 
 <!--Contains domain data information-->
-<!ELEMENT Domain (DataItem*, Topology*, Geometry*)>
+<!ELEMENT Domain (DataItem*, Topology*, Geometry*, Variable*, Attribute*)>
 <!ATTLIST Domain
 	Name CDATA #IMPLIED
     Type (Spatial | HyperSlab | List | MultiAxis | Range) "Spatial"

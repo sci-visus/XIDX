@@ -41,11 +41,11 @@ public:
   HyperSlabDomain(std::string _name) : ListDomain(_name){
     type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
     
-    DataItem& physical = data_items[0];
+    std::shared_ptr<DataItem> physical = data_items[0];
     
-    physical.format_type = FormatType::XML_FORMAT;
-    physical.number_type = NumberType::FLOAT_NUMBER_TYPE;
-    physical.bit_precision = "64";
+    physical->format_type = FormatType::XML_FORMAT;
+    physical->number_type = NumberType::FLOAT_NUMBER_TYPE;
+    physical->bit_precision = "64";
   }
   
   HyperSlabDomain(const HyperSlabDomain* d) : ListDomain(d->name){
@@ -55,15 +55,15 @@ public:
   
   int setDomain(uint32_t dims, double* phy_hyperslab){
     assert(data_items.size() >= 1);
-    DataItem& physical = data_items[0];
+    std::shared_ptr<DataItem> physical = data_items[0];
     
-    physical.dimensions = ToIndexVector(string_format("%d", dims));
+    physical->dimensions = ToIndexVector(string_format("%d", dims));
     
     for(int i=0; i< dims; i++){
-      physical.text += std::to_string(phy_hyperslab[i]) +" ";
+      physical->text += std::to_string(phy_hyperslab[i]) +" ";
     }
     
-    trim(physical.text);
+    trim(physical->text);
     
     return 0;
   }
@@ -88,22 +88,22 @@ public:
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     assert(data_items.size() >= 1);
     SetParent(_parent);
-    DataItem& physical = data_items[0];
+    std::shared_ptr<DataItem> physical = data_items[0];
     
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
       //for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
           
           if(IsNodeName(cur_node, "DataItem")){
-            physical.Deserialize(cur_node, this);
+            physical->Deserialize(cur_node, this);
           }
         }
       //}
     }
     
-    assert(physical.dimensions[0]==3);
+    assert(physical->dimensions[0]==3);
     
-    std::string s = physical.text;
+    std::string s = physical->text;
     std::string delimiter = " ";
     
     size_t pos = 0;

@@ -34,8 +34,7 @@
 #include "xidx/xidx.h"
 
 namespace xidx{
-
-template<typename T>
+  
 class MultiAxisDomain : public Domain{
 
 public:
@@ -50,10 +49,14 @@ public:
     va_list args;
     va_start(args, axis_names);
 
-    lists.resize(count);
     for (int i = 0; i < count; ++i) {
       std::string arg_name = std::string(va_arg(args, const char*));
-      lists[i]= ListDomain<T>(arg_name, this);
+      
+      if(i > axis.size()){
+        axis.push_back(Variable(arg_name));
+      }
+      else
+        axis[i] = Variable(arg_name);
     }
     
     va_end(args);
@@ -61,24 +64,22 @@ public:
   
   MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
     SetParent(d->GetParent());
-    lists = d->lists;
+    axis = d->axis;
     data_items = d->data_items;
   }
   
-  int SetAxis(int index, ListDomain<T>& list){
-    assert(index < list.data_items.size());
+  int SetAxis(int index, Axis& _axis){
+    assert(index < axis.size());
     
-    lists[index] = list;
-    lists[index].parent = this;
-    lists[index].type = DomainType::MULTIAXIS_DOMAIN_TYPE;
+    axis[index] = _axis;
+    axis[index].SetParent(this);
     
     return 0;
   }
   
-  int AddAxis(ListDomain<T>& list){
-    lists.push_back(list);
-    lists.back().SetParent(this);
-    lists.back().type = DomainType::MULTIAXIS_DOMAIN_TYPE;
+  int AddAxis(Axis& _axis){
+    axis.push_back(_axis);
+    axis.back().SetParent(this);
     
     return 0;
   }
@@ -88,43 +89,45 @@ public:
     xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
     data_items.clear();
     
-    int items_count = 0;
-    for(auto& l: lists){
-      DataItem itemt(this);
-      itemt.name = l.name;
-      data_items.push_back(itemt);
-      
-      for(int i=0; i< l.data_items.size(); i++){        
-        data_items[items_count] = l.data_items[i];      
-      }
-      
-      items_count++;
+//    int items_count = 0;
+    for(auto& l: axis){
+      l.Serialize(domain_node);
+//      std::shared_ptr<DataItem> itemt(new DataItem(this));
+//      itemt->name = l.name;
+//      data_items.push_back(itemt);
+//      
+//      for(auto di: l.GetDataItems()){
+//        data_items[items_count] = di;
+//      }
+//      
+//      items_count++;
     }
     
-    for(auto item: data_items)
-      item.Serialize(domain_node);
-    
+//    for(auto item: data_items)
+//      item->Serialize(domain_node);
+//    
     return parent;
   }
   
-  virtual const ListDomain<PHY_TYPE>& GetAxis(int index){
-    return lists[index];
+  virtual const Axis& GetAxis(int index){
+    return axis[index];
   };
   
   virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace(int index){
-    return lists[index].GetLinearizedIndexSpace();
+    assert(axis[index].GetDataItems().size() > 0);
+    return axis[index].GetDataItems()[0]->GetValues();
   };
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace(){
+  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED
     fprintf(stderr, "GetLinearizedIndexSpace() for MultiAxisDomain not implemented please\
             use GetLinearizedIndexSpace(int index)\n");
     assert(false);
-    return lists[0].GetLinearizedIndexSpace();
+    return axis[0].GetDataItems()[0]->GetValues();
   };
 
   
-  int GetNumberOfAxis(){ return lists.size(); }
+  int GetNumberOfAxis(){ return axis.size(); }
   
   virtual std::string GetClassName() const override { return "MultiAxisDomain"; };
   
@@ -134,39 +137,67 @@ public:
     
     assert(GetParent()!=nullptr);
     
-    int count = data_items.size();
-    
-    lists.clear();
-    
-    for(int di=0; di < count; di++){
-      const auto& item = data_items[di];
+    int data_items_count=0;
+    for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
       
-      assert(item.dimensions.size()>0);
-      
-      int length = item.dimensions[0];
-      
-      if(item.format_type == FormatType::XML_FORMAT){
-        std::stringstream stream_data(item.text);
+      if (cur_node->type == XML_ELEMENT_NODE) {
         
-        ListDomain<T> list(item.name);
-        list.data_items[0] = item;
-        list.values_vector.resize(length);
-        for(int i=0; i< length; i++){
-          stream_data >> list.values_vector[i];
+        if(IsNodeName(cur_node, "Variable")){
+          if(axis.size() > data_items_count){
+            Axis& a = axis[data_items_count];
+            a.Deserialize(cur_node, this);
+          }
+          else{
+            Axis a(this);
+            a.Deserialize(cur_node, this);
+            axis.push_back(a);
+          }
+        
+          data_items_count++;
         }
+        else if(IsNodeName(cur_node, "Variable")){
+          
+        }
+      }
       
-        lists.push_back(list);
-      }
-      else{
-        fprintf(stderr, "Deserialization of data items for type != XML is not implemented yet!\n");
-      }
     }
+
+//    
+//    int count = data_items.size();
+//    
+//    axis.clear();
+//    
+//    for(int di=0; di < count; di++){
+//      const auto& item = data_items[di];
+//      
+//      assert(item->dimensions.size()>0);
+//      
+//      int length = item->dimensions[0];
+//      
+//      if(item->format_type == FormatType::XML_FORMAT){
+//        std::stringstream stream_data(item->text);
+//        
+//        Variable a(item->name);
+//        
+//        ListDomain<T> list(item->name);
+//        list.data_items[0] = item;
+//        list.values_vector.resize(length);
+//        for(int i=0; i< length; i++){
+//          stream_data >> list.values_vector[i];
+//        }
+//      
+//        axis.push_back(list);
+//      }
+//      else{
+//        fprintf(stderr, "Deserialization of data items for type != XML is not implemented yet!\n");
+//      }
+//    }
     
     return 0;
   }
   
 private:
-  std::vector<ListDomain<T>> lists;
+  std::vector<Axis> axis;
 };
 
 }

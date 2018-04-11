@@ -52,6 +52,11 @@ private:
 public:
   CenterType center_type;
 
+  Variable(std::string _name){
+    name = _name;
+    center_type = defaults::VARIABLE_CENTER_TYPE;
+  }
+  
   Variable(Parsable* _parent){
     SetParent(_parent);
   }
@@ -62,9 +67,9 @@ public:
 //    center_type = v->center_type;
 //    data_items = v->data_items;
 //  }
-//  
+//
 //  Variable(const Variable& v){
-//    parent = v.parent;
+//    SetParent(v.GetParent());
 //    attributes = v.attributes;
 //    center_type = v.center_type;
 //    data_items = v.data_items;
@@ -148,7 +153,26 @@ public:
 
   //   return 0;
   // }
-
+  
+  int AddValue(double v){
+    if(data_items.size()==0){
+      data_items.push_back(std::make_shared<DataItem>(this));
+      data_items[0]->format_type = FormatType::XML_FORMAT;
+    }
+    
+    data_items[0]->AddValue(v);
+    
+    return 0;
+  }
+  
+  virtual size_t GetVolume() const{
+    size_t total = 1;
+    for(auto& item: this->data_items)
+      for(int i=0; i < item->dimensions.size(); i++)
+        total *= item->dimensions[i];
+    return total;
+  }
+  
   int AddAttribute(std::string name, std::string value){
     Attribute att(name, value);
     attributes.push_back(att);

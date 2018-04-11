@@ -267,7 +267,7 @@ public:
             domain = std::make_shared<ListDomain<PHY_TYPE>>(new ListDomain<PHY_TYPE>(""));
             break;
           case DomainType::MULTIAXIS_DOMAIN_TYPE:
-            domain = std::make_shared<MultiAxisDomain<PHY_TYPE>>(new MultiAxisDomain<PHY_TYPE>(""));
+            domain = std::make_shared<MultiAxisDomain>(new MultiAxisDomain(""));
             break;
           case DomainType::SPATIAL_DOMAIN_TYPE:
             domain = std::make_shared<SpatialDomain>(new SpatialDomain(""));

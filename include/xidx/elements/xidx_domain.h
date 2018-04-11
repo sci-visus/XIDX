@@ -36,6 +36,9 @@ namespace xidx{
 
 class Domain : public Parsable{
 
+protected:
+  std::vector<Attribute> attributes;
+  
 public:
   
   Domain(){};
@@ -48,15 +51,20 @@ public:
   Domain(std::string _name) { name=_name; };
   
   DomainType type;
-  std::vector<DataItem > data_items;
+  std::vector<std::shared_ptr<DataItem> > data_items;
 
-  int AddDataItem(DataItem& item){
+  int AddDataItem(std::shared_ptr<DataItem> item){
     data_items.push_back(item);
     return 0;
   }
   
   virtual int AddDataItem(std::string name, Parsable* parent){
-    data_items.push_back(DataItem(name, parent));
+    data_items.push_back(std::make_shared<DataItem>(new DataItem(name, parent)));
+    return 0;
+  }
+  
+  virtual int AddAttribute(std::string name, std::string value){
+    attributes.push_back(Attribute(name, value));
     return 0;
   }
   
@@ -67,7 +75,10 @@ public:
     xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
 
     for(auto item: data_items)
-      xmlNodePtr item_node = item.Serialize(domain_node);
+      xmlNodePtr item_node = item->Serialize(domain_node);
+      
+    for(auto att: attributes)
+      xmlNodePtr item_att = att.Serialize(domain_node);
 
     return domain_node;
   };
@@ -96,16 +107,21 @@ public:
         
         if(IsNodeName(cur_node, "DataItem")){
           if(data_items.size() > data_items_count){
-            DataItem& d = data_items[data_items_count];
-            d.Deserialize(cur_node, this);
+            std::shared_ptr<DataItem> d = data_items[data_items_count];
+            d->Deserialize(cur_node, this);
           }
           else{
-            DataItem d(this);
-            d.Deserialize(cur_node, this);
+            std::shared_ptr<DataItem> d(new DataItem(this));
+            d->Deserialize(cur_node, this);
             data_items.push_back(d);
           }
           
           data_items_count++;
+        }
+        else if(IsNodeName(cur_node, "Attribute")){
+          Attribute att;
+          att.Deserialize(cur_node, this);
+          attributes.push_back(att);
         }
       }
       
@@ -117,8 +133,8 @@ public:
   virtual size_t GetVolume() const{
     size_t total = 1;
     for(auto& item: this->data_items)
-      for(int i=0; i < item.dimensions.size(); i++)
-        total *= item.dimensions[i];
+      for(int i=0; i < item->dimensions.size(); i++)
+        total *= item->dimensions[i];
     return total;
   }
   
