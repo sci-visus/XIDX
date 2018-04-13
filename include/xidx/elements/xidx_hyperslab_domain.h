@@ -43,8 +43,8 @@ public:
     
     std::shared_ptr<DataItem> physical = data_items[0];
     
-    physical->format_type = FormatType::XML_FORMAT;
-    physical->number_type = NumberType::FLOAT_NUMBER_TYPE;
+    physical->format_type = DataItem::FormatType::XML_FORMAT;
+    physical->number_type = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
     physical->bit_precision = "64";
   }
   

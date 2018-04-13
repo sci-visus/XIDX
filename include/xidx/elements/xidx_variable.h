@@ -38,13 +38,36 @@ namespace xidx{
 
 class Group;
 class DataItem;
-  
-namespace defaults{
-  const CenterType VARIABLE_CENTER_TYPE = CenterType::CELL_CENTER;
-}
 
 class Variable : public Parsable{
-
+public:
+  
+  enum CenterType{
+    NODE_CENTER = 0,
+    CELL_CENTER = 1,
+    GRID_CENTER = 2,
+    FACE_CENTER = 3,
+    EDGE_CENTER = 4
+  };
+  
+  static inline const char* ToString(CenterType v)
+  {
+    switch (v)
+    {
+      case NODE_CENTER:   return "Node";
+      case CELL_CENTER:   return "Cell";
+      case GRID_CENTER:   return "Grid";
+      case FACE_CENTER:   return "Face";
+      case EDGE_CENTER:   return "Edge";
+      default:            return "[Unknown]";
+    }
+  }
+  
+  class defaults{
+  public:
+    static const CenterType VARIABLE_CENTER_TYPE = CenterType::CELL_CENTER;
+  };
+  
 private:
   std::vector<Attribute> attributes;
   std::vector<std::shared_ptr<DataItem> > data_items;
@@ -157,7 +180,7 @@ public:
   int AddValue(double v){
     if(data_items.size()==0){
       data_items.push_back(std::make_shared<DataItem>(this));
-      data_items[0]->format_type = FormatType::XML_FORMAT;
+      data_items[0]->format_type = DataItem::FormatType::XML_FORMAT;
     }
     
     data_items[0]->AddValue(v);

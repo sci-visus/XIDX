@@ -35,6 +35,29 @@
 namespace xidx{
 
 class Topology : public Parsable{
+public:
+  enum TopologyType{
+    NO_TOPOLOGY_TYPE = 0,
+    RECT_2D_MESH_TOPOLOGY_TYPE = 1,
+    CORECT_2D_MESH_TOPOLOGY_TYPE = 2,
+    RECT_3D_MESH_TOPOLOGY_TYPE = 3,
+    CORECT_3D_MESH_TOPOLOGY_TYPE = 4,
+    DIM_1D_TOPOLOGY_TYPE = 5
+  };
+  
+  static inline const char* ToString(TopologyType v)
+  {
+    switch (v)
+    {
+      case NO_TOPOLOGY_TYPE:              return "NoTopologyType";
+      case RECT_2D_MESH_TOPOLOGY_TYPE:    return "2DRectMesh";
+      case RECT_3D_MESH_TOPOLOGY_TYPE:    return "3DRectMesh";
+      case CORECT_2D_MESH_TOPOLOGY_TYPE:  return "2DCoRectMesh";
+      case CORECT_3D_MESH_TOPOLOGY_TYPE:  return "3DCoRectMesh";
+      case DIM_1D_TOPOLOGY_TYPE:          return "1D";
+      default:                            return "[Unknown]";
+    }
+  }
 
 public:
 
@@ -48,7 +71,7 @@ public:
     xmlNodePtr topology_node = xmlNewChild(parent, NULL, BAD_CAST "Topology", NULL);
 
     xmlNewProp(topology_node, BAD_CAST "Type", BAD_CAST ToString(type));
-    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST ToString(dimensions).c_str());
+    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST xidx::ToString(dimensions).c_str());
     
     for(auto item: items)
       xmlNodePtr item_node = item.Serialize(topology_node);

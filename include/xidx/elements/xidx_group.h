@@ -35,9 +35,43 @@
 namespace xidx{
 
 typedef int DomainIndex;
+
+class Variability {
+  public:
+    enum VariabilityType{
+      STATIC_VARIABILITY_TYPE = 0,
+      VARIABLE_VARIABILITY_TYPE = 1
+    };
+    
+    static inline const char* ToString(VariabilityType v)
+    {
+      switch (v)
+      {
+        case STATIC_VARIABILITY_TYPE:     return "Static";
+        case VARIABLE_VARIABILITY_TYPE:   return "Variable";
+        default:                          return "[Unknown]";
+      }
+    }
+};
   
 class Group : public Parsable{
 
+public:
+  enum GroupType{
+    SPATIAL_GROUP_TYPE = 0,
+    TEMPORAL_GROUP_TYPE = 1
+  };
+  
+  static inline const char* ToString(GroupType v)
+  {
+    switch (v)
+    {
+      case SPATIAL_GROUP_TYPE:    return "Spatial";
+      case TEMPORAL_GROUP_TYPE:   return "Temporal";
+      default:                    return "[Unknown]";
+    }
+  }
+  
 private:
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
@@ -46,19 +80,19 @@ private:
 public:
 
   GroupType group_type;
-  VariabilityType variability_type;
+  Variability::VariabilityType variability_type;
 
   std::vector<std::shared_ptr<DataSource> > data_sources;
   std::vector<Attribute> attributes;
   DomainIndex domain_index;
   
-  Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE){
+  Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, Variability::VariabilityType _varType=Variability::VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
     group_type=_groupType;
     variability_type=_varType;
   }
   
-  Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, VariabilityType _varType=VariabilityType::STATIC_VARIABILITY_TYPE) {
+  Group(std::string _name, GroupType _groupType, std::shared_ptr<Domain> _domain, Variability::VariabilityType _varType=Variability::VariabilityType::STATIC_VARIABILITY_TYPE) {
     name=_name;
     group_type=_groupType;
     variability_type=_varType;
@@ -82,10 +116,10 @@ public:
   
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
-  std::shared_ptr<Variable> AddVariable(const char* name, NumberType numberType, const short bit_precision,
+  std::shared_ptr<Variable> AddVariable(const char* name, XidxDataType::NumberType numberType, const short bit_precision,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
-                           const CenterType center=CenterType::CELL_CENTER,
-                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                           const Variable::CenterType center=Variable::CenterType::CELL_CENTER,
+                           const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
                                         const int n_components=1, const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     std::shared_ptr<Variable> var(new Variable(this));
     
@@ -104,7 +138,7 @@ public:
     else
       di->dimensions = dimensions;
     
-    di->format_type = FormatType::IDX_FORMAT;
+    di->format_type = DataItem::FormatType::IDX_FORMAT;
     
     var->AddDataItem(di);
     
@@ -123,10 +157,10 @@ public:
   
   const std::vector<std::shared_ptr<Variable> >& GetVariables(){ return variables; }
   
-  std::shared_ptr<Variable> AddVariable(const char* name, NumberType numberType, const short bit_precision,
+  std::shared_ptr<Variable> AddVariable(const char* name, XidxDataType::NumberType numberType, const short bit_precision,
                            const int n_components,
-                           const CenterType center=CenterType::CELL_CENTER,
-                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+                           const Variable::CenterType center=Variable::CenterType::CELL_CENTER,
+                           const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
@@ -145,8 +179,9 @@ public:
     return AddVariable(var);
   }
   
-  std::shared_ptr<Variable> AddVariable(const char* name, std::string dtype, const CenterType center=CenterType::CELL_CENTER,
-                           const EndianType endian=EndianType::LITTLE_ENDIANESS,
+  std::shared_ptr<Variable> AddVariable(const char* name, std::string dtype,
+                                        const  Variable::CenterType center=Variable::CenterType::CELL_CENTER,
+                           const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
                            const std::vector<Attribute>& atts=std::vector<Attribute>(),
                            const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     std::shared_ptr<Variable> var(new Variable(this));
@@ -166,7 +201,7 @@ public:
     else
       di->dimensions = dimensions;
     
-    di->format_type = FormatType::IDX_FORMAT;
+    di->format_type = DataItem::FormatType::IDX_FORMAT;
     
     var->AddDataItem(di);
     
@@ -181,7 +216,7 @@ public:
   }
   
   int AddGroup(std::shared_ptr<Group> group, DomainIndex=0){
-    if(group->variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE){
+    if(group->variability_type == Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE){
       group->domain_index = groups.size();
     }
     
@@ -195,9 +230,9 @@ public:
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(group_type));
-    xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST ToString(variability_type));
+    xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST Variability::ToString(variability_type));
     
-    if(variability_type == VariabilityType::VARIABLE_VARIABILITY_TYPE)
+    if(variability_type == Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE)
       xmlNewProp(group_node, BAD_CAST "DomainIndex", BAD_CAST std::to_string(domain_index).c_str());
     
     for(auto data: data_sources)
@@ -233,9 +268,9 @@ public:
              group_type = static_cast<GroupType>(t);
 
     const char* vtype_s = GetProp(node, "VariabilityType");
-    for(int t=VariabilityType::STATIC_VARIABILITY_TYPE; t <= VariabilityType::VARIABLE_VARIABILITY_TYPE; t++)
-      if (strcmp(vtype_s, ToString(static_cast<VariabilityType>(t)))==0)
-        variability_type = static_cast<VariabilityType>(t);
+    for(int t=Variability::VariabilityType::STATIC_VARIABILITY_TYPE; t <= Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE; t++)
+      if (strcmp(vtype_s, Variability::ToString(static_cast<Variability::VariabilityType>(t)))==0)
+        variability_type = static_cast<Variability::VariabilityType>(t);
     
     const char* dindex_s = GetProp(node, "DomainIndex");
     
@@ -253,26 +288,26 @@ public:
       }
       else if(IsNodeName(cur_node,"Domain")){
         const char* domtype_s = GetProp(cur_node, "Type");
-        DomainType dom_type;
+        Domain::DomainType dom_type;
         
-        for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
-          if (strcmp(domtype_s, ToString(static_cast<DomainType>(t)))==0)
-            dom_type = static_cast<DomainType>(t);
+        for(int t=Domain::DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= Domain::DomainType::RANGE_DOMAIN_TYPE; t++)
+          if (strcmp(domtype_s, Domain::ToString(static_cast<Domain::DomainType>(t)))==0)
+            dom_type = static_cast<Domain::DomainType>(t);
 
         switch(dom_type){
-          case DomainType::HYPER_SLAB_DOMAIN_TYPE:
+          case Domain::DomainType::HYPER_SLAB_DOMAIN_TYPE:
             domain = std::make_shared<HyperSlabDomain>(new HyperSlabDomain(""));
             break;
-          case DomainType::LIST_DOMAIN_TYPE:
+          case Domain::DomainType::LIST_DOMAIN_TYPE:
             domain = std::make_shared<ListDomain<PHY_TYPE>>(new ListDomain<PHY_TYPE>(""));
             break;
-          case DomainType::MULTIAXIS_DOMAIN_TYPE:
+          case Domain::DomainType::MULTIAXIS_DOMAIN_TYPE:
             domain = std::make_shared<MultiAxisDomain>(new MultiAxisDomain(""));
             break;
-          case DomainType::SPATIAL_DOMAIN_TYPE:
+          case Domain::DomainType::SPATIAL_DOMAIN_TYPE:
             domain = std::make_shared<SpatialDomain>(new SpatialDomain(""));
             break;
-          case DomainType::RANGE_DOMAIN_TYPE:
+          case Domain::DomainType::RANGE_DOMAIN_TYPE:
             fprintf(stderr, "Range domain not implemented yet\n");
             break;
         }

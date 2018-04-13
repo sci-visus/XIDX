@@ -42,12 +42,12 @@ public:
   std::vector<T> values_vector;
   
   ListDomain(std::string _name) : Domain(_name) {
-    type = LIST_DOMAIN_TYPE;
+    type = Domain::LIST_DOMAIN_TYPE;
     data_items.push_back(std::make_shared<DataItem>(new DataItem(name, this)));
   };
   
   ListDomain(std::string _name, DataItem& item) : Domain(_name) {
-    type = LIST_DOMAIN_TYPE;
+    type = Domain::LIST_DOMAIN_TYPE;
     data_items.push_back(item);
   };
   

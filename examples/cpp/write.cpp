@@ -38,7 +38,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   XidxFile meta(filepath);
   
   // Create a group to collect a time series
-  std::shared_ptr<Group> time_group(new Group("TimeSeries", GroupType::TEMPORAL_GROUP_TYPE));
+  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
   
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
@@ -62,7 +62,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   ////////////////////////////////////////////////////////////
   
   // Create a new group to collect a set of variables that share the same spatial domain
-  std::shared_ptr<Group> grid(new Group("L0", GroupType::SPATIAL_GROUP_TYPE)); // default static group
+  std::shared_ptr<Group> grid(new Group("L0", Group::GroupType::SPATIAL_GROUP_TYPE)); // default static group
   
   // Create a spatial domain
   std::shared_ptr<SpatialDomain> space_dom(new SpatialDomain("Grid"));
@@ -72,9 +72,9 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   double d[3] = {1.f, 1.f, 1.f};   // dx dy dz
   
   // Set topology and geometry of the spatial domain
-  int ret = space_dom->SetTopology(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
+  int ret = space_dom->SetTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
                                    dims);
-  ret = space_dom->SetGeometry(GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, n_dims, o, d);
+  ret = space_dom->SetGeometry(Geometry::GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, n_dims, o, d);
   
   // Set the domain for the spatial group
   grid->SetDomain(space_dom);
@@ -83,7 +83,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   for(int i=0; i < n_attributes; i++){
     char name[32];
     sprintf(name, "var_%d", i);
-    grid->AddVariable(name, NumberType::FLOAT_NUMBER_TYPE, 32);
+    grid->AddVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
   }
   
   // Add the group of variables to the time series
@@ -103,7 +103,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   XidxFile meta(filepath);
   
   // Create a group to collect a time series
-  std::shared_ptr<Group> time_group(new Group("TimeSeries", GroupType::TEMPORAL_GROUP_TYPE));
+  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
   
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
@@ -150,7 +150,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   geo_dom->AddAxis(longitude_axis);
   
   // Create group for the variables defined in the geospatial domain
-  std::shared_ptr<Group> geo_vars(new Group("geo_vars", GroupType::SPATIAL_GROUP_TYPE, geo_dom));
+  std::shared_ptr<Group> geo_vars(new Group("geo_vars", Group::GroupType::SPATIAL_GROUP_TYPE, geo_dom));
   
   // Create and add a variable to the group
   std::shared_ptr<Variable> temp = geo_vars->AddVariable("geo_temperature", XidxDataType::FLOAT_32);
@@ -178,7 +178,7 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   XidxFile meta(filepath);
 
   // Create a group to collect a time series
-  std::shared_ptr<Group> time_group(new Group("TimeSeries", GroupType::TEMPORAL_GROUP_TYPE));
+  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
   
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
@@ -206,24 +206,24 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   uint32_t file_dims[2] = {100, 200};
   
   std::shared_ptr<SpatialDomain> file_dom(new SpatialDomain("FileBasedDomain"));
-  file_dom->SetTopology(TopologyType::RECT_2D_MESH_TOPOLOGY_TYPE, file_n_dims,
+  file_dom->SetTopology(Topology::TopologyType::RECT_2D_MESH_TOPOLOGY_TYPE, file_n_dims,
                          file_dims);
   
   // Create a DataSource that points to the file
   std::shared_ptr<DataSource> rect_grid_file(new DataSource("grid_data", "file_path"));
   
   // Create a DataItem which describes the content of the data
-  DataItem file_item(FormatType::BINARY_FORMAT, XidxDataType::FLOAT_64, rect_grid_file, file_dom.get());
+  DataItem file_item(DataItem::FormatType::BINARY_FORMAT, XidxDataType::FLOAT_64, rect_grid_file, file_dom.get());
   
   // Create a geometry which will point to the file
-  Geometry file_geom(GeometryType::XY_GEOMETRY_TYPE, file_item);
+  Geometry file_geom(Geometry::GeometryType::XY_GEOMETRY_TYPE, file_item);
   
   file_dom->SetGeometry(file_geom);
   
   // Create group for the variables defined in the geospatial domain
-  std::shared_ptr<Group> rect_grid_vars(new Group("rect_grid_vars", GroupType::SPATIAL_GROUP_TYPE, file_dom));
+  std::shared_ptr<Group> rect_grid_vars(new Group("rect_grid_vars", Group::GroupType::SPATIAL_GROUP_TYPE, file_dom));
   
-  rect_grid_vars->AddVariable("rect_var", NumberType::INT_NUMBER_TYPE, 32);
+  rect_grid_vars->AddVariable("rect_var", XidxDataType::NumberType::INT_NUMBER_TYPE, 32);
   
   // Add the groups of variables to the time series
   time_group->AddGroup(rect_grid_vars);
@@ -242,7 +242,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
   XidxFile meta(filepath);
   
   // Create a group to collect a time series
-  std::shared_ptr<Group> time_group(new Group("TimeSeries", GroupType::TEMPORAL_GROUP_TYPE));
+  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
   
   const int n_dims = 3;
   
@@ -266,7 +266,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     std::shared_ptr<DataSource> file(new DataSource("timestep"+std::to_string(t),
                                                     "timestep"+std::to_string(t)+"/file_path"));
     // Create a new group to collect a set of variables that share the same spatial domain
-    std::shared_ptr<Group> grid(new Group("L0", GroupType::SPATIAL_GROUP_TYPE, VariabilityType::VARIABLE_VARIABILITY_TYPE)); // default static group
+    std::shared_ptr<Group> grid(new Group("L0", Group::GroupType::SPATIAL_GROUP_TYPE, Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE)); // default static group
     
     grid->AddDataSource(file);
     
@@ -277,9 +277,9 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     double box_phy[6] = {0.3, 4.2, 0.0, 9.4, 2.5, 19.0}; // physical box (p1x,p2x,p1y,p2y,p1z,p2z)
     
     // Set topology and geometry of the spatial domain
-    int ret = space_dom->SetTopology(TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
+    int ret = space_dom->SetTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
                                      dims);
-    ret = space_dom->SetGeometry(GeometryType::RECT_GEOMETRY_TYPE, n_dims, box_phy);
+    ret = space_dom->SetGeometry(Geometry::GeometryType::RECT_GEOMETRY_TYPE, n_dims, box_phy);
     
     // Set the domain for the spatial group
     grid->SetDomain(space_dom);
@@ -288,7 +288,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     for(int i=0; i < n_attributes; i++){
       char name[32];
       sprintf(name, "var_%d", i);
-      grid->AddVariable(name, NumberType::FLOAT_NUMBER_TYPE, 32);
+      grid->AddVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
     }
     
     time_group->AddGroup(grid);

@@ -43,24 +43,25 @@ public:
     type = DomainType::MULTIAXIS_DOMAIN_TYPE;
   };
 
-  MultiAxisDomain(std::string _name, int count, const char* axis_names...) : Domain(_name) {
-    type = DomainType::MULTIAXIS_DOMAIN_TYPE;
-    
-    va_list args;
-    va_start(args, axis_names);
-
-    for (int i = 0; i < count; ++i) {
-      std::string arg_name = std::string(va_arg(args, const char*));
-      
-      if(i > axis.size()){
-        axis.push_back(Variable(arg_name));
-      }
-      else
-        axis[i] = Variable(arg_name);
-    }
-    
-    va_end(args);
-  };
+  /// swig 3.0 does not support var args
+//  MultiAxisDomain(std::string _name, int count, const char* axis_names...) : Domain(_name) {
+//    type = DomainType::MULTIAXIS_DOMAIN_TYPE;
+//    
+//    va_list args;
+//    va_start(args, axis_names);
+//
+//    for (int i = 0; i < count; ++i) {
+//      std::string arg_name = std::string(va_arg(args, const char*));
+//      
+//      if(i > axis.size()){
+//        axis.push_back(Variable(arg_name));
+//      }
+//      else
+//        axis[i] = Variable(arg_name);
+//    }
+//    
+//    va_end(args);
+//  };
   
   MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
     SetParent(d->GetParent());

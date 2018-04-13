@@ -95,9 +95,4 @@ public:
 
 };
 
-namespace std{
-  std::string to_string(xidx::DataSource const& d);
-}
-
-
 #endif

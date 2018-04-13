@@ -37,12 +37,16 @@
 #include <map>
 #include <set>
 
+namespace xidx{
+  typedef uint32_t INDEX_TYPE;
+  typedef double PHY_TYPE;
+}
+
 #include "xidx_config.h"
 #include "elements/xidx_parsable.h"
-#include "elements/xidx_types.h"
-
-#include "elements/xidx_attribute.h"
 #include "xidx_data_source.h"
+#include "elements/xidx_attribute.h"
+#include "elements/xidx_types.h"
 #include "elements/xidx_dataitem.h"
 
 #include "xidx_index_space.h"
@@ -62,6 +66,7 @@ typedef ListDomain<PHY_TYPE> TemporalListDomain;
 //template<typename T>
 //using Axis = ListDomain<T>;
 typedef Variable Axis;
+
 }
 
 #include "elements/xidx_multiaxis_domain.h"

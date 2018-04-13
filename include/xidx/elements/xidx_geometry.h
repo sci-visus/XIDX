@@ -35,7 +35,33 @@
 namespace xidx{
 
 class Geometry : public Parsable{
-
+public:
+  
+  enum GeometryType{
+    XYZ_GEOMETRY_TYPE = 0,
+    XY_GEOMETRY_TYPE = 1,
+    X_Y_Z_GEOMETRY_TYPE = 2,
+    VXVYVZ_GEOMETRY_TYPE = 3,
+    ORIGIN_DXDYDZ_GEOMETRY_TYPE = 4,
+    ORIGIN_DXDY_GEOMETRY_TYPE = 5,
+    RECT_GEOMETRY_TYPE = 6
+  };
+  
+  static inline const char* ToString(GeometryType v)
+  {
+    switch (v)
+    {
+      case XYZ_GEOMETRY_TYPE:               return "XYZ";
+      case XY_GEOMETRY_TYPE:                return "XY";
+      case X_Y_Z_GEOMETRY_TYPE:             return "X_Y_Z";
+      case VXVYVZ_GEOMETRY_TYPE:            return "VxVyVz";
+      case ORIGIN_DXDYDZ_GEOMETRY_TYPE:     return "Origin_DxDyDz";
+      case ORIGIN_DXDY_GEOMETRY_TYPE:       return "Origin_DxDy";
+      case RECT_GEOMETRY_TYPE:              return "Rect";
+      default:                              return "[Unknown]";
+    }
+  }
+  
 public:
   std::string name;
   GeometryType type;

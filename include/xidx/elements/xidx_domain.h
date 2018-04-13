@@ -35,6 +35,27 @@
 namespace xidx{
 
 class Domain : public Parsable{
+public:
+  enum DomainType{
+    HYPER_SLAB_DOMAIN_TYPE = 0,
+    LIST_DOMAIN_TYPE = 1,
+    MULTIAXIS_DOMAIN_TYPE = 2,
+    SPATIAL_DOMAIN_TYPE = 3,
+    RANGE_DOMAIN_TYPE = 4
+  };
+  
+  static inline const char* ToString(DomainType v)
+  {
+    switch (v)
+    {
+      case HYPER_SLAB_DOMAIN_TYPE:         return "HyperSlab";
+      case LIST_DOMAIN_TYPE:               return "List";
+      case MULTIAXIS_DOMAIN_TYPE:          return "MultiAxisDomain";
+      case SPATIAL_DOMAIN_TYPE:            return "Spatial";
+      case RANGE_DOMAIN_TYPE:              return "Range";
+      default:                             return "[Unknown]";
+    }
+  }
 
 protected:
   std::vector<Attribute> attributes;

@@ -36,28 +36,72 @@
 namespace xidx{
 
 class Variable;
-
-namespace defaults{
-  const FormatType DATAITEM_FORMAT_TYPE = FormatType::XML_FORMAT;
-  const NumberType DATAITEM_NUMBER_TYPE = NumberType::FLOAT_NUMBER_TYPE;
-  const std::string DATAITEM_BIT_PRECISION = "32";
-  const std::string DATAITEM_N_COMPONENTS = "1";
-  const EndianType DATAITEM_ENDIAN_TYPE = EndianType::LITTLE_ENDIANESS;
-}
-
+  
+class Endianess{
+public:
+  enum EndianType{
+    LITTLE_ENDIANESS = 0,
+    BIG_ENDIANESS = 1,
+    NATIVE_ENDIANESS = 2
+  };
+  
+  static inline const char* ToString(EndianType v)
+  {
+    switch (v)
+    {
+      case LITTLE_ENDIANESS:    return "Little";
+      case BIG_ENDIANESS:       return "Big";
+      case NATIVE_ENDIANESS:    return "Native";
+      default:                  return "[Unknown]";
+    }
+  }
+};
+  
 class DataItem : public xidx::Parsable{
   friend class DataSource;
+public:
+  
+  enum FormatType{
+    XML_FORMAT = 0,
+    HDF_FORMAT = 1,
+    BINARY_FORMAT = 2,
+    TIFF_FORMAT = 3,
+    IDX_FORMAT = 4
+  };
+  
+  static inline const char* ToString(FormatType v)
+  {
+    switch (v)
+    {
+      case XML_FORMAT:      return "XML";
+      case HDF_FORMAT:      return "HDF";
+      case BINARY_FORMAT:   return "Binary";
+      case TIFF_FORMAT:     return "TIFF";
+      case IDX_FORMAT:      return "IDX";
+      default:              return "[Unknown]";
+    }
+  }
+  
+  class defaults{
+  public:
+    static const int DATAITEM_BIT_PRECISION = 32;
+    static const int DATAITEM_N_COMPONENTS = 1;
+    static const DataItem::FormatType DATAITEM_FORMAT_TYPE = DataItem::FormatType::XML_FORMAT;
+    static const XidxDataType::NumberType DATAITEM_NUMBER_TYPE = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
+    static const Endianess::EndianType DATAITEM_ENDIAN_TYPE = Endianess::EndianType::LITTLE_ENDIANESS;
+  };
   
 public:
   std::string name;
   std::vector<INDEX_TYPE> dimensions;
-  NumberType number_type;
+  XidxDataType::NumberType number_type;
+  //TODO change these strings into number types
   std::string bit_precision;
   std::string n_components;
   std::string reference;
   std::string text;
-  EndianType endian_type;
-  FormatType format_type;
+  Endianess::EndianType endian_type;
+  DataItem::FormatType format_type;
   std::shared_ptr<DataSource> data_source;
   std::vector<Attribute> attributes;
   
@@ -139,16 +183,16 @@ public:
     if(format_type != defaults::DATAITEM_FORMAT_TYPE)
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
     
-      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST ToString(number_type));
-    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION.c_str()) != 0 || format_type == FormatType::IDX_FORMAT)
+      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST XidxDataType::ToString(number_type));
+    if(strcmp(bit_precision.c_str(), std::to_string(defaults::DATAITEM_BIT_PRECISION).c_str()) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
     if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
-      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST ToString(endian_type));
+      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST Endianess::ToString(endian_type));
 
     if(dimensions.size())
-      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST ToString(dimensions).c_str());
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST xidx::ToString(dimensions).c_str());
 
-    if(n_components != defaults::DATAITEM_N_COMPONENTS)
+    if(n_components != std::to_string(defaults::DATAITEM_N_COMPONENTS).c_str())
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
     if(data_source != nullptr)
@@ -211,9 +255,9 @@ public:
 
     const char* num_type = xidx::GetProp(node, "NumberType");
     if(num_type != NULL){
-      for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++)
-        if (strcmp(num_type, ToString(static_cast<NumberType>(t)))==0){
-          number_type = static_cast<NumberType>(t);
+      for(int t=XidxDataType::NumberType::CHAR_NUMBER_TYPE; t <= XidxDataType::NumberType::UINT_NUMBER_TYPE; t++)
+        if (strcmp(num_type, XidxDataType::ToString(static_cast<XidxDataType::NumberType>(t)))==0){
+          number_type = static_cast<XidxDataType::NumberType>(t);
           break;
         }
     }
@@ -241,9 +285,9 @@ public:
 
     const char* end_type = xidx::GetProp(node, "Endian");
     if (end_type != NULL){
-      for(int t=EndianType::LITTLE_ENDIANESS; t <= NATIVE_ENDIANESS; t++)
-        if (strcmp(end_type, ToString(static_cast<EndianType>(t)))==0){
-          endian_type = static_cast<EndianType>(t);
+      for(int t=Endianess::EndianType::LITTLE_ENDIANESS; t <= Endianess::NATIVE_ENDIANESS; t++)
+        if (strcmp(end_type, Endianess::ToString(static_cast<Endianess::EndianType>(t)))==0){
+          endian_type = static_cast<Endianess::EndianType>(t);
           break;
         }
     }
@@ -362,12 +406,12 @@ private:
     std::string ntype = dtype.substr(comp_idx+1, num_idx-1);
     bit_precision = dtype.substr(num_idx+1);
     
-    for(int t=NumberType::CHAR_NUMBER_TYPE; t <= UINT_NUMBER_TYPE; t++){
-      std::string numType = ToString(static_cast<NumberType>(t));
+    for(int t=XidxDataType::NumberType::CHAR_NUMBER_TYPE; t <= XidxDataType::NumberType::UINT_NUMBER_TYPE; t++){
+      std::string numType = XidxDataType::ToString(static_cast<XidxDataType::NumberType>(t));
       std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
       
       if (strcmp(numType.c_str(), ntype.c_str())==0){
-        number_type = static_cast<NumberType>(t);
+        number_type = static_cast<XidxDataType::NumberType>(t);
         break;
       }
     }

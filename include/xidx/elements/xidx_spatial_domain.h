@@ -53,14 +53,14 @@ public:
   
   int SetTopology(Topology _topology) { topology = _topology; return 0; }
   
-  int SetTopology(TopologyType type, uint32_t dims){
+  int SetTopology(Topology::TopologyType type, uint32_t dims){
     topology.dimensions = ToIndexVector(string_format("%d", dims));
     topology.type = type;
     
     return 0;
   }
   
-  int SetTopology(TopologyType type, int n_dims, uint32_t* dims){
+  int SetTopology(Topology::TopologyType type, int n_dims, uint32_t* dims){
     for(int i=0; i< n_dims; i++)
       topology.dimensions.push_back(dims[i]);
     
@@ -71,25 +71,27 @@ public:
   
   int SetGeometry(Geometry _geometry) { geometry = _geometry; return 0; }
 
-  int SetGeometry(GeometryType type, int n_dims, const double* ox_oy_oz,
+  int SetGeometry(Geometry::GeometryType type, int n_dims, const double* ox_oy_oz,
                   const double* dx_dy_dz=NULL) {
     geometry.type = type;
     
     DataItem item_o(this);
-    item_o.format_type = FormatType::XML_FORMAT;
-    item_o.number_type = NumberType::FLOAT_NUMBER_TYPE;
+    item_o.format_type = DataItem::FormatType
+    
+    ::XML_FORMAT;
+    item_o.number_type = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
     item_o.bit_precision = "32";
-    item_o.endian_type = EndianType::LITTLE_ENDIANESS;
+    item_o.endian_type = Endianess::EndianType::LITTLE_ENDIANESS;
     DataItem item_d(this);
-    item_d.format_type = FormatType::XML_FORMAT;
-    item_d.number_type = NumberType::FLOAT_NUMBER_TYPE;
+    item_d.format_type = DataItem::FormatType::XML_FORMAT;
+    item_d.number_type = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
     item_d.bit_precision = "32";
-    item_d.endian_type = EndianType::LITTLE_ENDIANESS;
+    item_d.endian_type = Endianess::EndianType::LITTLE_ENDIANESS;
     
     item_o.dimensions.push_back(n_dims);
     item_d.dimensions.push_back(n_dims);
     
-    if(type == GeometryType::RECT_GEOMETRY_TYPE){
+    if(type == Geometry::GeometryType::RECT_GEOMETRY_TYPE){
       n_dims *= 2; // two points per dimension
       for(int i=0; i< n_dims; i++)
         item_o.text += std::to_string(ox_oy_oz[i])+" ";
