@@ -86,6 +86,8 @@ public:
   std::vector<Attribute> attributes;
   DomainIndex domain_index;
   
+  Group(){ }
+  
   Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, Variability::VariabilityType _varType=Variability::VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
     group_type=_groupType;

@@ -41,8 +41,10 @@ namespace xidx{
 // rects, list of points, evaluate overlaps, etc.
 // N is dimensions, T is the type of the content
 
-template<typename T>
-using IndexSpace = std::vector<T>;
+//template<typename T>
+//using IndexSpace = std::vector<T>;
+
+typedef std::vector<double> IndexSpace;
   
 //template<int N, typename T>
 //class IndexSpace{

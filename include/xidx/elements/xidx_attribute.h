@@ -42,7 +42,7 @@ public:
 
   std::string value;
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     xmlNodePtr att_node = xmlNewChild(parent, NULL, BAD_CAST "Attribute", BAD_CAST text);
     xmlNewProp(att_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(att_node, BAD_CAST "Value", BAD_CAST value.c_str());
@@ -50,7 +50,7 @@ public:
     return att_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent){
+  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!xidx::IsNodeName(node,"Attribute"))
       return -1;
     

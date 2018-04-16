@@ -78,7 +78,7 @@ public:
     items.push_back(item);
   }
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
 
     xmlNodePtr geometry_node = xmlNewChild(parent, NULL, BAD_CAST "Geometry", NULL);
     xmlNewProp(geometry_node, BAD_CAST "Type", BAD_CAST ToString(type));
@@ -89,7 +89,7 @@ public:
     return geometry_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent){
+  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!IsNodeName(node,"Geometry"))
       return -1;
 

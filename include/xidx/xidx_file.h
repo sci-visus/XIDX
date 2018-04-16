@@ -142,7 +142,7 @@ public:
     return 0;
   }
   
-  std::shared_ptr<Group> GetRootGroup(){
+  const std::shared_ptr<Group>& GetRootGroup() const{
     return root_group;
   }
   

@@ -161,7 +161,7 @@ public:
     return total;
   }
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() = 0;
+  virtual const IndexSpace& GetLinearizedIndexSpace() = 0;
   
   virtual std::string GetClassName() const override { return "Domain"; };
 

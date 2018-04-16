@@ -68,7 +68,7 @@ public:
     return 0;
   }
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& GetLinearizedIndexSpace() override{
     values_vector.resize(count);
     
     for(int i=0; i< count; i++){
@@ -130,9 +130,6 @@ private:
   double step  = 0;
   int    count = 0;
   
-  IndexSpace<PHY_TYPE> values_vector;
-
-
 };
   
 

@@ -114,17 +114,19 @@ public:
     return axis[index];
   };
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace(int index){
+  virtual const IndexSpace& GetLinearizedIndexSpace(int index){
     assert(axis[index].GetDataItems().size() > 0);
+  
     return axis[index].GetDataItems()[0]->GetValues();
   };
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& GetLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED
     fprintf(stderr, "GetLinearizedIndexSpace() for MultiAxisDomain not implemented please\
             use GetLinearizedIndexSpace(int index)\n");
     assert(false);
-    return axis[0].GetDataItems()[0]->GetValues();
+    
+    return GetLinearizedIndexSpace(0);
   };
 
   

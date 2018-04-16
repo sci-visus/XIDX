@@ -145,12 +145,13 @@ public:
   
   virtual std::string GetClassName() const override { return "SpatialDomain"; };
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& GetLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED
     fprintf(stderr, "GetLinearizedIndexSpace() for SpatialDomain not implemented yet, please\
             use GetLinearizedIndexSpace(int index)\n");
     assert(false);
-    return IndexSpace<PHY_TYPE>();
+    
+    return IndexSpace();
   };
   
   virtual size_t GetVolume() const override{

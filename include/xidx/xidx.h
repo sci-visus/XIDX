@@ -65,8 +65,15 @@ typedef ListDomain<PHY_TYPE> TemporalListDomain;
   
 //template<typename T>
 //using Axis = ListDomain<T>;
-typedef Variable Axis;
+//class Axis : public Variable{
+//  friend Variable;
+//public:
+//  Axis(Parsable* parent): Variable(parent){};
+//  Axis(std::string name) : Variable(name){};
+//};
 
+typedef Variable Axis;
+  
 }
 
 #include "elements/xidx_multiaxis_domain.h"

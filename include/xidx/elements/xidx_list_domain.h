@@ -39,14 +39,14 @@ template<typename T>
 class ListDomain : public Domain{
 
 public:
-  std::vector<T> values_vector;
+  IndexSpace values_vector;
   
   ListDomain(std::string _name) : Domain(_name) {
     type = Domain::LIST_DOMAIN_TYPE;
     data_items.push_back(std::make_shared<DataItem>(new DataItem(name, this)));
   };
   
-  ListDomain(std::string _name, DataItem& item) : Domain(_name) {
+  ListDomain(std::string _name, std::shared_ptr<DataItem> item) : Domain(_name) {
     type = Domain::LIST_DOMAIN_TYPE;
     data_items.push_back(item);
   };
@@ -70,7 +70,7 @@ public:
     return 0;
   }
   
-  virtual const IndexSpace<PHY_TYPE>& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& GetLinearizedIndexSpace() override{
     return values_vector;
   };
   
@@ -126,9 +126,6 @@ public:
   }
   
   virtual std::string GetClassName() const override { return "ListDomain"; };
-
-private:
-  std::vector<INDEX_TYPE> log_indices;
   
 };
 

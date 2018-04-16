@@ -60,7 +60,7 @@ int main(int argc, char** argv){
   
   printf("Time Domain[%s]:\n", Domain::ToString(domain->type));
   
-  for(auto& t : domain->GetLinearizedIndexSpace()){
+  for(auto t : domain->GetLinearizedIndexSpace()){
     printf("Timestep %f\n", t);
     
     for(auto& grid: root_group->GetGroups()){

@@ -110,7 +110,7 @@ public:
   //   return string_format("%d*%s%d",get_n_components(),numberType.c_str(),n_bytes);
   // }
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     xmlNodePtr variable_node = xmlNewChild(parent, NULL, BAD_CAST "Variable", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
     //if(center_type != defaults::VARIABLE_CENTER_TYPE)
@@ -177,7 +177,7 @@ public:
   //   return 0;
   // }
   
-  int AddValue(double v){
+  virtual int AddValue(double v){
     if(data_items.size()==0){
       data_items.push_back(std::make_shared<DataItem>(this));
       data_items[0]->format_type = DataItem::FormatType::XML_FORMAT;
@@ -196,13 +196,13 @@ public:
     return total;
   }
   
-  int AddAttribute(std::string name, std::string value){
+  virtual int AddAttribute(std::string name, std::string value){
     Attribute att(name, value);
     attributes.push_back(att);
     return 0;
   }
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
+  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!IsNodeName(node,"Variable"))
       return -1;
 
@@ -237,20 +237,20 @@ public:
     return 0;
   };
   
-  const std::vector<Attribute>& GetAttributes() const { return attributes; }
+  virtual const std::vector<Attribute>& GetAttributes() const { return attributes; }
   
-  int AddAttribute(const Attribute& att){ attributes.push_back(att); return 0; }
+  virtual int AddAttribute(const Attribute& att){ attributes.push_back(att); return 0; }
   
-  int AddAttribute(const std::vector<Attribute>& atts){
+  virtual int AddAttribute(const std::vector<Attribute>& atts){
     attributes.insert(attributes.end(), atts.begin(), atts.end());
     return 0;
   }
   
-  const std::vector<std::shared_ptr<DataItem> >& GetDataItems() const { return data_items; }
+  virtual const std::vector<std::shared_ptr<DataItem> >& GetDataItems() const { return data_items; }
   
-  int AddDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
+  virtual int AddDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
   
-  int AddDataItem(const std::vector<std::shared_ptr<DataItem> >& dis){
+  virtual int AddDataItem(const std::vector<std::shared_ptr<DataItem> >& dis){
     data_items.insert(data_items.end(), dis.begin(), dis.end());
     return 0;
   }

@@ -84,8 +84,8 @@ public:
   
   class defaults{
   public:
-    static const int DATAITEM_BIT_PRECISION = 32;
-    static const int DATAITEM_N_COMPONENTS = 1;
+    constexpr static const char* DATAITEM_BIT_PRECISION = "32";
+    constexpr static const char* DATAITEM_N_COMPONENTS = "1";
     static const DataItem::FormatType DATAITEM_FORMAT_TYPE = DataItem::FormatType::XML_FORMAT;
     static const XidxDataType::NumberType DATAITEM_NUMBER_TYPE = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
     static const Endianess::EndianType DATAITEM_ENDIAN_TYPE = Endianess::EndianType::LITTLE_ENDIANESS;
@@ -184,7 +184,7 @@ public:
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
     
       xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST XidxDataType::ToString(number_type));
-    if(strcmp(bit_precision.c_str(), std::to_string(defaults::DATAITEM_BIT_PRECISION).c_str()) != 0 || format_type == FormatType::IDX_FORMAT)
+    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
     if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST Endianess::ToString(endian_type));
@@ -192,7 +192,7 @@ public:
     if(dimensions.size())
       xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST xidx::ToString(dimensions).c_str());
 
-    if(n_components != std::to_string(defaults::DATAITEM_N_COMPONENTS).c_str())
+    if(n_components != defaults::DATAITEM_N_COMPONENTS)
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
     if(data_source != nullptr)
