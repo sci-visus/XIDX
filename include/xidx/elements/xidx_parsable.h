@@ -56,7 +56,6 @@ private:
 public:
   std::string name;
   
-    
   int SetParent(Parsable* _parent){ parent = _parent; return 0;}
   
   virtual xmlNode* Serialize(xmlNode* parent, const char* text=NULL) = 0;

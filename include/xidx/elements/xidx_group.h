@@ -86,8 +86,6 @@ public:
   std::vector<Attribute> attributes;
   DomainIndex domain_index;
   
-  Group(){ }
-  
   Group(std::string _name, GroupType _groupType=GroupType::SPATIAL_GROUP_TYPE, Variability::VariabilityType _varType=Variability::VariabilityType::STATIC_VARIABILITY_TYPE){
     name=_name;
     group_type=_groupType;
@@ -116,10 +114,16 @@ public:
   
   inline std::shared_ptr<Domain> GetDomain() { return domain; }
   
+  inline std::shared_ptr<ListDomain<double>> GetListDomain() { return std::dynamic_pointer_cast<ListDomain<double>>(domain); }
+  
+  inline std::shared_ptr<MultiAxisDomain> GetMultiAxisDomain() { return std::dynamic_pointer_cast<MultiAxisDomain>(domain); }
+  
+  inline std::shared_ptr<SpatialDomain> GetSpatialDomain() { return std::dynamic_pointer_cast<SpatialDomain>(domain); }
+  
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
   std::shared_ptr<Variable> AddVariable(const char* name, XidxDataType::NumberType numberType, const short bit_precision,
-                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const std::vector<std::shared_ptr<Attribute>>& atts=std::vector<std::shared_ptr<Attribute>>(),
                            const Variable::CenterType center=Variable::CenterType::CELL_CENTER,
                            const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
                                         const int n_components=1, const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
@@ -157,19 +161,19 @@ public:
   
   const std::vector<std::shared_ptr<Group> >& GetGroups(){ return groups; }
   
-  const std::vector<std::shared_ptr<Variable> >& GetVariables(){ return variables; }
+  std::vector<std::shared_ptr<Variable> > GetVariables(){ return variables; }
   
   std::shared_ptr<Variable> AddVariable(const char* name, XidxDataType::NumberType numberType, const short bit_precision,
                            const int n_components,
                            const Variable::CenterType center=Variable::CenterType::CELL_CENTER,
                            const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
-                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const std::vector<std::shared_ptr<Attribute>>& atts=std::vector<std::shared_ptr<Attribute>>(),
                            const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     return AddVariable(name, numberType, bit_precision, atts, center, endian, n_components, dimensions);
   }
   
   std::shared_ptr<Variable> AddVariable(const char* name, std::shared_ptr<DataItem> item, std::shared_ptr<Domain> domain,
-                         const std::vector<Attribute>& atts=std::vector<Attribute>()){
+                         const std::vector<std::shared_ptr<Attribute>>& atts=std::vector<std::shared_ptr<Attribute>>()){
     
     std::shared_ptr<Variable> var(new Variable(this));
     var->name = name;
@@ -184,7 +188,7 @@ public:
   std::shared_ptr<Variable> AddVariable(const char* name, std::string dtype,
                                         const  Variable::CenterType center=Variable::CenterType::CELL_CENTER,
                            const Endianess::EndianType endian=Endianess::EndianType::LITTLE_ENDIANESS,
-                           const std::vector<Attribute>& atts=std::vector<Attribute>(),
+                           const std::vector<std::shared_ptr<Attribute>>& atts=std::vector<std::shared_ptr<Attribute>>(),
                            const std::vector<INDEX_TYPE> dimensions=std::vector<INDEX_TYPE>()){
     std::shared_ptr<Variable> var(new Variable(this));
     

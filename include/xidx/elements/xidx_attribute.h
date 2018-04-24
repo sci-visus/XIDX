@@ -37,6 +37,13 @@ namespace xidx{
 class Attribute: public xidx::Parsable{
 public:
   Attribute(){};
+  std::string name;
+  
+  Attribute(const Attribute* c) {
+    name = c->name;
+    value = c->value;
+  };
+  
   Attribute(std::string _name, std::string _value)
   { name=_name; value=_value; };
 
@@ -64,6 +71,7 @@ public:
   
   virtual std::string GetClassName() const override { return "Attribute"; };
 
+  virtual ~Attribute(){}
 };
 }
 

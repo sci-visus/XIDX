@@ -51,12 +51,12 @@ public:
     data_items.push_back(item);
   };
   
-  ListDomain(const ListDomain& c) : Domain(c){
-    type = LIST_DOMAIN_TYPE;
-    name = c.name;
-    data_items = c.data_items;
-    values_vector = c.values_vector;
-  };
+//  ListDomain(const ListDomain& c) : Domain(c){
+//    type = LIST_DOMAIN_TYPE;
+//    name = c.name;
+//    data_items = c.data_items;
+//    values_vector = c.values_vector;
+//  };
   
   ListDomain(const ListDomain* d) : Domain(d->name){
     type = LIST_DOMAIN_TYPE;

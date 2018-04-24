@@ -58,7 +58,7 @@ public:
   }
 
 protected:
-  std::vector<Attribute> attributes;
+  std::vector<std::shared_ptr<Attribute>> attributes;
   
 public:
   
@@ -69,7 +69,9 @@ public:
     name = c.name;
   };
   
-  Domain(std::string _name) { name=_name; };
+  Domain(std::string _name) {
+    name=_name;
+  };
   
   DomainType type;
   std::vector<std::shared_ptr<DataItem> > data_items;
@@ -85,11 +87,11 @@ public:
   }
   
   virtual int AddAttribute(std::string name, std::string value){
-    attributes.push_back(Attribute(name, value));
+    attributes.push_back(std::make_shared<Attribute>(new Attribute(name, value)));
     return 0;
   }
   
-  const std::vector<Attribute>& GetAttributes() const{ return attributes; }
+  std::vector<std::shared_ptr<Attribute>> GetAttributes() const{ return attributes; }
   
   virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
     //Parsable::Serialize(parent);
@@ -101,14 +103,13 @@ public:
       xmlNodePtr item_node = item->Serialize(domain_node);
       
     for(auto att: attributes)
-      xmlNodePtr item_att = att.Serialize(domain_node);
+      xmlNodePtr item_att = att->Serialize(domain_node);
 
     return domain_node;
   };
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
-
     SetParent(_parent);
     
     assert(this->GetParent()!=nullptr);
@@ -142,8 +143,8 @@ public:
           data_items_count++;
         }
         else if(IsNodeName(cur_node, "Attribute")){
-          Attribute att;
-          att.Deserialize(cur_node, this);
+          std::shared_ptr<Attribute> att(new Attribute());
+          att->Deserialize(cur_node, this);
           attributes.push_back(att);
         }
       }

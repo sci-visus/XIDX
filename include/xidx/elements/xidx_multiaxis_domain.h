@@ -129,7 +129,6 @@ public:
     return GetLinearizedIndexSpace(0);
   };
 
-  
   int GetNumberOfAxis(){ return axis.size(); }
   
   virtual std::string GetClassName() const override { return "MultiAxisDomain"; };

@@ -41,6 +41,7 @@ class DataItem;
 
 class Variable : public Parsable{
 public:
+  std::string name;
   
   enum CenterType{
     NODE_CENTER = 0,
@@ -69,7 +70,7 @@ public:
   };
   
 private:
-  std::vector<Attribute> attributes;
+  std::vector<std::shared_ptr<Attribute>> attributes;
   std::vector<std::shared_ptr<DataItem> > data_items;
   
 public:
@@ -120,7 +121,7 @@ public:
       xmlNodePtr data_node = item->Serialize(variable_node);
 
     for(auto& curr_att : attributes){
-      xmlNodePtr info_node = curr_att.Serialize(variable_node);
+      xmlNodePtr info_node = curr_att->Serialize(variable_node);
     }
 
     return variable_node;
@@ -197,7 +198,7 @@ public:
   }
   
   virtual int AddAttribute(std::string name, std::string value){
-    Attribute att(name, value);
+    std::shared_ptr<Attribute> att(new Attribute(name, value));
     attributes.push_back(att);
     return 0;
   }
@@ -223,8 +224,8 @@ public:
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
       if(IsNodeName(inner_node, "Attribute")){
-        Attribute att;
-        att.Deserialize(inner_node, this);
+        std::shared_ptr<Attribute> att(new Attribute);
+        att->Deserialize(inner_node, this);
         attributes.push_back(att);
       }
       if(IsNodeName(inner_node, "DataItem")){
@@ -237,16 +238,16 @@ public:
     return 0;
   };
   
-  virtual const std::vector<Attribute>& GetAttributes() const { return attributes; }
+  virtual std::vector<std::shared_ptr<Attribute>> GetAttributes() const { return attributes; }
   
-  virtual int AddAttribute(const Attribute& att){ attributes.push_back(att); return 0; }
+  virtual int AddAttribute(const std::shared_ptr<Attribute>& att){ attributes.push_back(att); return 0; }
   
-  virtual int AddAttribute(const std::vector<Attribute>& atts){
+  virtual int AddAttribute(const std::vector<std::shared_ptr<Attribute>>& atts){
     attributes.insert(attributes.end(), atts.begin(), atts.end());
     return 0;
   }
   
-  virtual const std::vector<std::shared_ptr<DataItem> >& GetDataItems() const { return data_items; }
+  virtual std::vector<std::shared_ptr<DataItem> > GetDataItems() const { return data_items; }
   
   virtual int AddDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
   

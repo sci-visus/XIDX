@@ -11,6 +11,10 @@ meta = XidxFile(filepath)
 # create time group
 time_group = Group("TimeSeries", Group.TEMPORAL_GROUP_TYPE)
 
+# set data source to the dataset file
+source = DataSource("data", "file_path")
+time_group.AddDataSource(source)
+
 # create a list domain for the temporal group
 time_dom = ListDomainDouble("Time")
 
@@ -62,4 +66,4 @@ meta.SetRootGroup(time_group);
 # write to disk
 meta.Save();
 
-print "done"
+print ("write done")

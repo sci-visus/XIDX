@@ -92,7 +92,6 @@ public:
   };
   
 public:
-  std::string name;
   std::vector<INDEX_TYPE> dimensions;
   XidxDataType::NumberType number_type;
   //TODO change these strings into number types
@@ -355,7 +354,7 @@ public:
     
   }
   
-  virtual DataSource* GetDataSource() {
+  virtual std::shared_ptr<DataSource> GetDataSource() {
     Parsable* source=nullptr;
     Parsable* curr_parent=this->GetParent();
     
@@ -373,7 +372,7 @@ public:
     }
     
     if(source!=nullptr){
-      return (DataSource*)source;
+      return std::make_shared<DataSource>((DataSource*)source);
     }
     else return nullptr;
     
