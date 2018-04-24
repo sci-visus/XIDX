@@ -92,6 +92,41 @@ using namespace xidx;
 %template(VariableVector)  std::vector<std::shared_ptr<xidx::Variable>>;
 %template(DataItemVector)  std::vector<std::shared_ptr<xidx::DataItem>>;
 
+%inline %{
+  template<typename T>
+  std::shared_ptr<T>* GetNewDomainPtr(std::shared_ptr<xidx::Domain> dom) {
+    return dom ? new std::shared_ptr<T>(std::dynamic_pointer_cast<T>(dom)) : 0;
+  }
+
+%}
+
+%typemap(out) std::shared_ptr<xidx::Domain> xidx::Group::GetDomain {
+  std::string lookup_typename = result->GetClassName();
+  
+  if(lookup_typename=="ListDomain"){
+    lookup_typename = "_p_std__shared_ptrT_xidx__ListDomainT_double_t_t";
+    swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
+    auto smartresult = GetNewDomainPtr<xidx::ListDomain<double>>($1);
+    
+//    std::shared_ptr<  xidx::ListDomain<double> > *smartresult = $1 ? new std::shared_ptr<  xidx::ListDomain<double> >(std::dynamic_pointer_cast<ListDomain<double>>($1)) : 0;
+    
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), outtype, SWIG_POINTER_OWN);
+  }
+  else if(lookup_typename=="MultiAxisDomain"){
+    lookup_typename = "_p_std__shared_ptrT_xidx__MultiAxisDomain_t";
+    swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
+    auto smartresult = GetNewDomainPtr<xidx::MultiAxisDomain>($1);
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), outtype, SWIG_POINTER_OWN);
+  }
+  else if(lookup_typename=="SpatialDomain"){
+    lookup_typename = "_p_std__shared_ptrT_xidx__SpatialDomain_t";
+    swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
+    auto smartresult = GetNewDomainPtr<xidx::SpatialDomain>($1);
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), outtype, SWIG_POINTER_OWN);
+  }
+
+}
+
 //Shared Pointers
 %shared_ptr(xidx::Parsable)
 %shared_ptr(xidx::Group)
@@ -101,13 +136,13 @@ using namespace xidx;
 %shared_ptr(xidx::SpatialDomain)
 %shared_ptr(xidx::MultiAxisDomain)
 %shared_ptr(xidx::HyperSlabDomain)
-//%shared_ptr(xidx::ListDomain)
+%shared_ptr(xidx::ListDomain)
 %shared_ptr(std::vector<double>)
 %shared_ptr(xidx::Attribute)
 %shared_ptr(xidx::DataItem)
 %shared_ptr(xidx::Variable)
 %shared_ptr(xidx::ListDomain<double>)
-%shared_ptr(ListDomainDouble)
+//%shared_ptr(ListDomainDouble)
 
 %include <xidx.h>
 %include <xidx_file.h>
@@ -120,22 +155,6 @@ using namespace xidx;
 %include <elements/xidx_hyperslab_domain.h>
 %include <elements/xidx_list_domain.h>
 %include <elements/xidx_multiaxis_domain.h>
-
-//%typemap(out) std::shared_ptr<Domain> xidx::Group::GetDomain() {
-//  std::string lookup_typename = result->GetClassName();
-//  if(lookup_typename=="ListDomain")
-//    //lookup_typename = "_p_std__shared_ptrT_xidx__ListDomainT_double_t_t";
-//    lookup_typename = "_p_xidx__ListDomainT_double_t";
-//    //$result = std::dynamic_pointer_cast<xidx::ListDomain<double>>($1);
-//  
-//  printf("changing type to %s\n", lookup_typename.c_str());
-//  swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
-//  if(outtype)
-//    printf("found type %s\n", outtype->name);
-//  else
-//    printf("ERROR: null out type\n");
-//  $result = //SWIG_NewPointerObj(SWIG_as_voidptr($1.get()), outtype, $owner);
-//}
 
 %include <elements/xidx_types.h>
 %include <elements/xidx_geometry.h>

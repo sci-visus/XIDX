@@ -15,10 +15,9 @@ ret = metadata.Load()
 
 root_group = metadata.GetRootGroup()
   
-domain = root_group.GetListDomain()
+domain = root_group.GetDomain()
 
-# print (isinstance(domain, ListDomainDouble))
-# print ("Time Domain[",Domain.ToString(domain.type),"]:")
+print ("Time Domain[",Domain.ToString(domain.type),"]:")
 
 timesteps = domain.GetLinearizedIndexSpace()
 
@@ -35,23 +34,17 @@ for t in domain.GetLinearizedIndexSpace():
     grid_domain = grid.GetDomain()
       
     print ("\tGrid Domain[", Domain.ToString(grid_domain.type), "]")
-    #print (isinstance(domain, MultiAxisDomain))
-    # mdom = grid.GetMultiAxisDomain()
-
-    # print (len(mdom.GetAttributes()))
 
     for att in grid_domain.GetAttributes():
       print ("\t\tAttribute:", att.name, "Value:", att.value)
       
     if(grid_domain.type == Domain.SPATIAL_DOMAIN_TYPE):
-      sdom = grid_domain.GetSpatialDomain()
-      print ("\tTopology", Topology.ToString(sdom.topology.type), "volume ", sdom.GetVolume())
-      print ("\tGeometry", Geometry.ToString(sdom.geometry.type))
+      print ("\tTopology", Topology.ToString(grid_domain.topology.type), "volume ", grid_domain.GetVolume())
+      print ("\tGeometry", Geometry.ToString(grid_domain.geometry.type))
     elif(grid_domain.type == Domain.MULTIAXIS_DOMAIN_TYPE):
-      mdom = grid.GetMultiAxisDomain()
       
-      for a in range(0,mdom.GetNumberOfAxis()):
-        axis = mdom.GetAxis(a);
+      for a in range(0,grid_domain.GetNumberOfAxis()):
+        axis = grid_domain.GetAxis(a);
         print ("\tAxis", axis.name,"volume", axis.GetVolume())
         for att in axis.GetAttributes():
           print ("\t\tAttribute:", att.name, "Value:", att.value)

@@ -64,6 +64,12 @@ public:
     values_vector = d->values_vector;
   }
   
+  ListDomain(std::shared_ptr<ListDomain<double>> d) : Domain(d->name){
+    type = LIST_DOMAIN_TYPE;
+    data_items = d->data_items;
+    values_vector = d->values_vector;
+  }
+  
   int AddDomainItem(T phy){
     values_vector.push_back(phy);
   

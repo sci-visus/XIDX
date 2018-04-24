@@ -62,11 +62,14 @@ protected:
   
 public:
   
-  Domain(){};
+  //Domain(){};
   
   Domain(const Domain& c) {
     SetParent(c.GetParent());
     name = c.name;
+    type = c.type;
+    attributes = c.attributes;
+    data_items = c.data_items;
   };
   
   Domain(std::string _name) {

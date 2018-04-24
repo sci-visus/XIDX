@@ -114,12 +114,6 @@ public:
   
   inline std::shared_ptr<Domain> GetDomain() { return domain; }
   
-  inline std::shared_ptr<ListDomain<double>> GetListDomain() { return std::dynamic_pointer_cast<ListDomain<double>>(domain); }
-  
-  inline std::shared_ptr<MultiAxisDomain> GetMultiAxisDomain() { return std::dynamic_pointer_cast<MultiAxisDomain>(domain); }
-  
-  inline std::shared_ptr<SpatialDomain> GetSpatialDomain() { return std::dynamic_pointer_cast<SpatialDomain>(domain); }
-  
   inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
   std::shared_ptr<Variable> AddVariable(const char* name, XidxDataType::NumberType numberType, const short bit_precision,
