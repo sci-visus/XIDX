@@ -140,6 +140,9 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   for(int i=0; i < 10; i++){
     latitude_axis.AddValue((double)i*0.5);
     longitude_axis.AddValue((double)i*2*0.6);
+    
+    // You can also add tuple of values (e.g., netcdf bounds)
+    longitude_axis.AddValues({(double)i*2*0.6,(double)i*2*1.2});
   }
   
   latitude_axis.AddAttribute("units", "degrees_north");

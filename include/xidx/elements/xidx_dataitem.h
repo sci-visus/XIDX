@@ -324,6 +324,14 @@ public:
   
   const std::vector<double>& GetValues() const{ return values; }
   
+  int AddValue(double v, int stride){
+    values.push_back(v);
+    dimensions.resize(stride);
+    dimensions[0] = values.size()/stride;
+    dimensions[1] = stride;
+    return 0;
+  }
+  
   int AddValue(double v){
     values.push_back(v);
     dimensions.resize(1);

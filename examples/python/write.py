@@ -40,6 +40,8 @@ longitude_axis = Variable("longitude");
 for i in range(0,10):
   latitude_axis.AddValue(float(i)*0.5)
   longitude_axis.AddValue(float(i)*2*0.6)
+  # you can also use a tuple (e.g., bounds for netcdf)
+  #longitude_axis.AddValues(IndexSpace([float(i)*2*0.6,float(i)*2*1.2]))
 
 # add attributes to axis
 latitude_axis.AddAttribute("units", "degrees_north")

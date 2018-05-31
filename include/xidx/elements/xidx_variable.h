@@ -178,6 +178,20 @@ public:
   //   return 0;
   // }
   
+  virtual int AddValues(std::vector<double> vals){
+    int stride = vals.size();
+    
+    if(data_items.size()==0){
+      data_items.push_back(std::make_shared<DataItem>(this));
+      data_items[0]->format_type = DataItem::FormatType::XML_FORMAT;
+    }
+    
+    for(auto v:vals)
+      data_items[0]->AddValue(v, stride);
+    
+    return 0;
+  }
+  
   virtual int AddValue(double v){
     if(data_items.size()==0){
       data_items.push_back(std::make_shared<DataItem>(this));

@@ -14,6 +14,7 @@
 #include "xidx.h"
 
 using namespace xidx;
+  
 %}
 
 %include exception.i
@@ -137,7 +138,7 @@ using namespace xidx;
 %shared_ptr(xidx::MultiAxisDomain)
 %shared_ptr(xidx::HyperSlabDomain)
 %shared_ptr(xidx::ListDomain)
-%shared_ptr(std::vector<double>)
+//%shared_ptr(std::vector<double>)
 %shared_ptr(xidx::Attribute)
 %shared_ptr(xidx::DataItem)
 %shared_ptr(xidx::Variable)
@@ -182,3 +183,11 @@ using namespace xidx;
 %include "elements/xidx_hyperslab_domain.h"
 %include "elements/xidx_list_domain.h"
 %include "elements/xidx_multiaxis_domain.h"
+%include "elements/xidx_types.h"
+%include "elements/xidx_geometry.h"
+%include "elements/xidx_topology.h"
+%include "elements/xidx_group.h"
+%include "elements/xidx_variable.h"
+%include "elements/xidx_attribute.h"
+%include "elements/xidx_parsable.h"
+%include "elements/xidx_parse_utils.h"
