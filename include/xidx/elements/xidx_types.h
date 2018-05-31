@@ -1,4 +1,6 @@
 /*
+
+
  * Copyright (c) 2017 University of Utah
  * All rights reserved.
  *
@@ -32,6 +34,8 @@
 
 #include <string>
 #include <sstream>
+#include <algorithm>
+
 #include "xidx/xidx_config.h"
 
 

@@ -30,6 +30,7 @@
 #ifndef xidx_dataITEM_H_
 #define xidx_dataITEM_H_
 
+#include <algorithm>
 #include <sstream>
 #include "xidx/xidx.h"
 

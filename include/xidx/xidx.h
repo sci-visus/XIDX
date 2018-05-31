@@ -31,6 +31,7 @@
 #define XIDX_H_
 
 #include <cassert>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <memory>
