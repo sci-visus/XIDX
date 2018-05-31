@@ -59,10 +59,10 @@ public:
 
 protected:
   std::vector<std::shared_ptr<Attribute>> attributes;
+  // TODO this should be part of the IndexSpace definition
+  int bound_size = 1;
   
 public:
-  
-  //Domain(){};
   
   Domain(const Domain& c) {
     SetParent(c.GetParent());

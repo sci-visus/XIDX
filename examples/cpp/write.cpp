@@ -117,10 +117,13 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
   time_dom->AddAttribute("units", "days since 1980");
   time_dom->AddAttribute("calendar", "gregorian");
-  
+
   for(int i=0; i < n_timesteps; i++){
     std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
   }
+  
+  // You can also add tuples of items (e.g., netcdf bounds)
+  std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItems({float(100),float(200)});
   
   // Set the time group domain to use the time domain we just created
   time_group->SetDomain(time_dom);
@@ -142,7 +145,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
     longitude_axis.AddValue((double)i*2*0.6);
     
     // You can also add tuple of values (e.g., netcdf bounds)
-    longitude_axis.AddValues({(double)i*2*0.6,(double)i*2*1.2});
+    // longitude_axis.AddValues({(double)i*2*0.6,(double)i*2*1.2});
   }
   
   latitude_axis.AddAttribute("units", "degrees_north");

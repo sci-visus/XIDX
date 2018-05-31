@@ -206,8 +206,7 @@ public:
   virtual size_t GetVolume() const{
     size_t total = 1;
     for(auto& item: this->data_items)
-      for(int i=0; i < item->dimensions.size(); i++)
-        total *= item->dimensions[i];
+        total *= item->GetVolume();
     return total;
   }
   

@@ -70,9 +70,15 @@ public:
     values_vector = d->values_vector;
   }
   
+  int AddDomainItems(std::vector<T> vals){
+    values_vector.insert(values_vector.end(), vals.begin(), vals.end());
+    bound_size = vals.size();
+    
+    return 0;
+  }
+  
   int AddDomainItem(T phy){
     values_vector.push_back(phy);
-  
     return 0;
   }
   
@@ -85,7 +91,9 @@ public:
     auto physical = data_items[0];
     physical->text="";
     physical->dimensions.clear();
-    physical->dimensions.push_back(values_vector.size());
+    physical->dimensions.push_back(values_vector.size()/bound_size);
+    if(bound_size > 1)
+      physical->dimensions.push_back(bound_size);
     
     if(!std::is_same<T, DataSource>::value){
       for(auto phy: values_vector)
@@ -112,7 +120,7 @@ public:
       
       assert(item->dimensions.size()>0);
       
-      size_t length = item->dimensions[0];
+      size_t length = item->GetVolume();
 
       values_vector.resize(length);
       

@@ -324,6 +324,13 @@ public:
   
   const std::vector<double>& GetValues() const{ return values; }
   
+  virtual size_t GetVolume() const{
+    size_t total = 1;
+    for(int i=0; i < dimensions.size(); i++)
+      total *= dimensions[i];
+    return total;
+  }
+  
   int AddValue(double v, int stride){
     values.push_back(v);
     dimensions.resize(stride);

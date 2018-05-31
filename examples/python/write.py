@@ -25,6 +25,8 @@ time_dom.AddAttribute("calendar", "gregorian")
 # add time values
 for i in range(0,n_ts):
   ret = time_dom.AddDomainItem(float(i)*0.25)
+  # you can also use a tuple (e.g., bounds for netcdf)
+  #time_dom.AddDomainItems(IndexSpace([float(i)*0.25,float(i)*0.50]))
 
 # set group time domain
 time_group.SetDomain(time_dom)
