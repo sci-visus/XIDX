@@ -30,6 +30,7 @@
 #ifndef XIDX_DATA_SOURCE_H_
 #define XIDX_DATA_SOURCE_H_
 
+#include <fstream>
 #include "xidx.h"
 
 namespace xidx{
@@ -38,22 +39,26 @@ class DataSource : public Parsable{
 
 private:
   std::string url;
+  bool inline_metadata;
 
 public:
 
   DataSource() {
     url = "undefined";
     name = "undefined";
+    inline_metadata = false;
   };
   
   DataSource(const DataSource* ds){
-    url=ds->url;
-    name=ds->name;
+    url = ds->url;
+    name = ds->name;
+    inline_metadata = ds->inline_metadata;
   }
   
-  DataSource(std::string _name, std::string path){
+  DataSource(std::string _name, std::string path, bool do_inline_metadata=false){
     url = path;
     name = _name;
+    inline_metadata = do_inline_metadata;
   };
   
   std::string GetUrl(){ return url; }
@@ -61,11 +66,37 @@ public:
   int SetFilePath(std::string path){ url = path; return 0; }
   
   xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
-    xmlNodePtr variable_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataSource", NULL);
-    xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
-    xmlNewProp(variable_node, BAD_CAST "Url", BAD_CAST url.c_str());
+    xmlNodePtr ds_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataSource", NULL);
+    xmlNewProp(ds_node, BAD_CAST "Name", BAD_CAST name.c_str());
+    xmlNewProp(ds_node, BAD_CAST "Url", BAD_CAST url.c_str());
     
-    return variable_node;
+    if(inline_metadata){
+      if (url.find("://") != std::string::npos)
+        fprintf(stderr, "url data source inline not supported\n");
+      
+      xmlDocPtr doc = xmlReadFile(url.c_str(), NULL, 0);
+
+      if (doc != NULL) {
+        xmlNode* root_element = xmlDocGetRootElement(doc);
+        ds_node->children = root_element;
+      }
+      else{
+        //fprintf(stderr, "Failed to parse %s as XML\n", url.c_str());
+        std::ifstream ifs(url.c_str());
+        
+        if(ifs){
+          std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                              (std::istreambuf_iterator<char>()    ) );
+
+          xmlNodePtr cdata = xmlNewCDataBlock(doc, (const xmlChar *)content.c_str(), content.size());
+          xmlAddChild(ds_node,cdata);
+        }
+        else
+          fprintf(stderr, "Unable to read file %s\n", url.c_str());
+      }
+    }
+    
+    return ds_node;
   }
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
@@ -80,7 +111,6 @@ public:
     return 0;
   }
 
-
   virtual std::string GetDataSourceXPath() override {
     xpath_prefix=this->GetParent()->GetDataSourceXPath();
     xpath_prefix+="/DataSource";
@@ -88,6 +118,11 @@ public:
     
     return xpath_prefix;
   };
+  
+  int PopulateInlineMetadata(bool do_inline_metadata){
+    inline_metadata = do_inline_metadata;
+    return 0;
+  }
   
   virtual std::string GetClassName() const override { return "DataSource"; };
   
