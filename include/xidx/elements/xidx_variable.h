@@ -203,6 +203,16 @@ public:
     return 0;
   }
   
+  const std::vector<double>& GetValues(int axis=0) const{
+    if(data_items.size() > axis){
+      return data_items[axis]->GetValues();
+    }
+    else
+      fprintf(stderr, "Axis %d does not exist", axis);
+    
+    return std::vector<double>();
+  }
+  
   virtual size_t GetVolume() const{
     size_t total = 1;
     for(auto& item: this->data_items)

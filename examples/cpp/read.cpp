@@ -83,7 +83,13 @@ int main(int argc, char** argv){
         std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
         for(int a=0; a < mdom->GetNumberOfAxis(); a++){
           const Axis& axis = mdom->GetAxis(a);
-          printf("\tAxis %s volume %lu", axis.name.c_str(), axis.GetVolume());
+          printf("\tAxis %s volume %lu: [ ", axis.name.c_str(), axis.GetVolume());
+          
+          // print axis values
+          for(auto v: axis.GetValues())
+            printf("%f ", v);
+          printf("]\n");
+          
           for(auto& att: axis.GetAttributes())
             printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
         }

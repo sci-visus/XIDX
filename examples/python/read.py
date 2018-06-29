@@ -49,7 +49,13 @@ for t in domain.GetLinearizedIndexSpace():
       for a in range(0,grid_domain.GetNumberOfAxis()):
         # get axis
         axis = grid_domain.GetAxis(a);
-        print ("\tAxis", axis.name,"volume", axis.GetVolume())
+        print ("\tAxis", axis.name,"volume", axis.GetVolume(),": [ ", end='')
+
+        for v in axis.GetValues():
+          print (v, end='')
+
+        print(" ]")
+
         # print attributes of the axis if any
         for att in axis.GetAttributes():
           print ("\t\tAttribute:", att.name, "Value:", att.value)

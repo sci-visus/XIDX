@@ -294,7 +294,8 @@ public:
     else
       endian_type = defaults::DATAITEM_ENDIAN_TYPE;
 
-    if(format_type != FormatType::XML_FORMAT){
+    if(format_type == FormatType::XML_FORMAT){
+      
       std::stringstream stream_data(text);
 
       values.clear();
