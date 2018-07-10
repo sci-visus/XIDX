@@ -62,51 +62,51 @@ int main(int argc, char** argv){
   for(auto& att: domain->GetAttributes())
     printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
   
+  int group_count=0;
   for(auto t : domain->GetLinearizedIndexSpace()){
     printf("Timestep %f\n", t);
+
+    auto& grid = root_group->GetGroups()[group_count++];
+    std::shared_ptr<Domain> domain = grid->GetDomain();
     
-    for(auto& grid: root_group->GetGroups()){
-      std::shared_ptr<Domain> domain = grid->GetDomain();
-      
-      printf("\tGrid Domain[%s]:\n", Domain::ToString(domain->type));
-      
-      for(auto& att: domain->GetAttributes())
-        printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
-      
-      if(domain->type == Domain::DomainType::SPATIAL_DOMAIN_TYPE){
-        std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
-        printf("\tTopology %s volume %lu\n", Topology::ToString(sdom->topology.type), sdom->GetVolume());
-        printf("\tGeometry %s", Geometry::ToString(sdom->geometry.type));
-      }
-      else if(domain->type == Domain::DomainType::MULTIAXIS_DOMAIN_TYPE)
-      {
-        std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
-        for(int a=0; a < mdom->GetNumberOfAxis(); a++){
-          const Axis& axis = mdom->GetAxis(a);
-          printf("\tAxis %s volume %lu: [ ", axis.name.c_str(), axis.GetVolume());
-          
-          // print axis values
-          for(auto v: axis.GetValues())
-            printf("%f ", v);
-          printf("]\n");
-          
-          for(auto& att: axis.GetAttributes())
-            printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
-        }
-      }
-      
-      printf("\n");
-      
-      for(auto& var: grid->GetVariables()){
-        auto source = var->GetDataItems()[0]->GetDataSource();
-        printf("\t\tVariable: %s ", var->name.c_str());
-        if(source != nullptr)
-          printf("data source url: %s\n", source->GetUrl().c_str());
-        else printf("\n");
+    printf("\tGrid Domain[%s]:\n", Domain::ToString(domain->type));
+    
+    for(auto& att: domain->GetAttributes())
+      printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
+    
+    if(domain->type == Domain::DomainType::SPATIAL_DOMAIN_TYPE){
+      std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
+      printf("\tTopology %s volume %lu\n", Topology::ToString(sdom->topology.type), sdom->GetVolume());
+      printf("\tGeometry %s", Geometry::ToString(sdom->geometry.type));
+    }
+    else if(domain->type == Domain::DomainType::MULTIAXIS_DOMAIN_TYPE)
+    {
+      std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
+      for(int a=0; a < mdom->GetNumberOfAxis(); a++){
+        const Axis& axis = mdom->GetAxis(a);
+        printf("\tAxis %s volume %lu: [ ", axis.name.c_str(), axis.GetVolume());
         
-        for(auto att: var->GetAttributes()){
-          printf("\t\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
-        }
+        // print axis values
+        for(auto v: axis.GetValues())
+          printf("%f ", v);
+        printf("]\n");
+        
+        for(auto& att: axis.GetAttributes())
+          printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
+      }
+    }
+    
+    printf("\n");
+    
+    for(auto& var: grid->GetVariables()){
+      auto source = var->GetDataItems()[0]->GetDataSource();
+      printf("\t\tVariable: %s ", var->name.c_str());
+      if(source != nullptr)
+        printf("data source url: %s\n", source->GetUrl().c_str());
+      else printf("\n");
+      
+      for(auto att: var->GetAttributes()){
+        printf("\t\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
       }
     }
     
