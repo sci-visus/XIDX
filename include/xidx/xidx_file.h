@@ -53,10 +53,16 @@ public:
     
     xmlDocPtr doc; /* the resulting document tree */
     
-    doc = xmlReadFile(file_path.c_str(), NULL, 0);
+    doc = xmlReadFile(file_path.c_str(), NULL, XML_PARSE_XINCLUDE );
     if (doc == NULL) {
       fprintf(stderr, "Failed to parse %s\n", file_path.c_str());
       return 1;
+    }
+    
+    bool includes = false;
+    if (xmlXIncludeProcess(doc) <= 0) {
+      fprintf(stderr, "XInclude processing failed. Are there any XInclude?\n");
+      includes = true;
     }
     
     xmlNode* root_element = xmlDocGetRootElement(doc);
@@ -65,8 +71,6 @@ public:
       return 1;
     
     for (xmlNode* cur_node = root_element->children->next; cur_node; cur_node = cur_node->next) {
-      
-      
       if(IsNodeName(cur_node,"Group")){
         root_group = std::make_shared<Group>(new Group("root"));
         root_group->Deserialize(cur_node, nullptr);//(Parsable*)(root_group->get()));
@@ -82,35 +86,15 @@ public:
   int Save(){
     
     xmlDocPtr doc = NULL;       /* document pointer */
-    xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+    xmlNodePtr root_node = NULL;/* node pointers */
     
     LIBXML_TEST_VERSION;
     
-    /*
-     * Creates a new document, a node and set it as a root node
-     */
-    doc = xmlNewDoc(BAD_CAST "1.0");
-    root_node = xmlNewNode(NULL, BAD_CAST "Xidx");
-    xmlDocSetRootElement(doc, root_node);
-    xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
-    xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
-    
-    // xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
-    
-    /*
-     * Creates a DTD declaration. Isn't mandatory.
-     */
-    xmlCreateIntSubset(doc, BAD_CAST "Xidx", NULL, BAD_CAST "Xidx.dtd");
+    CreateNewDoc(doc, root_node);
     
     root_group->Serialize(root_node);
     
-    /*
-     * Dumping document to stdio or file
-     */
-    xmlSaveFormatFileEnc(file_path.c_str(), doc, "UTF-8", 1);
-    
-    /*free the document */
-    xmlFreeDoc(doc);
+    SaveDoc(file_path, doc);
     
     /*
      *Free the global variables that may

@@ -248,7 +248,8 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
   XidxFile meta(filepath);
   
   // Create a group to collect a time series
-  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
+  //std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
+  std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE, "time_%04d"));
   
   const int n_dims = 3;
   
@@ -302,6 +303,8 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
 
   meta.SetRootGroup(time_group);
   meta.Save();
+  
+  printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
   
   return 0;
   

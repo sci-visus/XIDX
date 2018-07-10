@@ -32,6 +32,10 @@
 
 #include "xidx/xidx.h"
 
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 namespace xidx{
 
 typedef int DomainIndex;
@@ -76,6 +80,7 @@ private:
   std::shared_ptr<Domain> domain;
   std::vector<std::shared_ptr<Group> > groups;
   std::vector<std::shared_ptr<Variable> > variables;
+  std::string filePattern;
   
 public:
 
@@ -99,6 +104,13 @@ public:
     domain=_domain;
   }
   
+  Group(std::string _name, GroupType _groupType, std::string _filePattern) {
+    name=_name;
+    group_type=_groupType;
+    variability_type=Variability::VariabilityType::STATIC_VARIABILITY_TYPE;
+    filePattern=_filePattern;
+  }
+  
   Group(const Group* g){
     SetParent(g->GetParent());
     name=g->name;
@@ -110,6 +122,7 @@ public:
     data_sources = g->data_sources;
     attributes = g->attributes;
     domain_index = g->domain_index;
+    filePattern = g->filePattern;
   }
   
   inline std::shared_ptr<Domain> GetDomain() { return domain; }
@@ -232,6 +245,9 @@ public:
     xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(group_type));
     xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST Variability::ToString(variability_type));
     
+    if(filePattern!="")
+      xmlNewProp(group_node, BAD_CAST "FilePattern", BAD_CAST filePattern.c_str());
+    
     if(variability_type == Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE)
       xmlNewProp(group_node, BAD_CAST "DomainIndex", BAD_CAST std::to_string(domain_index).c_str());
     
@@ -246,8 +262,40 @@ public:
     for(auto v:variables)
       xmlNodePtr v_node = v->Serialize(group_node);
       
-    for(auto g:groups)
-       xmlNodePtr g_node = g->Serialize(group_node);
+    for(auto g:groups){
+      xmlNodePtr group_ref = NULL;
+      
+      xmlNodePtr parent_group = NULL;
+      
+      if(filePattern!="")
+      {
+        std::string filePath = string_format(filePattern+"/meta.xidx", g->domain_index);
+        
+        group_ref = xmlNewChild(group_node, NULL, BAD_CAST "xi:include", NULL);
+        xmlNewProp(group_ref, BAD_CAST "href", BAD_CAST filePath.c_str());
+        xmlNewProp(group_ref, BAD_CAST "xpointer", BAD_CAST "xpointer(//Xidx/Group/Group)");
+        
+        parent_group = ResolveExternalNode(filePattern, this);
+        
+        xmlNodePtr g_node = g->Serialize(parent_group);
+        
+        std::string dirPath = string_format(filePattern, domain_index);
+      //  std::string filePath = string_format(filePattern+"/meta.xidx", g->domain_index);
+        
+        const int ret = mkdir(dirPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+        if (ret != 0 && errno != EEXIST)
+        {
+          //perror("mkdir");
+          fprintf(stderr, "Error: failed to mkdir %s\n", filePath.c_str());
+        }
+        else
+          SaveDoc(filePath, parent_group->doc);
+        
+        //return group_ref;
+      }
+
+
+    }
 
     return group_node;
   };
@@ -273,6 +321,10 @@ public:
         variability_type = static_cast<Variability::VariabilityType>(t);
     
     const char* dindex_s = GetProp(node, "DomainIndex");
+    
+    const char* fpattern_s = GetProp(node, "FilePattern");
+    if(fpattern_s != nullptr)
+      filePattern = fpattern_s;
     
     if(dindex_s != nullptr)
       domain_index = atoi(dindex_s);
@@ -360,6 +412,42 @@ protected:
     
     return xpath_prefix;
   };
+  
+  xmlNodePtr ResolveExternalNode(std::string filePath, const Parsable* parent)
+  {
+    xmlDocPtr doc = NULL;//= xmlReadFile(filePath.c_str(), NULL, 0);
+    xmlNodePtr root_element = nullptr;
+    
+    if (doc != NULL) {
+      root_element = xmlDocGetRootElement(doc);
+    }
+    else{
+      doc=NULL;
+      root_element=NULL;
+      CreateNewDoc(doc, root_element);
+    }
+    
+    const Parsable* group = FindParent("Group", parent);
+    
+    if(group != NULL)
+    {
+      Group* mygroup = (Group*)(group);
+      xmlNodePtr group_node = xmlNewChild(root_element, NULL, BAD_CAST "Group", NULL);
+      xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST mygroup->name.c_str());
+      xmlNewProp(group_node, BAD_CAST "Type", BAD_CAST ToString(mygroup->group_type));
+      xmlNewProp(group_node, BAD_CAST "VariabilityType", BAD_CAST Variability::ToString(mygroup->variability_type));
+      
+      auto domain = mygroup->GetDomain();
+      
+      domain->Serialize(group_node);
+      
+      return group_node;
+      
+    }
+    else
+      return nullptr;
+    
+  }
 
 };
   

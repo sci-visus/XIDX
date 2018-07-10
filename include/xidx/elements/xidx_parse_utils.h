@@ -34,13 +34,63 @@
 
 namespace xidx{
   
-template<typename ... Args>
-static std::string string_format(const std::string& format, Args ... args){
-    size_t size = 1 + snprintf(nullptr, 0, format.c_str(), args ...);
-    std::unique_ptr<char[]> buf(new char[size]);
-    snprintf(buf.get(), size, format.c_str(), args ...);
-    return std::string(buf.get(), buf.get() + size);
-}
-
+  std::string string_format(const std::string fmt_str, ...) {
+    int final_n, n = ((int)fmt_str.size()) * 2; /* Reserve two times as much as the length of the fmt_str */
+    std::unique_ptr<char[]> formatted;
+    va_list ap;
+    while(1) {
+      formatted.reset(new char[n]); /* Wrap the plain char array into the unique_ptr */
+      strcpy(&formatted[0], fmt_str.c_str());
+      va_start(ap, fmt_str);
+      final_n = vsnprintf(&formatted[0], n, fmt_str.c_str(), ap);
+      va_end(ap);
+      if (final_n < 0 || final_n >= n)
+        n += abs(final_n - n + 1);
+      else
+        break;
+    }
+    return std::string(formatted.get());
+  }
+  
+  template<typename ... Args>
+  static std::string string_format(const std::string& format, Args ... args){
+      size_t size = 1 + snprintf(nullptr, 0, format.c_str(), args ...);
+      std::unique_ptr<char[]> buf(new char[size]);
+      snprintf(buf.get(), size, format.c_str(), args ...);
+      return std::string(buf.get(), buf.get() + size);
+  }
+  
+  int CreateNewDoc(xmlDocPtr& doc, xmlNodePtr& root_node)
+  {
+    /*
+     * Creates a new document, a node and set it as a root node
+     */
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "Xidx");
+    xmlDocSetRootElement(doc, root_node);
+    xmlNewProp(root_node, BAD_CAST "xmlns:xi", BAD_CAST "http://www.w3.org/2001/XInclude");
+    xmlNewProp(root_node, BAD_CAST "Version", BAD_CAST "2.0");
+    
+    // xmlAddDocEntity(doc, BAD_CAST "main_idx_file", XML_INTERNAL_GENERAL_ENTITY, NULL, NULL, BAD_CAST "idx_file.idx");
+    
+    /*
+     * Creates a DTD declaration. Isn't mandatory.
+     */
+    xmlCreateIntSubset(doc, BAD_CAST "Xidx", NULL, BAD_CAST "Xidx.dtd");
+    
+    return 0;
+  }
+  
+  int SaveDoc(const std::string& file_path, const xmlDocPtr& doc) 
+  {
+    /*
+     * Dumping document to stdio or file
+     */
+    xmlSaveFormatFileEnc(file_path.c_str(), doc, "UTF-8", 1);
+    
+    /*free the document */
+    xmlFreeDoc(doc);
+  }
+  
 }
 #endif
