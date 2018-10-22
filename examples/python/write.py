@@ -1,12 +1,12 @@
-import XidxPy
+import xidx
 
-from XidxPy import *
+from xidx import *
 
 n_ts = 10
 filepath = "test.xidx"
 
 # create metadata file
-meta = XidxFile(filepath)
+meta = MetadataFile(filepath)
 
 # create time group
 time_group = Group("TimeSeries", Group.TEMPORAL_GROUP_TYPE)

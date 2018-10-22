@@ -44,7 +44,7 @@ int main(int argc, char** argv){
   clock_t start, finish;
   start = clock();
 
-  XidxFile metadata(argv[1]);
+  MetadataFile metadata(argv[1]);
 
   int ret = metadata.Load();
 

@@ -238,7 +238,7 @@ public:
     return 0;
   }
   
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL){
+  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
 
     xmlNodePtr group_node = xmlNewChild(parent, NULL, BAD_CAST "Group", NULL);
     xmlNewProp(group_node, BAD_CAST "Name", BAD_CAST name.c_str());
@@ -300,7 +300,7 @@ public:
     return group_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent){
+  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     if(!IsNodeName(node,"Group"))
       return -1;
     

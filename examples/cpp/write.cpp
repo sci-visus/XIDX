@@ -35,7 +35,7 @@
 using namespace xidx;
 
 int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, int n_timesteps){
-  XidxFile meta(filepath);
+  MetadataFile meta(filepath);
   
   // Create a group to collect a time series
   std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
@@ -100,7 +100,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
 }
 
 int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_timesteps){
-  XidxFile meta(filepath);
+  MetadataFile meta(filepath);
   
   // Create a group to collect a time series
   std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
@@ -181,7 +181,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
 }
 
 int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int n_timesteps){
-  XidxFile meta(filepath);
+  MetadataFile meta(filepath);
 
   // Create a group to collect a time series
   std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));
@@ -245,7 +245,7 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
 }
 
 int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
-  XidxFile meta(filepath);
+  MetadataFile meta(filepath);
   
   // Create a group to collect a time series
   //std::shared_ptr<Group> time_group(new Group("TimeSeries", Group::GroupType::TEMPORAL_GROUP_TYPE));

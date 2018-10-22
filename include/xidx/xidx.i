@@ -1,6 +1,6 @@
 
 
-%module(directors="1")  XidxPy
+%module(directors="1")  xidx
 
 
 //

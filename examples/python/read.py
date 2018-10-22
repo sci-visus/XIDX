@@ -1,7 +1,7 @@
-import XidxPy
+import xidx
 import sys
 
-from XidxPy import *
+from xidx import *
 
 if(len(sys.argv) < 2):
   print("usage: ", sys.argv[0], "<input file>")
@@ -10,7 +10,7 @@ if(len(sys.argv) < 2):
 filepath = sys.argv[1]
 
 # create metadata file object
-metadata = XidxFile(filepath)
+metadata = MetadataFile(filepath)
 # read data from input file
 ret = metadata.Load()
 

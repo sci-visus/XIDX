@@ -86,10 +86,12 @@ namespace xidx{
     /*
      * Dumping document to stdio or file
      */
-    xmlSaveFormatFileEnc(file_path.c_str(), doc, "UTF-8", 1);
+    int ret = xmlSaveFormatFileEnc(file_path.c_str(), doc, "UTF-8", 1);
     
     /*free the document */
     xmlFreeDoc(doc);
+
+    return ret;
   }
   
 }

@@ -31,12 +31,13 @@
 #define XIDX_FILE_H_
 
 #include "xidx.h"
+#include <libxml/xinclude.h>
 
 namespace xidx{
   
   //class GroupList : public XidxList {};
   
-class XidxFile{
+class MetadataFile{
 
 private:
   std::shared_ptr<Group> root_group;
@@ -46,7 +47,7 @@ private:
 
 public:
 
-  XidxFile(std::string path) : file_path(path){ };
+    MetadataFile(std::string path) : file_path(path){ };
 
   int Load(){
     LIBXML_TEST_VERSION;
