@@ -66,6 +66,7 @@ include(${SWIG_USE_FILE})
 
 # Include python
 find_package(PythonLibs REQUIRED)
+include(FindPythonInterp)
 include_directories(${PYTHON_INCLUDE_PATH})
 
 set(CMAKE_SWIG_FLAGS "")
@@ -87,14 +88,34 @@ target_link_libraries(_xidx PUBLIC xidx ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES}
 install(TARGETS _xidx DESTINATION lib)
 install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION lib)
 
-#set(PYTHON_TAG cp${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-
-set(APPLE_OSX_VERSION 10.12)
-
 # Python deployment
 
-set(PYTHON_VERSION_MAJOR 3)
-set(PYTHON_VERSION_MINOR 7)
+if (APPLE)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE MACHINE OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string(REGEX REPLACE ".*-darwin([0-9]+).*" "\\1" _apple_ver "${MACHINE}")
+
+    if (_apple_ver EQUAL "17")
+        set(APPLE_OSX_VERSION 10.13)
+    elseif (_apple_ver EQUAL "16")
+        set(APPLE_OSX_VERSION 10.12)
+    elseif (_apple_ver EQUAL "15")
+        set(APPLE_OSX_VERSION 10_11)
+    elseif (_apple_ver EQUAL "14")
+        set(APPLE_OSX_VERSION 10_10)
+    elseif (_apple_ver EQUAL "13")
+        set(APPLE_OSX_VERSION 10_9)
+    elseif (_apple_ver EQUAL "12")
+        set(APPLE_OSX_VERSION 10_8)
+    elseif (_apple_ver EQUAL "11")
+        set(APPLE_OSX_VERSION 10_7)
+    elseif (_apple_ver EQUAL "10")
+        set(APPLE_OSX_VERSION 10_6)
+    else()
+        message(FATAL "Unknown osx version")
+    endif()
+    message(STATUS "APPLE_OSX_VERSION ${APPLE_OSX_VERSION}")
+endif()
+
 set(PYTHON_TAG cp${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
 
 if (WIN32)
