@@ -13,15 +13,25 @@ else()
     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+# CMAKE_INSTALL_PREFIX
 
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "" FORCE)
+endif()
+
+if (WIN32)
+    string(REPLACE "\\" "/" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+endif()
+
+MESSAGE(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+
+# Dependencies
 find_package(LibXml2 REQUIRED)
 if(LIBXML2_FOUND)
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
 
-#add_subdirectory(include)
-
+# Create library
 add_library(xidx INTERFACE)
 target_include_directories(xidx INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -60,7 +70,7 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
 
 add_subdirectory(examples/cpp)
 
-# SWIG stuff
+# Include SWIG for python wrapper
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
