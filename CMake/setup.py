@@ -6,7 +6,7 @@ import shutil
 import platform
 
 #increase this number for PIP
-VERSION="0.0.0"
+VERSION="0.0.1"
 
 WIN32=platform.system()=="Windows" or platform.system()=="win32"
 APPLE=platform.system()=="Darwin"
@@ -22,15 +22,15 @@ def cleanAll():
 def runSetupTools():
 
     setuptools.setup(
-        name = "Xidx",
-        description = "Xidx extensible IDX library",
+        name = "xidx",
+        description = "XIDX - eXtensible IDX",
         version=VERSION,
         url="https://github.com/sci-visus/XIDX",
         author="visus.org",
         author_email="support@visus.org",
-        packages=["Xidx"],
-        package_dir={"Xidx":'.'},
-        package_data={"Xidx": ['lib/_xidx.so','lib/xidx.py']},
+        packages=["xidx"],
+        package_dir={"xidx":'.'},
+        package_data={"xidx": ['lib/_xidx.so','lib/xidx.py']},
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: BSD License",
