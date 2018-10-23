@@ -253,4 +253,9 @@ before_deploy:
 #    tags: true
 #    all_branches: true
 
+notifications:
+  email: false
 
+branches:
+  only:
+    - master
