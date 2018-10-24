@@ -1,6 +1,8 @@
 project(XIDX)
 cmake_minimum_required(VERSION 2.8)
 
+option(BUILD_PYTHON_WRAPPER "Build python wrapper" TRUE)
+
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -70,101 +72,103 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
 
 add_subdirectory(examples/cpp)
 
-# Include SWIG for python wrapper
-find_package(SWIG REQUIRED)
-include(${SWIG_USE_FILE})
+if(BUILD_PYTHON_WRAPPER)
+    # Include SWIG for python wrapper
+    find_package(SWIG REQUIRED)
+    include(${SWIG_USE_FILE})
 
-# Include python
-find_package(PythonLibs REQUIRED)
-include(FindPythonInterp)
-include_directories(${PYTHON_INCLUDE_PATH})
+    # Include python
+    find_package(PythonLibs REQUIRED)
+    include(FindPythonInterp)
+    include_directories(${PYTHON_INCLUDE_PATH})
 
-set(CMAKE_SWIG_FLAGS "")
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i PROPERTIES CPLUSPLUS ON)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-                    ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx
-                    ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/elements
-                    ${LIBXML2_INCLUDE_DIR})
+    set(CMAKE_SWIG_FLAGS "")
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i PROPERTIES CPLUSPLUS ON)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/elements
+                        ${LIBXML2_INCLUDE_DIR})
 
-# Add swig module
-if (CMAKE_VERSION VERSION_LESS "3.8")
-    swig_add_module(xidx python ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i)
-else()
-    swig_add_library(xidx LANGUAGE python SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i)
-endif()
-
-target_link_libraries(_xidx PUBLIC xidx ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
-
-install(TARGETS _xidx DESTINATION lib)
-install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION lib)
-
-# Python deployment
-
-if (APPLE)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE MACHINE OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REGEX REPLACE ".*-darwin([0-9]+).*" "\\1" _apple_ver "${MACHINE}")
-
-    if (_apple_ver EQUAL "17")
-        set(APPLE_OSX_VERSION 10.13)
-    elseif (_apple_ver EQUAL "16")
-        set(APPLE_OSX_VERSION 10.12)
-    elseif (_apple_ver EQUAL "15")
-        set(APPLE_OSX_VERSION 10_11)
-    elseif (_apple_ver EQUAL "14")
-        set(APPLE_OSX_VERSION 10_10)
-    elseif (_apple_ver EQUAL "13")
-        set(APPLE_OSX_VERSION 10_9)
-    elseif (_apple_ver EQUAL "12")
-        set(APPLE_OSX_VERSION 10_8)
-    elseif (_apple_ver EQUAL "11")
-        set(APPLE_OSX_VERSION 10_7)
-    elseif (_apple_ver EQUAL "10")
-        set(APPLE_OSX_VERSION 10_6)
+    # Add swig module
+    if (CMAKE_VERSION VERSION_LESS "3.8")
+        swig_add_module(xidx python ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i)
     else()
-        message(FATAL "Unknown osx version")
+        swig_add_library(xidx LANGUAGE python SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/include/xidx/xidx.i)
     endif()
-    message(STATUS "APPLE_OSX_VERSION ${APPLE_OSX_VERSION}")
+
+    target_link_libraries(_xidx PUBLIC xidx ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
+
+    install(TARGETS _xidx DESTINATION lib)
+    install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION lib)
+
+    # Python deployment
+
+    if (APPLE)
+        execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE MACHINE OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REGEX REPLACE ".*-darwin([0-9]+).*" "\\1" _apple_ver "${MACHINE}")
+
+        if (_apple_ver EQUAL "17")
+            set(APPLE_OSX_VERSION 10.13)
+        elseif (_apple_ver EQUAL "16")
+            set(APPLE_OSX_VERSION 10.12)
+        elseif (_apple_ver EQUAL "15")
+            set(APPLE_OSX_VERSION 10_11)
+        elseif (_apple_ver EQUAL "14")
+            set(APPLE_OSX_VERSION 10_10)
+        elseif (_apple_ver EQUAL "13")
+            set(APPLE_OSX_VERSION 10_9)
+        elseif (_apple_ver EQUAL "12")
+            set(APPLE_OSX_VERSION 10_8)
+        elseif (_apple_ver EQUAL "11")
+            set(APPLE_OSX_VERSION 10_7)
+        elseif (_apple_ver EQUAL "10")
+            set(APPLE_OSX_VERSION 10_6)
+        else()
+            message(FATAL "Unknown osx version")
+        endif()
+        message(STATUS "APPLE_OSX_VERSION ${APPLE_OSX_VERSION}")
+    endif()
+
+    set(PYTHON_TAG cp${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+
+    if (WIN32)
+
+        set(PYTHON_PLAT_NAME win_amd64)
+
+    elseif (APPLE)
+
+        string(SUBSTRING ${APPLE_OSX_VERSION} 0 2 __major__)
+        string(SUBSTRING ${APPLE_OSX_VERSION} 3 2 __minor__)
+        set(PYTHON_PLAT_NAME macosx_${__major__}_${__minor__}_x86_64)
+
+    else()
+
+        execute_process(COMMAND lsb_release -is OUTPUT_VARIABLE __id__   OUTPUT_STRIP_TRAILING_WHITESPACE)
+        execute_process(COMMAND lsb_release -cs OUTPUT_VARIABLE __name__ OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(PYTHON_PLAT_NAME "${__id__}.${__name__}")
+
+    endif()
+
+    set(PYTHON_EXECUTABLE python3)
+
+    if (WIN32)
+        set(PYTHON_SDIST_FORMAT zip)
+    else()
+        set(PYTHON_SDIST_FORMAT gztar)
+    endif()
+
+    add_custom_target(sdist
+            "${CMAKE_COMMAND}" -E echo "Installing setuptools..."
+            COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools
+            COMMAND "${CMAKE_COMMAND}" -E echo "Running sdist target..."
+            COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q sdist --formats=${PYTHON_SDIST_FORMAT}
+            WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+
+    add_custom_target(bdist_wheel
+            "${CMAKE_COMMAND}" -E echo "Installing setuptools wheel..."
+            COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools wheel
+            COMMAND "${CMAKE_COMMAND}" -E echo "Running bdist_wheel target..."
+            COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q bdist_wheel --python-tag=${PYTHON_TAG} --plat-name=${PYTHON_PLAT_NAME}
+            WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+            DEPENDS xidx)
 endif()
-
-set(PYTHON_TAG cp${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-
-if (WIN32)
-
-    set(PYTHON_PLAT_NAME win_amd64)
-
-elseif (APPLE)
-
-    string(SUBSTRING ${APPLE_OSX_VERSION} 0 2 __major__)
-    string(SUBSTRING ${APPLE_OSX_VERSION} 3 2 __minor__)
-    set(PYTHON_PLAT_NAME macosx_${__major__}_${__minor__}_x86_64)
-
-else()
-
-    execute_process(COMMAND lsb_release -is OUTPUT_VARIABLE __id__   OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND lsb_release -cs OUTPUT_VARIABLE __name__ OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(PYTHON_PLAT_NAME "${__id__}.${__name__}")
-
-endif()
-
-set(PYTHON_EXECUTABLE python3)
-
-if (WIN32)
-    set(PYTHON_SDIST_FORMAT zip)
-else()
-    set(PYTHON_SDIST_FORMAT gztar)
-endif()
-
-add_custom_target(sdist
-        "${CMAKE_COMMAND}" -E echo "Installing setuptools..."
-        COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools
-        COMMAND "${CMAKE_COMMAND}" -E echo "Running sdist target..."
-        COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q sdist --formats=${PYTHON_SDIST_FORMAT}
-        WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
-
-add_custom_target(bdist_wheel
-        "${CMAKE_COMMAND}" -E echo "Installing setuptools wheel..."
-        COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools wheel
-        COMMAND "${CMAKE_COMMAND}" -E echo "Running bdist_wheel target..."
-        COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q bdist_wheel --python-tag=${PYTHON_TAG} --plat-name=${PYTHON_PLAT_NAME}
-        WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
-        DEPENDS xidx)
