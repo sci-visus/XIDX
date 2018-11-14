@@ -20,43 +20,43 @@ matrix:
 
     # ///////////////////////////////// osx 10.13
     
-#    - os: osx
-#      osx_image: xcode9.4 #10.13
-#      compiler: clang
-#      if: tag IS present
-#      env: [
-#        PYTHON_VERSION=2.7.15,
-#        APPLE_OSX_VERSION=10.13,
-#        COMPILER=clang++,
-#        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/2.7.15/bin/python ,
-#        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/2.7.15/include/python2.7,
-#        PYTHON_LIBRARY=$HOME/.pyenv/versions/2.7.15/lib/libpython2.7.dylib
-#      ]
-#
-#    - os: osx
-#      osx_image: xcode9.4 #10.13
-#      compiler: clang
-#      env: [
-#        PYTHON_VERSION=3.6.6,
-#        APPLE_OSX_VERSION=10.13,
-#        COMPILER=clang++,
-#        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/3.6.6/bin/python ,
-#        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/3.6.6/include/python3.6m,
-#        PYTHON_LIBRARY=$HOME/.pyenv/versions/3.6.6/lib/libpython3.6m.dylib
-#      ]
-#
-#    - os: osx
-#      osx_image: xcode9.4
-#      compiler: clang
-#      if: tag IS present
-#      env: [
-#        PYTHON_VERSION=3.7.0,
-#        APPLE_OSX_VERSION=10.13,
-#        COMPILER=clang++,
-#        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/3.7.0/bin/python ,
-#        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/3.7.0/include/python3.7m,
-#        PYTHON_LIBRARY=$HOME/.pyenv/versions/3.7.0/lib/libpython3.7m.dylib
-#      ]
+    - os: osx
+      osx_image: xcode9.4 #10.13
+      compiler: clang
+      #if: tag IS present
+      env: [
+        PYTHON_VERSION=2.7.15,
+        APPLE_OSX_VERSION=10.13,
+        COMPILER=clang++,
+        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/2.7.15/bin/python ,
+        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/2.7.15/include/python2.7,
+        PYTHON_LIBRARY=$HOME/.pyenv/versions/2.7.15/lib/libpython2.7.dylib
+      ]
+
+    - os: osx
+      osx_image: xcode9.4 #10.13
+      compiler: clang
+      env: [
+        PYTHON_VERSION=3.6.6,
+        APPLE_OSX_VERSION=10.13,
+        COMPILER=clang++,
+        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/3.6.6/bin/python ,
+        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/3.6.6/include/python3.6m,
+        PYTHON_LIBRARY=$HOME/.pyenv/versions/3.6.6/lib/libpython3.6m.dylib
+      ]
+
+    - os: osx
+      osx_image: xcode9.4
+      compiler: clang
+      #if: tag IS present
+      env: [
+        PYTHON_VERSION=3.7.0,
+        APPLE_OSX_VERSION=10.13,
+        COMPILER=clang++,
+        PYTHON_EXECUTABLE=$HOME/.pyenv/versions/3.7.0/bin/python ,
+        PYTHON_INCLUDE_DIR=$HOME/.pyenv/versions/3.7.0/include/python3.7m,
+        PYTHON_LIBRARY=$HOME/.pyenv/versions/3.7.0/lib/libpython3.7m.dylib
+      ]
       
     # ///////////////////////////////// osx 10.12 
     
