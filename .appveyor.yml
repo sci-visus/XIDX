@@ -1,0 +1,22 @@
+version: '{build}'
+
+# https://www.appveyor.com/docs/build-environment/#build-worker-images
+image: Visual Studio 2017
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+before_build:
+- mkdir build
+- cd build
+
+build_script:
+- cmake ../ -DBUILD_PYTHON_WRAPPER=OFF 
+- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+- devenv /build Release XIDX.sln 
