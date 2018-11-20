@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <cctype>
 #include "xidx/xidx.h"
 
 namespace xidx{
@@ -207,7 +208,7 @@ public:
         Parsable* parent_group=FindParent("Group", curr_parent);
         source = parent_group->FindChild("DataSource");
         
-        if(source!=nullptr && source->GetClassName()=="DataSource")
+        if(source!=nullptr && source->ClassName()=="DataSource")
           break;
         
         curr_parent = parent_group->parent;
@@ -236,7 +237,7 @@ public:
     if(node->children != nullptr)
       text = (char*)(node->children->content);
     
-    const char* name_s = xidx::GetProp(node, "Name");
+    const char* name_s = xidx::GetProperty(node, "Name");
     
     if(name_s != nullptr)
       name = name_s;
@@ -244,7 +245,7 @@ public:
     if(this->GetParent()==nullptr)
       printf("%s has no parent\n", name.c_str());
     
-    const char* form_type = xidx::GetProp(node, "Format");
+    const char* form_type = xidx::GetProperty(node, "Format");
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
         if (strcmp(form_type, ToString(static_cast<FormatType>(t)))==0){
@@ -253,7 +254,7 @@ public:
         }
     }
 
-    const char* num_type = xidx::GetProp(node, "NumberType");
+    const char* num_type = xidx::GetProperty(node, "NumberType");
     if(num_type != NULL){
       for(int t=XidxDataType::NumberType::CHAR_NUMBER_TYPE; t <= XidxDataType::NumberType::UINT_NUMBER_TYPE; t++)
         if (strcmp(num_type, XidxDataType::ToString(static_cast<XidxDataType::NumberType>(t)))==0){
@@ -265,25 +266,25 @@ public:
       number_type = defaults::DATAITEM_NUMBER_TYPE;
     }
     
-    const char* val_precision = xidx::GetProp(node, "BitPrecision");
+    const char* val_precision = xidx::GetProperty(node, "BitPrecision");
     if(val_precision == NULL)
       bit_precision = defaults::DATAITEM_BIT_PRECISION;
     else 
       bit_precision = val_precision;
 
-    const char* val_components = xidx::GetProp(node, "ComponentNumber");
+    const char* val_components = xidx::GetProperty(node, "ComponentNumber");
     if(val_components == NULL)
       n_components = defaults::DATAITEM_N_COMPONENTS;
     else 
       n_components = val_components;
 
     //if(format_type != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
-      const char* val_dimensions = xidx::GetProp(node, "Dimensions");
+      const char* val_dimensions = xidx::GetProperty(node, "Dimensions");
       if(val_dimensions != NULL)
         dimensions = ToIndexVector(val_dimensions);
     //}
 
-    const char* end_type = xidx::GetProp(node, "Endian");
+    const char* end_type = xidx::GetProperty(node, "Endian");
     if (end_type != NULL){
       for(int t=Endianess::EndianType::LITTLE_ENDIANESS; t <= Endianess::NATIVE_ENDIANESS; t++)
         if (strcmp(end_type, Endianess::ToString(static_cast<Endianess::EndianType>(t)))==0){
@@ -358,9 +359,9 @@ public:
       
       source = parent_group->FindChild("DataSource");
       
-      if(source!=nullptr && source->GetClassName()=="DataSource")
+      if(source!=nullptr && source->ClassName()=="DataSource")
         break;
-      //printf("pass through %s\n", source->GetClassName().c_str());
+      //printf("pass through %s\n", source->ClassName().c_str());
       curr_parent = parent_group->GetParent();
     }
     
@@ -382,9 +383,9 @@ public:
       
       source = parent_group->FindChild("DataSource");
       
-      if(source!=nullptr && source->GetClassName()=="DataSource")
+      if(source!=nullptr && source->ClassName()=="DataSource")
         break;
-      //printf("pass through %s\n", source->GetClassName().c_str());
+      //printf("pass through %s\n", source->ClassName().c_str());
       curr_parent = parent_group->GetParent();
     }
     
@@ -395,7 +396,7 @@ public:
     
   }
   
-  virtual std::string GetClassName() const override { return "DataItem"; };
+  virtual std::string ClassName() const override { return "DataItem"; };
   
 private:
   

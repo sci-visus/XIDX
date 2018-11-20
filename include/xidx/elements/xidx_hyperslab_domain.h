@@ -123,7 +123,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() const override { return "HyperSlabDomain"; };
+  virtual std::string ClassName() const override { return "HyperSlabDomain"; };
   
 private:
   double start = 0;

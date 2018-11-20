@@ -105,8 +105,8 @@ public:
     if(!xidx::IsNodeName(node,"DataSource"))
       return -1;
     
-    name = xidx::GetProp(node, "Name");
-    url = xidx::GetProp(node, "Url");
+    name = xidx::GetProperty(node, "Name");
+    url = xidx::GetProperty(node, "Url");
     
     return 0;
   }
@@ -124,7 +124,7 @@ public:
     return 0;
   }
   
-  virtual std::string GetClassName() const override { return "DataSource"; };
+  virtual std::string ClassName() const override { return "DataSource"; };
   
 };
 

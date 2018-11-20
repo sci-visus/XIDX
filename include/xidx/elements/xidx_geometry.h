@@ -96,7 +96,7 @@ public:
     SetParent(_parent);
     //name = xidx::getProp(node, "Name");
             
-    const char* geo_type = GetProp(node, "Type");
+    const char* geo_type = xidx::GetProperty(node, "Type");
 
     for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= RECT_GEOMETRY_TYPE; t++)
       if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
@@ -123,7 +123,7 @@ public:
     return total;
   }
   
-  virtual std::string GetClassName() const override { return "Geometry"; };
+  virtual std::string ClassName() const override { return "Geometry"; };
 };
 
 }

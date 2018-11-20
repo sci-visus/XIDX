@@ -85,18 +85,18 @@ public:
     
     SetParent(_parent);
 
-    const char* topo_type = GetProp(node, "Type");
+    const char* topo_type = GetProperty(node, "Type");
 
     for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
       if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
           type = static_cast<TopologyType>(t);
 
-    dimensions = ToIndexVector(GetProp(node, "Dimensions"));
+    dimensions = ToIndexVector(xidx::GetProperty(node, "Dimensions"));
 
     return 0;
   };
   
-  virtual std::string GetClassName() const override { return "Topology"; };
+  virtual std::string ClassName() const override { return "Topology"; };
 
 };
 

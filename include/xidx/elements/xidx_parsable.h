@@ -40,7 +40,7 @@ namespace xidx{
 class Domain;
 class DataSource;
   
-static const char* GetProp(xmlNode* node, std::string propName){
+static const char* GetProperty(xmlNode* node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
 }
 
@@ -63,12 +63,12 @@ public:
 
   virtual std::string GetDataSourceXPath() { return xpath_prefix; }
   
-  virtual std::string GetClassName() const = 0;
+  virtual std::string ClassName() const = 0;
   
   virtual const Parsable* FindParent(const std::string& class_name, const Parsable* obj2) const{
     if(obj2 == nullptr)
       return nullptr;
-    if(obj2->GetClassName() == class_name){
+    if(obj2->ClassName() == class_name){
       return obj2;
     }
     else

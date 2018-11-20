@@ -29,6 +29,7 @@
 
 #include <libxml/xmlreader.h>
 #include <libxml/xinclude.h>
+#include <time.h>
 
 #include "xidx/xidx.h"
 

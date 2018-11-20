@@ -139,7 +139,7 @@ public:
     return 0;
   }
   
-  virtual std::string GetClassName() const override { return "ListDomain"; };
+  virtual std::string ClassName() const override { return "ListDomain"; };
   
 };
 

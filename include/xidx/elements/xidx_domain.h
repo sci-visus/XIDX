@@ -117,7 +117,7 @@ public:
     
     assert(this->GetParent()!=nullptr);
     
-    const char* domain_type = GetProp(node, "Type");
+    const char* domain_type = xidx::GetProperty(node, "Type");
 
     for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
       if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
@@ -167,7 +167,7 @@ public:
   
   virtual const IndexSpace& GetLinearizedIndexSpace() = 0;
   
-  virtual std::string GetClassName() const override { return "Domain"; };
+  virtual std::string ClassName() const override { return "Domain"; };
 
 };
 

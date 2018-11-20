@@ -143,7 +143,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() const override { return "SpatialDomain"; };
+  virtual std::string ClassName() const override { return "SpatialDomain"; };
   
   virtual const IndexSpace& GetLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED

@@ -131,7 +131,7 @@ public:
 
   int GetNumberOfAxis(){ return axis.size(); }
   
-  virtual std::string GetClassName() const override { return "MultiAxisDomain"; };
+  virtual std::string ClassName() const override { return "MultiAxisDomain"; };
   
   virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
     Domain::Deserialize(node, _parent);

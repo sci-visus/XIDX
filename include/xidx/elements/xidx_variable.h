@@ -234,9 +234,9 @@ public:
     
     assert(GetParent()!=nullptr);
     
-    name = GetProp(node, "Name");
+    name = xidx::GetProperty(node, "Name");
 
-    const char* center_type_value = GetProp(node, "Center");
+    const char* center_type_value = GetProperty(node, "Center");
     if(center_type_value != NULL){
       for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
         if (strcmp(center_type_value, ToString(static_cast<CenterType>(t)))==0)
@@ -279,7 +279,7 @@ public:
     return 0;
   }
   
-  virtual std::string GetClassName() const override { return "Variable"; };
+  virtual std::string ClassName() const override { return "Variable"; };
 
 };
 }

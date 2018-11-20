@@ -36,6 +36,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if _WIN32
+#include <windows.h>
+#endif
+
 namespace xidx{
 
 typedef int DomainIndex;
@@ -281,8 +285,12 @@ public:
         
         std::string dirPath = string_format(filePattern, domain_index);
       //  std::string filePath = string_format(filePattern+"/meta.xidx", g->domain_index);
-        
+ 
+#if _WIN32
+		const int ret = CreateDirectory(dirPath.c_str(), NULL);
+#else
         const int ret = mkdir(dirPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
         if (ret != 0 && errno != EEXIST)
         {
           //perror("mkdir");
@@ -306,23 +314,23 @@ public:
     
     SetParent(_parent);
   
-    name = GetProp(node, "Name");
+    name = xidx::GetProperty(node, "Name");
   
     //assert(this->GetParent()!=nullptr);
     
-    const char* type_s = GetProp(node, "Type");
+    const char* type_s = xidx::GetProperty(node, "Type");
     for(int t=GroupType::SPATIAL_GROUP_TYPE; t <= GroupType::TEMPORAL_GROUP_TYPE; t++)
       if (strcmp(type_s, ToString(static_cast<GroupType>(t)))==0)
              group_type = static_cast<GroupType>(t);
 
-    const char* vtype_s = GetProp(node, "VariabilityType");
+    const char* vtype_s = xidx::GetProperty(node, "VariabilityType");
     for(int t=Variability::VariabilityType::STATIC_VARIABILITY_TYPE; t <= Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE; t++)
       if (strcmp(vtype_s, Variability::ToString(static_cast<Variability::VariabilityType>(t)))==0)
         variability_type = static_cast<Variability::VariabilityType>(t);
     
-    const char* dindex_s = GetProp(node, "DomainIndex");
+    const char* dindex_s = xidx::GetProperty(node, "DomainIndex");
     
-    const char* fpattern_s = GetProp(node, "FilePattern");
+    const char* fpattern_s = xidx::GetProperty(node, "FilePattern");
     if(fpattern_s != nullptr)
       filePattern = fpattern_s;
     
@@ -339,7 +347,7 @@ public:
         data_sources.push_back(ds);
       }
       else if(IsNodeName(cur_node,"Domain")){
-        const char* domtype_s = GetProp(cur_node, "Type");
+        const char* domtype_s = xidx::GetProperty(cur_node, "Type");
         Domain::DomainType dom_type;
         
         for(int t=Domain::DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= Domain::DomainType::RANGE_DOMAIN_TYPE; t++)
@@ -389,7 +397,7 @@ public:
     return 0;
   };
   
-  virtual std::string GetClassName() const override { return "Group"; };
+  virtual std::string ClassName() const override { return "Group"; };
   
   virtual Parsable* FindChild(const std::string& class_name) const override {
     if(class_name == "DataSource" && data_sources.size() > 0)

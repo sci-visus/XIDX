@@ -63,13 +63,13 @@ public:
     
     SetParent(_parent);
 
-    name = xidx::GetProp(node, "Name");
-    value = xidx::GetProp(node, "Value");
+    name = xidx::GetProperty(node, "Name");
+    value = xidx::GetProperty(node, "Value");
 
     return 0;
   };
   
-  virtual std::string GetClassName() const override { return "Attribute"; };
+  virtual std::string ClassName() const override { return "Attribute"; };
 
   virtual ~Attribute(){}
 };
