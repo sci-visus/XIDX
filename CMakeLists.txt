@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 2.8)
 
 option(BUILD_PYTHON_WRAPPER "Build python wrapper" TRUE)
 
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(XIDX_IS_SUBMODULE 0)
+else()
+    set(XIDX_IS_SUBMODULE 1)
+    set(CMAKE_FOLDER_PREFIX "")
+endif()
+
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -131,8 +138,13 @@ if(BUILD_PYTHON_WRAPPER)
 
     target_link_libraries(_xidx PUBLIC xidx ${PYTHON_LIBRARIES} ${LIBXML2_LIBRARIES})
 
-    install(TARGETS _xidx DESTINATION lib)
-    install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION lib)
+    if(DEFINED VISUS_IS_SUBMODULE)
+        install(TARGETS _xidx DESTINATION bin)
+        install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION bin)
+    else()
+        install(TARGETS _xidx DESTINATION lib)
+        install(FILES ${PROJECT_BINARY_DIR}/xidx.py DESTINATION lib)
+    endif()
 
     # Python deployment
 
@@ -190,18 +202,21 @@ if(BUILD_PYTHON_WRAPPER)
         set(PYTHON_SDIST_FORMAT gztar)
     endif()
 
-    add_custom_target(sdist
-            "${CMAKE_COMMAND}" -E echo "Installing setuptools..."
-            COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools
-            COMMAND "${CMAKE_COMMAND}" -E echo "Running sdist target..."
-            COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q sdist --formats=${PYTHON_SDIST_FORMAT}
-            WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+    if(NOT XIDX_IS_SUBMODULE)
+        add_custom_target(sdist
+                "${CMAKE_COMMAND}" -E echo "Installing setuptools..."
+                COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools
+                COMMAND "${CMAKE_COMMAND}" -E echo "Running sdist target..."
+                COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q sdist --formats=${PYTHON_SDIST_FORMAT}
+                WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
 
-    add_custom_target(bdist_wheel
-            "${CMAKE_COMMAND}" -E echo "Installing setuptools wheel..."
-            COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools wheel
-            COMMAND "${CMAKE_COMMAND}" -E echo "Running bdist_wheel target..."
-            COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q bdist_wheel --python-tag=${PYTHON_TAG} --plat-name=${PYTHON_PLAT_NAME}
-            WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
-            DEPENDS xidx)
+        add_custom_target(bdist_wheel
+                "${CMAKE_COMMAND}" -E echo "Installing setuptools wheel..."
+                COMMAND "${PYTHON_EXECUTABLE}" -m pip install --user --upgrade setuptools wheel
+                COMMAND "${CMAKE_COMMAND}" -E echo "Running bdist_wheel target..."
+                COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/setup.py" -q bdist_wheel --python-tag=${PYTHON_TAG} --plat-name=${PYTHON_PLAT_NAME}
+                WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+                DEPENDS xidx)
+    endif()
+
 endif()
