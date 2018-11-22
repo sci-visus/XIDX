@@ -40,11 +40,11 @@ namespace xidx{
 class Domain;
 class DataSource;
   
-static const char* GetProperty(xmlNode* node, std::string propName){
+static const char* getProp(xmlNode *node, std::string propName){
   return reinterpret_cast<const char*>(xmlGetProp(node, BAD_CAST propName.c_str()));
 }
 
-inline bool IsNodeName(xmlNode* node, std::string name){
+inline bool isNodeName(xmlNode *node, std::string name){
   return strcmp(reinterpret_cast<const char*>(node->name), name.c_str())==0;
 }
 
@@ -56,30 +56,30 @@ private:
 public:
   std::string name;
   
-  int SetParent(Parsable* _parent){ parent = _parent; return 0;}
+  int setParent(Parsable *_parent){ parent = _parent; return 0;}
   
-  virtual xmlNode* Serialize(xmlNode* parent, const char* text=NULL) = 0;
-  virtual int Deserialize(xmlNode* node, Parsable* parent) = 0;
+  virtual xmlNode* serialize(xmlNode *parent, const char *text = NULL) = 0;
+  virtual int deserialize(xmlNode *node, Parsable *parent) = 0;
 
-  virtual std::string GetDataSourceXPath() { return xpath_prefix; }
+  virtual std::string getDataSourceXPath() { return xpath_prefix; }
   
-  virtual std::string ClassName() const = 0;
+  virtual std::string getClassName() const = 0;
   
-  virtual const Parsable* FindParent(const std::string& class_name, const Parsable* obj2) const{
+  virtual const Parsable* findParent(const std::string &class_name, const Parsable *obj2) const{
     if(obj2 == nullptr)
       return nullptr;
-    if(obj2->ClassName() == class_name){
+    if(obj2->getClassName() == class_name){
       return obj2;
     }
     else
-      return FindParent(class_name, obj2->parent);
+      return findParent(class_name, obj2->parent);
   }
   
-  virtual Parsable* FindChild(const std::string& class_name) const{
+  virtual Parsable* findChild(const std::string &class_name) const{
     return nullptr;
   }
   
-  virtual Parsable* GetParent() const { return parent; };
+  virtual Parsable* getParent() const { return parent; };
   
 protected:
   std::string xpath_prefix="//";

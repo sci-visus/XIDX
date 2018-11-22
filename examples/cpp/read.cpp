@@ -53,60 +53,60 @@ int main(int argc, char** argv){
 
   printf("Time taken %fms\n",(double(finish)-double(start))/CLOCKS_PER_SEC);
 
-  std::shared_ptr<Group> root_group = metadata.GetRootGroup();
+  std::shared_ptr<Group> root_group = metadata.getRootGroup();
   
-  std::shared_ptr<Domain> time_domain = root_group->GetDomain();
+  std::shared_ptr<Domain> time_domain = root_group->getDomain();
   
   std::shared_ptr<TemporalListDomain> domain = std::static_pointer_cast<TemporalListDomain>(time_domain);
   
-  printf("Time Domain[%s]:\n", Domain::ToString(domain->type));
-  for(auto& att: domain->GetAttributes())
+  printf("Time Domain[%s]:\n", Domain::toString(domain->type));
+  for(auto& att: domain->getAttributes())
     printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
   
   int group_count=0;
-  for(auto t : domain->GetLinearizedIndexSpace()){
+  for(auto t : domain->getLinearizedIndexSpace()){
     printf("Timestep %f\n", t);
 
-    auto& grid = root_group->GetGroups()[group_count++];
-    std::shared_ptr<Domain> domain = grid->GetDomain();
+    auto& grid = root_group->getGroup(group_count++);
+    std::shared_ptr<Domain> domain = grid->getDomain();
     
-    printf("\tGrid Domain[%s]:\n", Domain::ToString(domain->type));
+    printf("\tGrid Domain[%s]:\n", Domain::toString(domain->type));
     
-    for(auto& att: domain->GetAttributes())
+    for(auto& att: domain->getAttributes())
       printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
     
     if(domain->type == Domain::DomainType::SPATIAL_DOMAIN_TYPE){
       std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
-      printf("\tTopology %s volume %lu\n", Topology::ToString(sdom->topology.type), sdom->GetVolume());
-      printf("\tGeometry %s", Geometry::ToString(sdom->geometry.type));
+      printf("\tTopology %s volume %lu\n", Topology::toString(sdom->topology.type), sdom->getVolume());
+      printf("\tGeometry %s", Geometry::toString(sdom->geometry.type));
     }
     else if(domain->type == Domain::DomainType::MULTIAXIS_DOMAIN_TYPE)
     {
       std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
-      for(int a=0; a < mdom->GetNumberOfAxis(); a++){
-        const Axis& axis = mdom->GetAxis(a);
-        printf("\tAxis %s volume %lu: [ ", axis.name.c_str(), axis.GetVolume());
+      for(int a=0; a < mdom->getNumberOfAxis(); a++){
+        const Axis& axis = mdom->getAxis(a);
+        printf("\tAxis %s volume %lu: [ ", axis.name.c_str(), axis.getVolume());
         
         // print axis values
-        for(auto v: axis.GetValues())
+        for(auto v: axis.getValues())
           printf("%f ", v);
         printf("]\n");
         
-        for(auto& att: axis.GetAttributes())
+        for(auto& att: axis.getAttributes())
           printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
       }
     }
     
     printf("\n");
     
-    for(auto& var: grid->GetVariables()){
-      auto source = var->GetDataItems()[0]->GetDataSource();
+    for(auto& var: grid->getVariables()){
+      auto source = var->getDataItems()[0]->getDataSource();
       printf("\t\tVariable: %s ", var->name.c_str());
       if(source != nullptr)
-        printf("data source url: %s\n", source->GetUrl().c_str());
+        printf("data source url: %s\n", source->getUrl().c_str());
       else printf("\n");
       
-      for(auto att: var->GetAttributes()){
+      for(auto att: var->getAttributes()){
         printf("\t\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
       }
     }
@@ -114,7 +114,7 @@ int main(int argc, char** argv){
   }
   
   // (Debug) Saving the content in a different file to compare with the original
-  metadata.Save("verify.xidx");
+  metadata.save("verify.xidx");
 
   return ret;
 }

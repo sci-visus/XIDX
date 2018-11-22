@@ -47,7 +47,7 @@ public:
     NATIVE_ENDIANESS = 2
   };
   
-  static inline const char* ToString(EndianType v)
+  static inline const char* toString(EndianType v)
   {
     switch (v)
     {
@@ -71,7 +71,7 @@ public:
     IDX_FORMAT = 4
   };
   
-  static inline const char* ToString(FormatType v)
+  static inline const char* toString(FormatType v)
   {
     switch (v)
     {
@@ -106,7 +106,7 @@ public:
   std::shared_ptr<DataSource> data_source;
   std::vector<Attribute> attributes;
   
-  int SetDefaults(){
+  int setDefaults(){
     format_type=defaults::DATAITEM_FORMAT_TYPE;
     number_type=defaults::DATAITEM_NUMBER_TYPE;
     bit_precision=defaults::DATAITEM_BIT_PRECISION;
@@ -117,12 +117,12 @@ public:
   }
   
   DataItem(Parsable* _parent){
-    SetParent(_parent);
-    SetDefaults();
+    setParent(_parent);
+    setDefaults();
   }
   
   DataItem(const DataItem& i){
-    SetParent(i.GetParent());
+    setParent(i.getParent());
     name=i.name;
     dimensions=i.dimensions;
     number_type=i.number_type;
@@ -138,15 +138,15 @@ public:
   }
   
   DataItem(std::string dtype, Parsable* _parent){
-    SetParent(_parent);
-    SetDefaults();
+    setParent(_parent);
+    setDefaults();
     
     ParseDType(dtype);
   }
   
   DataItem(FormatType format, XidxDataType dtype, std::shared_ptr<DataSource> file, Parsable* _parent){
-    SetParent(_parent);
-    SetDefaults();
+    setParent(_parent);
+    setDefaults();
     
     format_type=format;
     
@@ -159,15 +159,15 @@ public:
   }
   
   DataItem(FormatType format, std::string dtype, std::shared_ptr<DataSource> ds, Parsable* _parent){
-    SetParent(_parent);
-    SetDefaults();
+    setParent(_parent);
+    setDefaults();
     
     format_type=format;
     ParseDType(dtype);
     data_source=ds;
   }
   
-  virtual xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
+  virtual xmlNodePtr serialize(xmlNode *parent_node, const char *text = NULL) override{
     
     if(values.size()>0 && format_type == FormatType::XML_FORMAT){
       std::stringstream stream_data;
@@ -182,22 +182,22 @@ public:
       xmlNewProp(data_node, BAD_CAST "Name", BAD_CAST name.c_str());
     
     if(format_type != defaults::DATAITEM_FORMAT_TYPE)
-      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST ToString(format_type));
+      xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST toString(format_type));
     
-      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST XidxDataType::ToString(number_type));
+      xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST XidxDataType::toString(number_type));
     if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
     if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
-      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST Endianess::ToString(endian_type));
+      xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST Endianess::toString(endian_type));
 
     if(dimensions.size())
-      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST xidx::ToString(dimensions).c_str());
+      xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST xidx::toString(dimensions).c_str());
 
     if(n_components != defaults::DATAITEM_N_COMPONENTS)
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
     if(data_source != nullptr)
-      xmlNodePtr ds_node = data_source->Serialize(data_node);
+      xmlNodePtr ds_node = data_source->serialize(data_node);
     
 #if XIDX_DEBUG_XPATHS
     else if(format_type != FormatType::XML_FORMAT){
@@ -205,10 +205,10 @@ public:
       Parsable* source=nullptr;
       Parsable* curr_parent=parent;
       while(curr_parent!=nullptr){
-        Parsable* parent_group=FindParent("Group", curr_parent);
-        source = parent_group->FindChild("DataSource");
+        Parsable* parent_group=findParent("Group", curr_parent);
+        source = parent_group->findChild("DataSource");
         
-        if(source!=nullptr && source->ClassName()=="DataSource")
+        if(source!=nullptr && source->getClassName()=="DataSource")
           break;
         
         curr_parent = parent_group->parent;
@@ -216,48 +216,48 @@ public:
       
       if(source!=nullptr){
         xmlNodePtr variable_node = xmlNewChild(data_node, NULL, BAD_CAST "xi:include", NULL);
-        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+source->GetDataSourceXPath()+")").c_str());
+        xmlNewProp(variable_node, BAD_CAST "xpointer", BAD_CAST ("xpointer("+source->getDataSourceXPath()+")").c_str());
       }
     }
 #endif
     
     for(auto att: attributes){
-      xmlNodePtr att_node = att.Serialize(data_node);
+      xmlNodePtr att_node = att.serialize(data_node);
     }
 
     return data_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    if(!xidx::IsNodeName(node,"DataItem"))
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    if(!xidx::isNodeName(node,"DataItem"))
       return -1;
 
-    SetParent(_parent);
+    setParent(_parent);
     
     if(node->children != nullptr)
       text = (char*)(node->children->content);
     
-    const char* name_s = xidx::GetProperty(node, "Name");
+    const char* name_s = xidx::getProp(node, "Name");
     
     if(name_s != nullptr)
       name = name_s;
     
-    if(this->GetParent()==nullptr)
+    if(this->getParent()==nullptr)
       printf("%s has no parent\n", name.c_str());
     
-    const char* form_type = xidx::GetProperty(node, "Format");
+    const char* form_type = xidx::getProp(node, "Format");
     if(form_type != NULL){
       for(int t=FormatType::XML_FORMAT; t <= IDX_FORMAT; t++)
-        if (strcmp(form_type, ToString(static_cast<FormatType>(t)))==0){
+        if (strcmp(form_type, toString(static_cast<FormatType>(t)))==0){
           format_type = static_cast<FormatType>(t);
           break;
         }
     }
 
-    const char* num_type = xidx::GetProperty(node, "NumberType");
+    const char* num_type = xidx::getProp(node, "NumberType");
     if(num_type != NULL){
       for(int t=XidxDataType::NumberType::CHAR_NUMBER_TYPE; t <= XidxDataType::NumberType::UINT_NUMBER_TYPE; t++)
-        if (strcmp(num_type, XidxDataType::ToString(static_cast<XidxDataType::NumberType>(t)))==0){
+        if (strcmp(num_type, XidxDataType::toString(static_cast<XidxDataType::NumberType>(t)))==0){
           number_type = static_cast<XidxDataType::NumberType>(t);
           break;
         }
@@ -266,28 +266,28 @@ public:
       number_type = defaults::DATAITEM_NUMBER_TYPE;
     }
     
-    const char* val_precision = xidx::GetProperty(node, "BitPrecision");
+    const char* val_precision = xidx::getProp(node, "BitPrecision");
     if(val_precision == NULL)
       bit_precision = defaults::DATAITEM_BIT_PRECISION;
     else 
       bit_precision = val_precision;
 
-    const char* val_components = xidx::GetProperty(node, "ComponentNumber");
+    const char* val_components = xidx::getProp(node, "ComponentNumber");
     if(val_components == NULL)
       n_components = defaults::DATAITEM_N_COMPONENTS;
     else 
       n_components = val_components;
 
     //if(format_type != FormatType::IDX_FORMAT) { // Ignore dimensions for IDX
-      const char* val_dimensions = xidx::GetProperty(node, "Dimensions");
+      const char* val_dimensions = xidx::getProp(node, "Dimensions");
       if(val_dimensions != NULL)
-        dimensions = ToIndexVector(val_dimensions);
+        dimensions = toIndexVector(val_dimensions);
     //}
 
-    const char* end_type = xidx::GetProperty(node, "Endian");
+    const char* end_type = xidx::getProp(node, "Endian");
     if (end_type != NULL){
       for(int t=Endianess::EndianType::LITTLE_ENDIANESS; t <= Endianess::NATIVE_ENDIANESS; t++)
-        if (strcmp(end_type, Endianess::ToString(static_cast<Endianess::EndianType>(t)))==0){
+        if (strcmp(end_type, Endianess::toString(static_cast<Endianess::EndianType>(t)))==0){
           endian_type = static_cast<Endianess::EndianType>(t);
           break;
         }
@@ -303,18 +303,18 @@ public:
       double n ;
       while( stream_data >> n ) values.push_back(n);
 
-//      Parsable* parent_group = FindParent("Group", parent);
+//      Parsable* parent_group = findParent("Group", parent);
 //
 ////      if(node != nullptr)
-////        file_ref->Deserialize(node->children);
+////        file_ref->deserialize(node->children);
     }
     
     if(node->children != nullptr){
       for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
           if (cur_node->type == XML_ELEMENT_NODE) {
-            if(IsNodeName(cur_node, "DataSource")){
+            if(isNodeName(cur_node, "DataSource")){
               data_source = std::make_shared<DataSource>(new DataSource());
-              data_source->Deserialize(cur_node, this);
+              data_source->deserialize(cur_node, this);
               
             }
         }
@@ -324,16 +324,16 @@ public:
     return 0;
   };
   
-  const std::vector<double>& GetValues() const{ return values; }
+  const std::vector<double>& getValues() const{ return values; }
   
-  virtual size_t GetVolume() const{
+  virtual size_t getVolume() const{
     size_t total = 1;
     for(int i=0; i < dimensions.size(); i++)
       total *= dimensions[i];
     return total;
   }
   
-  int AddValue(double v, int stride){
+  int addValue(double v, int stride){
     values.push_back(v);
     dimensions.resize(stride);
     dimensions[0] = values.size()/stride;
@@ -341,52 +341,52 @@ public:
     return 0;
   }
   
-  int AddValue(double v){
+  int addValue(double v){
     values.push_back(v);
     dimensions.resize(1);
     dimensions[0] = values.size();
     return 0;
   }
   
-  virtual std::string GetDataSourceXPath() override {
+  virtual std::string getDataSourceXPath() override {
     Parsable* source=nullptr;
-    Parsable* curr_parent=this->GetParent();
+    Parsable* curr_parent=this->getParent();
     
     while(curr_parent!=nullptr){
-      const Parsable* parent_group = FindParent("Group", curr_parent);
+      const Parsable* parent_group = findParent("Group", curr_parent);
       if(parent_group==nullptr)
         break;
       
-      source = parent_group->FindChild("DataSource");
+      source = parent_group->findChild("DataSource");
       
-      if(source!=nullptr && source->ClassName()=="DataSource")
+      if(source!=nullptr && source->getClassName()=="DataSource")
         break;
-      //printf("pass through %s\n", source->ClassName().c_str());
-      curr_parent = parent_group->GetParent();
+      //printf("pass through %s\n", source->getClassName().c_str());
+      curr_parent = parent_group->getParent();
     }
     
     if(source!=nullptr){
-      return source->GetDataSourceXPath();
+      return source->getDataSourceXPath();
     }
     else return "";
     
   }
   
-  virtual std::shared_ptr<DataSource> GetDataSource() {
+  virtual std::shared_ptr<DataSource> getDataSource() {
     Parsable* source=nullptr;
-    Parsable* curr_parent=this->GetParent();
+    Parsable* curr_parent=this->getParent();
     
     while(curr_parent!=nullptr){
-      const Parsable* parent_group = FindParent("Group", curr_parent);
+      const Parsable* parent_group = findParent("Group", curr_parent);
       if(parent_group==nullptr)
         break;
       
-      source = parent_group->FindChild("DataSource");
+      source = parent_group->findChild("DataSource");
       
-      if(source!=nullptr && source->ClassName()=="DataSource")
+      if(source!=nullptr && source->getClassName()=="DataSource")
         break;
-      //printf("pass through %s\n", source->ClassName().c_str());
-      curr_parent = parent_group->GetParent();
+      //printf("pass through %s\n", source->getClassName().c_str());
+      curr_parent = parent_group->getParent();
     }
     
     if(source!=nullptr){
@@ -396,7 +396,7 @@ public:
     
   }
   
-  virtual std::string ClassName() const override { return "DataItem"; };
+  virtual std::string getClassName() const override { return "DataItem"; };
   
 private:
   
@@ -405,7 +405,7 @@ private:
   int ParseDType(std::string dtype){
     if(!std::isdigit(dtype[0])){ // passed name, not dtype
       name = dtype;
-      SetDefaults();
+      setDefaults();
       return 0;
     }
     
@@ -424,7 +424,7 @@ private:
     bit_precision = dtype.substr(num_idx+1);
     
     for(int t=XidxDataType::NumberType::CHAR_NUMBER_TYPE; t <= XidxDataType::NumberType::UINT_NUMBER_TYPE; t++){
-      std::string numType = XidxDataType::ToString(static_cast<XidxDataType::NumberType>(t));
+      std::string numType = XidxDataType::toString(static_cast<XidxDataType::NumberType>(t));
       std::transform(numType.begin(), numType.end(), numType.begin(), ::tolower);
       
       if (strcmp(numType.c_str(), ntype.c_str())==0){

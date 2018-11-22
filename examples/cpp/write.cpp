@@ -44,7 +44,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
   std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
-  time_group->AddDataSource(file);
+  time_group->addDataSource(file);
   
   const int n_dims = 3;
 
@@ -73,29 +73,29 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   double d[3] = {1.f, 1.f, 1.f};   // dx dy dz
   
   // Set topology and geometry of the spatial domain
-  int ret = space_dom->SetTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
+  int ret = space_dom->setTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
                                    dims);
   ret = space_dom->SetGeometry(Geometry::GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, n_dims, o, d);
   
   // Set the domain for the spatial group
   grid->SetDomain(space_dom);
   
-  // Add some variables to the spatial group
+  // add some variables to the spatial group
   for(int i=0; i < n_attributes; i++){
     char name[32];
     sprintf(name, "var_%d", i);
-    grid->AddVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
+    grid->addVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
   }
   
-  // Add the group of variables to the time series
-  time_group->AddGroup(grid);
+  // add the group of variables to the time series
+  time_group->addGroup(grid);
   
   // Set the root group of the metadata
   meta.SetRootGroup(time_group);
   // Write to disk
-  meta.Save();
+  meta.save();
   
-  printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
+  printf("%zu timeteps written in %s\n", meta.getNumberOfGroups(), filepath);
   
   return 0;
 }
@@ -109,22 +109,22 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
   std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
-  time_group->AddDataSource(file);
+  time_group->addDataSource(file);
   
   // Create the time domain
   std::shared_ptr<Domain> time_dom;
   
   // Create series of timestep values
   time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
-  time_dom->AddAttribute("units", "days since 1980");
-  time_dom->AddAttribute("calendar", "gregorian");
+  time_dom->addAttribute("units", "days since 1980");
+  time_dom->addAttribute("calendar", "gregorian");
 
   for(int i=0; i < n_timesteps; i++){
-    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
+    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->addDomainItem(float(i+10));
   }
   
   // You can also add tuples of items (e.g., netcdf bounds)
-  std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItems({float(100),float(200)});
+  std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->addDomainItems({float(100),float(200)});
   
   // Set the time group domain to use the time domain we just created
   time_group->SetDomain(time_dom);
@@ -142,41 +142,41 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   
   // Populate the axis with explicit values (will be written in the XML)
   for(int i=0; i < 10; i++){
-    latitude_axis.AddValue((double)i*0.5);
-    longitude_axis.AddValue((double)i*2*0.6);
+    latitude_axis.addValue((double)i*0.5);
+    longitude_axis.addValue((double)i*2*0.6);
     
     // You can also add tuple of values (e.g., netcdf bounds)
-    // longitude_axis.AddValues({(double)i*2*0.6,(double)i*2*1.2});
+    // longitude_axis.addValues({(double)i*2*0.6,(double)i*2*1.2});
   }
   
-  latitude_axis.AddAttribute("units", "degrees_north");
-  latitude_axis.AddAttribute("units", "degrees_east");
+  latitude_axis.addAttribute("units", "degrees_north");
+  latitude_axis.addAttribute("units", "degrees_east");
   
-  // Add this axis to the domain
-  geo_dom->AddAxis(latitude_axis);
-  geo_dom->AddAxis(longitude_axis);
+  // add this axis to the domain
+  geo_dom->addAxis(latitude_axis);
+  geo_dom->addAxis(longitude_axis);
   
   // Create group for the variables defined in the geospatial domain
   std::shared_ptr<Group> geo_vars(new Group("geo_vars", Group::GroupType::SPATIAL_GROUP_TYPE, geo_dom));
   
   // Create and add a variable to the group
-  std::shared_ptr<Variable> temp = geo_vars->AddVariable("geo_temperature", XidxDataType::FLOAT_32);
+  std::shared_ptr<Variable> temp = geo_vars->addVariable("geo_temperature", XidxDataType::FLOAT_32);
   if(!temp)
     printf("error\n");
   
-  // Add attribute to the variable (key-value) pairs
-  temp->AddAttribute("unit", "Celsius");
-  temp->AddAttribute("valid_min", "-100.0");
-  temp->AddAttribute("valid_max", "200.0");
+  // add attribute to the variable (key-value) pairs
+  temp->addAttribute("unit", "Celsius");
+  temp->addAttribute("valid_min", "-100.0");
+  temp->addAttribute("valid_max", "200.0");
 
-  time_group->AddGroup(geo_vars);
+  time_group->addGroup(geo_vars);
   
   // Set the root group of the metadata
   meta.SetRootGroup(time_group);
   // Write to disk
-  meta.Save();
+  meta.save();
   
-  printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
+  printf("%zu timeteps written in %s\n", meta.getNumberOfGroups(), filepath);
   
   return 0;
 }
@@ -190,13 +190,13 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   // Create a data source for this group
   // if a variable does not redefine a data source the group source will be used
   std::shared_ptr<DataSource> file(new DataSource("data", "file_path"));
-  time_group->AddDataSource(file);
+  time_group->addDataSource(file);
   
   // Create the time domain
   std::shared_ptr<Domain> time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
   
   for(int i=0; i < n_timesteps; i++){
-    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
+    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->addDomainItem(float(i+10));
   }
   
   // Set the time group domain to use the time domain we just created
@@ -213,8 +213,8 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   uint32_t file_dims[2] = {100, 200};
   
   std::shared_ptr<SpatialDomain> file_dom(new SpatialDomain("FileBasedDomain"));
-  file_dom->SetTopology(Topology::TopologyType::RECT_2D_MESH_TOPOLOGY_TYPE, file_n_dims,
-                         file_dims);
+  file_dom->setTopology(Topology::TopologyType::RECT_2D_MESH_TOPOLOGY_TYPE, file_n_dims,
+                        file_dims);
   
   // Create a DataSource that points to the file
   std::shared_ptr<DataSource> rect_grid_file(new DataSource("grid_data", "file_path"));
@@ -229,18 +229,18 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   
   // Create group for the variables defined in the geospatial domain
   std::shared_ptr<Group> rect_grid_vars(new Group("rect_grid_vars", Group::GroupType::SPATIAL_GROUP_TYPE, file_dom));
+
+  rect_grid_vars->addVariable("rect_var", XidxDataType::NumberType::INT_NUMBER_TYPE, 32);
   
-  rect_grid_vars->AddVariable("rect_var", XidxDataType::NumberType::INT_NUMBER_TYPE, 32);
-  
-  // Add the groups of variables to the time series
-  time_group->AddGroup(rect_grid_vars);
+  // add the groups of variables to the time series
+  time_group->addGroup(rect_grid_vars);
   
   // Set the root group of the metadata
   meta.SetRootGroup(time_group);
   // Write to disk
-  meta.Save();
+  meta.save();
 
-  printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
+  printf("%zu timeteps written in %s\n", meta.getNumberOfGroups(), filepath);
 
   return 0;
 }
@@ -262,7 +262,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
   time_dom = std::make_shared<TemporalListDomain>(new TemporalListDomain("Time"));
   
   for(int i=0; i < n_timesteps; i++){
-    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->AddDomainItem(float(i+10));
+    std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->addDomainItem(float(i+10));
   }
   
   // Set the time group domain to use the time domain we just created
@@ -275,8 +275,8 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
                                                     "timestep"+std::to_string(t)+"/file_path"));
     // Create a new group to collect a set of variables that share the same spatial domain
     std::shared_ptr<Group> grid(new Group("L0", Group::GroupType::SPATIAL_GROUP_TYPE, Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE)); // default static group
-    
-    grid->AddDataSource(file);
+
+    grid->addDataSource(file);
     
     // Create a spatial domain
     std::shared_ptr<SpatialDomain> space_dom(new SpatialDomain("Grid"));
@@ -285,27 +285,27 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     double box_phy[6] = {0.3, 4.2, 0.0, 9.4, 2.5, 19.0}; // physical box (p1x,p2x,p1y,p2y,p1z,p2z)
     
     // Set topology and geometry of the spatial domain
-    int ret = space_dom->SetTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
+    int ret = space_dom->setTopology(Topology::TopologyType::CORECT_3D_MESH_TOPOLOGY_TYPE, n_dims,
                                      dims);
     ret = space_dom->SetGeometry(Geometry::GeometryType::RECT_GEOMETRY_TYPE, n_dims, box_phy);
     
     // Set the domain for the spatial group
     grid->SetDomain(space_dom);
     
-    // Add some variables to the spatial group
+    // add some variables to the spatial group
     for(int i=0; i < n_attributes; i++){
       char name[32];
       sprintf(name, "var_%d", i);
-      grid->AddVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
+      grid->addVariable(name, XidxDataType::NumberType::FLOAT_NUMBER_TYPE, 32);
     }
     
-    time_group->AddGroup(grid);
+    time_group->addGroup(grid);
   }
 
   meta.SetRootGroup(time_group);
-  meta.Save();
+  meta.save();
   
-  printf("%zu timeteps written in %s\n", meta.GetNumberOfGroups(), filepath);
+  printf("%zu timeteps written in %s\n", meta.getNumberOfGroups(), filepath);
   
   return 0;
   

@@ -49,7 +49,7 @@ public:
 
   std::string value;
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
     xmlNodePtr att_node = xmlNewChild(parent, NULL, BAD_CAST "Attribute", BAD_CAST text);
     xmlNewProp(att_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(att_node, BAD_CAST "Value", BAD_CAST value.c_str());
@@ -57,19 +57,19 @@ public:
     return att_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    if(!xidx::IsNodeName(node,"Attribute"))
+  int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    if(!xidx::isNodeName(node,"Attribute"))
       return -1;
     
-    SetParent(_parent);
+    setParent(_parent);
 
-    name = xidx::GetProperty(node, "Name");
-    value = xidx::GetProperty(node, "Value");
+    name = xidx::getProp(node, "Name");
+    value = xidx::getProp(node, "Value");
 
     return 0;
   };
   
-  virtual std::string ClassName() const override { return "Attribute"; };
+  virtual std::string getClassName() const override { return "Attribute"; };
 
   virtual ~Attribute(){}
 };

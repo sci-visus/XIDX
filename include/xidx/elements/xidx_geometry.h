@@ -47,7 +47,7 @@ public:
     RECT_GEOMETRY_TYPE = 6
   };
   
-  static inline const char* ToString(GeometryType v)
+  static inline const char* toString(GeometryType v)
   {
     switch (v)
     {
@@ -78,34 +78,34 @@ public:
     items.push_back(item);
   }
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
 
     xmlNodePtr geometry_node = xmlNewChild(parent, NULL, BAD_CAST "Geometry", NULL);
-    xmlNewProp(geometry_node, BAD_CAST "Type", BAD_CAST ToString(type));
+    xmlNewProp(geometry_node, BAD_CAST "Type", BAD_CAST toString(type));
     
     for(auto item: items)
-      xmlNodePtr item_node = item.Serialize(geometry_node);
+      xmlNodePtr item_node = item.serialize(geometry_node);
 
     return geometry_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    if(!IsNodeName(node,"Geometry"))
+  int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    if(!isNodeName(node,"Geometry"))
       return -1;
 
-    SetParent(_parent);
+    setParent(_parent);
     //name = xidx::getProp(node, "Name");
             
-    const char* geo_type = xidx::GetProperty(node, "Type");
+    const char* geo_type = xidx::getProp(node, "Type");
 
     for(int t=GeometryType::XYZ_GEOMETRY_TYPE; t <= RECT_GEOMETRY_TYPE; t++)
-      if (strcmp(geo_type, ToString(static_cast<GeometryType>(t)))==0)
+      if (strcmp(geo_type, toString(static_cast<GeometryType>(t)))==0)
           type = static_cast<GeometryType>(t);
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
-      if(IsNodeName(inner_node, "DataItem")){
+      if(isNodeName(inner_node, "DataItem")){
         DataItem geo_dataitem(this);
-        geo_dataitem.Deserialize(inner_node, this);
+        geo_dataitem.deserialize(inner_node, this);
 
         items.push_back(geo_dataitem);
       }
@@ -114,7 +114,7 @@ public:
     return 0;
   };
   
-  size_t GetVolume() const{
+  size_t getVolume() const{
     size_t total = 1;
     for(auto item: items){
       for(int i=0; i < item.dimensions.size(); i++)
@@ -123,7 +123,7 @@ public:
     return total;
   }
   
-  virtual std::string ClassName() const override { return "Geometry"; };
+  virtual std::string getClassName() const override { return "Geometry"; };
 };
 
 }

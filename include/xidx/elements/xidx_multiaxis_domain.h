@@ -64,7 +64,7 @@ public:
 //  };
   
   MultiAxisDomain(const MultiAxisDomain* d) : Domain(d->name){
-    SetParent(d->GetParent());
+    setParent(d->getParent());
     axis = d->axis;
     data_items = d->data_items;
   }
@@ -73,31 +73,31 @@ public:
     assert(index < axis.size());
     
     axis[index] = _axis;
-    axis[index].SetParent(this);
+    axis[index].setParent(this);
     
     return 0;
   }
   
-  int AddAxis(Axis& _axis){
+  int addAxis(Axis &_axis){
     axis.push_back(_axis);
-    axis.back().SetParent(this);
+    axis.back().setParent(this);
     
     return 0;
   }
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  virtual xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
-    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
+    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST toString(type));
     data_items.clear();
     
 //    int items_count = 0;
     for(auto& l: axis){
-      l.Serialize(domain_node);
+      l.serialize(domain_node);
 //      std::shared_ptr<DataItem> itemt(new DataItem(this));
 //      itemt->name = l.name;
 //      data_items.push_back(itemt);
 //      
-//      for(auto di: l.GetDataItems()){
+//      for(auto di: l.getDataItems()){
 //        data_items[items_count] = di;
 //      }
 //      
@@ -105,59 +105,59 @@ public:
     }
     
 //    for(auto item: data_items)
-//      item->Serialize(domain_node);
+//      item->serialize(domain_node);
 //    
     return parent;
   }
   
-  virtual const Axis& GetAxis(int index){
+  virtual const Axis& getAxis(int index){
     return axis[index];
   };
   
-  virtual const IndexSpace& GetLinearizedIndexSpace(int index){
-    assert(axis[index].GetDataItems().size() > 0);
+  virtual const IndexSpace& getLinearizedIndexSpace(int index){
+    assert(axis[index].getDataItems().size() > 0);
   
-    return axis[index].GetDataItems()[0]->GetValues();
+    return axis[index].getDataItems()[0]->getValues();
   };
   
-  virtual const IndexSpace& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& getLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED
-    fprintf(stderr, "GetLinearizedIndexSpace() for MultiAxisDomain not implemented please\
-            use GetLinearizedIndexSpace(int index)\n");
+    fprintf(stderr, "getLinearizedIndexSpace() for MultiAxisDomain not implemented please\
+            use getLinearizedIndexSpace(int index)\n");
     assert(false);
     
-    return GetLinearizedIndexSpace(0);
+    return getLinearizedIndexSpace(0);
   };
 
-  int GetNumberOfAxis(){ return axis.size(); }
+  int getNumberOfAxis(){ return axis.size(); }
   
-  virtual std::string ClassName() const override { return "MultiAxisDomain"; };
+  virtual std::string getClassName() const override { return "MultiAxisDomain"; };
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    Domain::Deserialize(node, _parent);
-    SetParent(_parent);
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    Domain::deserialize(node, _parent);
+    setParent(_parent);
     
-    assert(GetParent()!=nullptr);
+    assert(getParent()!=nullptr);
     
     int data_items_count=0;
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
       
       if (cur_node->type == XML_ELEMENT_NODE) {
         
-        if(IsNodeName(cur_node, "Variable")){
+        if(isNodeName(cur_node, "Variable")){
           if(axis.size() > data_items_count){
             Axis& a = axis[data_items_count];
-            a.Deserialize(cur_node, this);
+            a.deserialize(cur_node, this);
           }
           else{
             Axis a(this);
-            a.Deserialize(cur_node, this);
+            a.deserialize(cur_node, this);
             axis.push_back(a);
           }
         
           data_items_count++;
         }
-        else if(IsNodeName(cur_node, "Variable")){
+        else if(isNodeName(cur_node, "Variable")){
           
         }
       }

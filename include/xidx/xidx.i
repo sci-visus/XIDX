@@ -4,9 +4,9 @@
 
 
 //
-//%ignore xidx::Parasable::Deserialize(xmlNode*, xidx::Parsable*);
-//%ignore xidx::Parasable::Deserialize(xmlNode*, Parsable*);
-//%ignore Domain::Deserialize(xmlNode*, xidx::Parsable*);
+//%ignore xidx::Parasable::deserialize(xmlNode*, xidx::Parsable*);
+//%ignore xidx::Parasable::deserialize(xmlNode*, Parsable*);
+//%ignore Domain::deserialize(xmlNode*, xidx::Parsable*);
 
 %{ 
 #define SWIG_FILE_WITH_INIT
@@ -42,10 +42,10 @@ using namespace xidx;
 %feature("director") xidx::Attribute;
 //%feature("director") xidx::Domain;
 
-//%ignore *::Deserialize(xmlNodePtr, Parsable*);
-//%ignore *::Deserialize(xmlNode*, xidx::Parsable*);
-//%ignore Domain::Deserialize(xmlNodePtr, Parsable*);
-//%ignore Domain::Deserialize(xmlNode*, xidx::Parsable*);
+//%ignore *::deserialize(xmlNodePtr, Parsable*);
+//%ignore *::deserialize(xmlNode*, xidx::Parsable*);
+//%ignore Domain::deserialize(xmlNodePtr, Parsable*);
+//%ignore Domain::deserialize(xmlNode*, xidx::Parsable*);
 
 //%pythoncode %{
 //  class MyVectorIterator(object):
@@ -166,7 +166,7 @@ using namespace xidx;
 %include <elements/xidx_parsable.h>
 %include <elements/xidx_parse_utils.h>
 
-//%rename(Deserialize)                              *::Deserialize;
+//%rename(deserialize)                              *::deserialize;
 
 %template(ListDomainDouble) xidx::ListDomain<double>;
 %template(IndexSpace) std::vector<double>;

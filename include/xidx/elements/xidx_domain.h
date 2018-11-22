@@ -44,7 +44,7 @@ public:
     RANGE_DOMAIN_TYPE = 4
   };
   
-  static inline const char* ToString(DomainType v)
+  static inline const char* toString(DomainType v)
   {
     switch (v)
     {
@@ -65,7 +65,7 @@ protected:
 public:
   
   Domain(const Domain& c) {
-    SetParent(c.GetParent());
+    setParent(c.getParent());
     name = c.name;
     type = c.type;
     attributes = c.attributes;
@@ -79,52 +79,52 @@ public:
   DomainType type;
   std::vector<std::shared_ptr<DataItem> > data_items;
 
-  int AddDataItem(std::shared_ptr<DataItem> item){
+  int addDataItem(std::shared_ptr<DataItem> item){
     data_items.push_back(item);
     return 0;
   }
   
-  virtual int AddDataItem(std::string name, Parsable* parent){
+  virtual int addDataItem(std::string name, Parsable *parent){
     data_items.push_back(std::make_shared<DataItem>(new DataItem(name, parent)));
     return 0;
   }
   
-  virtual int AddAttribute(std::string name, std::string value){
+  virtual int addAttribute(std::string name, std::string value){
     attributes.push_back(std::make_shared<Attribute>(new Attribute(name, value)));
     return 0;
   }
   
-  std::vector<std::shared_ptr<Attribute>> GetAttributes() const{ return attributes; }
+  std::vector<std::shared_ptr<Attribute>> getAttributes() const{ return attributes; }
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
-    //Parsable::Serialize(parent);
+  virtual xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
+    //Parsable::serialize(parent);
 
     xmlNodePtr domain_node = xmlNewChild(parent, NULL, BAD_CAST "Domain", NULL);
-    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST ToString(type));
+    xmlNewProp(domain_node, BAD_CAST "Type", BAD_CAST toString(type));
 
     for(auto item: data_items)
-      xmlNodePtr item_node = item->Serialize(domain_node);
+      xmlNodePtr item_node = item->serialize(domain_node);
       
     for(auto att: attributes)
-      xmlNodePtr item_att = att->Serialize(domain_node);
+      xmlNodePtr item_att = att->serialize(domain_node);
 
     return domain_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    //Parsable::Deserialize(node); // TODO use the parent class to serialize name??
-    SetParent(_parent);
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    //Parsable::deserialize(node); // TODO use the parent class to serialize name??
+    setParent(_parent);
     
-    assert(this->GetParent()!=nullptr);
+    assert(this->getParent()!=nullptr);
     
-    const char* domain_type = xidx::GetProperty(node, "Type");
+    const char* domain_type = xidx::getProp(node, "Type");
 
     for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
-      if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
+      if (strcmp(domain_type, toString(static_cast<DomainType>(t)))==0)
           type = static_cast<DomainType>(t);
     
     for(int t=DomainType::HYPER_SLAB_DOMAIN_TYPE; t <= DomainType::RANGE_DOMAIN_TYPE; t++)
-      if (strcmp(domain_type, ToString(static_cast<DomainType>(t)))==0)
+      if (strcmp(domain_type, toString(static_cast<DomainType>(t)))==0)
         type = static_cast<DomainType>(t);
     
     int data_items_count=0;
@@ -132,22 +132,22 @@ public:
       
       if (cur_node->type == XML_ELEMENT_NODE) {
         
-        if(IsNodeName(cur_node, "DataItem")){
+        if(isNodeName(cur_node, "DataItem")){
           if(data_items.size() > data_items_count){
             std::shared_ptr<DataItem> d = data_items[data_items_count];
-            d->Deserialize(cur_node, this);
+            d->deserialize(cur_node, this);
           }
           else{
             std::shared_ptr<DataItem> d(new DataItem(this));
-            d->Deserialize(cur_node, this);
+            d->deserialize(cur_node, this);
             data_items.push_back(d);
           }
           
           data_items_count++;
         }
-        else if(IsNodeName(cur_node, "Attribute")){
+        else if(isNodeName(cur_node, "Attribute")){
           std::shared_ptr<Attribute> att(new Attribute());
-          att->Deserialize(cur_node, this);
+          att->deserialize(cur_node, this);
           attributes.push_back(att);
         }
       }
@@ -157,7 +157,7 @@ public:
     return 0;
   };
   
-  virtual size_t GetVolume() const{
+  virtual size_t getVolume() const{
     size_t total = 1;
     for(auto& item: this->data_items)
       for(int i=0; i < item->dimensions.size(); i++)
@@ -165,9 +165,9 @@ public:
     return total;
   }
   
-  virtual const IndexSpace& GetLinearizedIndexSpace() = 0;
+  virtual const IndexSpace& getLinearizedIndexSpace() = 0;
   
-  virtual std::string ClassName() const override { return "Domain"; };
+  virtual std::string getClassName() const override { return "Domain"; };
 
 };
 

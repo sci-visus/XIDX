@@ -72,9 +72,9 @@ public:
       return 1;
     
     for (xmlNode* cur_node = root_element->children->next; cur_node; cur_node = cur_node->next) {
-      if(IsNodeName(cur_node,"Group")){
+      if(isNodeName(cur_node,"Group")){
         root_group = std::make_shared<Group>(new Group("root"));
-        root_group->Deserialize(cur_node, nullptr);//(Parsable*)(root_group->get()));
+        root_group->deserialize(cur_node, nullptr);//(Parsable*)(root_group->get()));
       }
     }
     
@@ -84,18 +84,18 @@ public:
 
   }
   
-  int Save(){
+  int save(){
     
     xmlDocPtr doc = NULL;       /* document pointer */
     xmlNodePtr root_node = NULL;/* node pointers */
     
     LIBXML_TEST_VERSION;
     
-    CreateNewDoc(doc, root_node);
+    createNewDoc(doc, root_node);
     
-    root_group->Serialize(root_node);
+    root_group->serialize(root_node);
     
-    SaveDoc(file_path, doc);
+    saveDoc(file_path, doc);
     
     /*
      *Free the global variables that may
@@ -111,9 +111,9 @@ public:
     return 0; 
   }
   
-  int Save(std::string path){
+  int save(std::string path){
     file_path = path;
-    return Save();
+    return save();
   };
 
   // std::string get_idx_file_path(int timestep, int level, CenterType ctype);
@@ -127,11 +127,11 @@ public:
     return 0;
   }
   
-  const std::shared_ptr<Group>& GetRootGroup() const{
+  const std::shared_ptr<Group>& getRootGroup() const{
     return root_group;
   }
   
-  inline size_t GetNumberOfGroups() const { return root_group->GetGroups().size(); };
+  inline size_t getNumberOfGroups() const { return root_group->getGroups().size(); };
 };
 
 }

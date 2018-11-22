@@ -45,7 +45,7 @@ public:
     DIM_1D_TOPOLOGY_TYPE = 5
   };
   
-  static inline const char* ToString(TopologyType v)
+  static inline const char* toString(TopologyType v)
   {
     switch (v)
     {
@@ -66,37 +66,37 @@ public:
   TopologyType type;
   std::vector<INDEX_TYPE> dimensions;
 
-  xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
 
     xmlNodePtr topology_node = xmlNewChild(parent, NULL, BAD_CAST "Topology", NULL);
 
-    xmlNewProp(topology_node, BAD_CAST "Type", BAD_CAST ToString(type));
-    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST xidx::ToString(dimensions).c_str());
+    xmlNewProp(topology_node, BAD_CAST "Type", BAD_CAST toString(type));
+    xmlNewProp(topology_node, BAD_CAST "Dimensions", BAD_CAST xidx::toString(dimensions).c_str());
     
     for(auto item: items)
-      xmlNodePtr item_node = item.Serialize(topology_node);
+      xmlNodePtr item_node = item.serialize(topology_node);
 
     return topology_node;
   };
   
-  int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    if(!IsNodeName(node,"Topology"))
+  int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    if(!isNodeName(node,"Topology"))
       return -1;
     
-    SetParent(_parent);
+    setParent(_parent);
 
-    const char* topo_type = GetProperty(node, "Type");
+    const char* topo_type = getProp(node, "Type");
 
     for(int t=TopologyType::NO_TOPOLOGY_TYPE; t <= CORECT_3D_MESH_TOPOLOGY_TYPE; t++)
-      if (strcmp(topo_type, ToString(static_cast<TopologyType>(t)))==0)
+      if (strcmp(topo_type, toString(static_cast<TopologyType>(t)))==0)
           type = static_cast<TopologyType>(t);
 
-    dimensions = ToIndexVector(xidx::GetProperty(node, "Dimensions"));
+    dimensions = toIndexVector(xidx::getProp(node, "Dimensions"));
 
     return 0;
   };
   
-  virtual std::string ClassName() const override { return "Topology"; };
+  virtual std::string getClassName() const override { return "Topology"; };
 
 };
 

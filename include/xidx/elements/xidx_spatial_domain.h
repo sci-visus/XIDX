@@ -43,7 +43,7 @@ public:
   };
   
   SpatialDomain(const SpatialDomain* dom) : Domain(dom->name){
-    SetParent(dom->GetParent());
+    setParent(dom->getParent());
     topology = dom->topology;
     geometry = dom->geometry;
   }
@@ -51,16 +51,16 @@ public:
   Topology topology;
   Geometry geometry;
   
-  int SetTopology(Topology _topology) { topology = _topology; return 0; }
+  int setTopology(Topology _topology) { topology = _topology; return 0; }
   
   int SetTopology(Topology::TopologyType type, uint32_t dims){
-    topology.dimensions = ToIndexVector(string_format("%d", dims));
+    topology.dimensions = toIndexVector(string_format("%d", dims));
     topology.type = type;
     
     return 0;
   }
   
-  int SetTopology(Topology::TopologyType type, int n_dims, uint32_t* dims){
+  int setTopology(Topology::TopologyType type, int n_dims, uint32_t *dims){
     for(int i=0; i< n_dims; i++)
       topology.dimensions.push_back(dims[i]);
     
@@ -112,29 +112,29 @@ public:
     return 0;
   }
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
-    xmlNodePtr domain_node = Domain::Serialize(parent, text);
-    xmlNodePtr topology_node = topology.Serialize(domain_node);
+  virtual xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
+    xmlNodePtr domain_node = Domain::serialize(parent, text);
+    xmlNodePtr topology_node = topology.serialize(domain_node);
     
-    xmlNodePtr geometry_node = geometry.Serialize(domain_node);
+    xmlNodePtr geometry_node = geometry.serialize(domain_node);
     
     return domain_node;
   };
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    Domain::Deserialize(node, _parent);
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    Domain::deserialize(node, _parent);
 
-    SetParent(_parent);
+    setParent(_parent);
     
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
 //      for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
           
-          if(IsNodeName(cur_node, "Topology")){
-            topology.Deserialize(cur_node, this);
+          if(isNodeName(cur_node, "Topology")){
+            topology.deserialize(cur_node, this);
           }
-          else if(IsNodeName(cur_node, "Geometry")){
-            geometry.Deserialize(cur_node, this);
+          else if(isNodeName(cur_node, "Geometry")){
+            geometry.deserialize(cur_node, this);
           }
 //        }
       }
@@ -143,18 +143,18 @@ public:
     return 0;
   };
   
-  virtual std::string ClassName() const override { return "SpatialDomain"; };
+  virtual std::string getClassName() const override { return "SpatialDomain"; };
   
-  virtual const IndexSpace& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& getLinearizedIndexSpace() override{
     // TODO NOT IMPLEMENTED
-    fprintf(stderr, "GetLinearizedIndexSpace() for SpatialDomain not implemented yet, please\
-            use GetLinearizedIndexSpace(int index)\n");
+    fprintf(stderr, "getLinearizedIndexSpace() for SpatialDomain not implemented yet, please\
+            use getLinearizedIndexSpace(int index)\n");
     assert(false);
     
     return IndexSpace();
   };
   
-  virtual size_t GetVolume() const override{
+  virtual size_t getVolume() const override{
     size_t total = 1;
     
     for(int i=0; i<topology.dimensions.size(); i++)
