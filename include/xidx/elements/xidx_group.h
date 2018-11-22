@@ -111,7 +111,7 @@ public:
   Group(std::string _name, GroupType _groupType, std::string _filePattern) {
     name=_name;
     group_type=_groupType;
-    variability_type=Variability::VariabilityType::VARIABLE_VARIABILITY_TYPE;
+    variability_type=Variability::VariabilityType::STATIC_VARIABILITY_TYPE;
     filePattern=_filePattern;
   }
   
@@ -173,10 +173,16 @@ public:
   }
 
   const std::shared_ptr<Group>& getGroup(DomainIndex i){
-    if(variability_type == Variability::VariabilityType::STATIC_VARIABILITY_TYPE)
+    // TODO check variability of the group
+    if(groups.size() == 1)
       return groups.back();
     else
       return groups[i];
+
+//    if(variability_type == Variability::VariabilityType::STATIC_VARIABILITY_TYPE)
+//      return groups.back();
+//    else
+//      return groups[i];
   }
 
   const std::vector<std::shared_ptr<Group> >& getGroups(){ return groups; }
