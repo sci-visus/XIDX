@@ -61,11 +61,11 @@ public:
     inline_metadata = do_inline_metadata;
   };
   
-  std::string GetUrl(){ return url; }
+  std::string getUrl(){ return url; }
   
-  int SetFilePath(std::string path){ url = path; return 0; }
+  int setFilePath(std::string path){ url = path; return 0; }
   
-  xmlNodePtr Serialize(xmlNode* parent_node, const char* text=NULL) override{
+  xmlNodePtr serialize(xmlNode *parent_node, const char *text = NULL) override{
     xmlNodePtr ds_node = xmlNewChild(parent_node, NULL, BAD_CAST "DataSource", NULL);
     xmlNewProp(ds_node, BAD_CAST "Name", BAD_CAST name.c_str());
     xmlNewProp(ds_node, BAD_CAST "Url", BAD_CAST url.c_str());
@@ -99,20 +99,20 @@ public:
     return ds_node;
   }
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    SetParent(_parent);
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    setParent(_parent);
     
-    if(!xidx::IsNodeName(node,"DataSource"))
+    if(!xidx::isNodeName(node,"DataSource"))
       return -1;
     
-    name = xidx::GetProperty(node, "Name");
-    url = xidx::GetProperty(node, "Url");
+    name = xidx::getProp(node, "Name");
+    url = xidx::getProp(node, "Url");
     
     return 0;
   }
 
-  virtual std::string GetDataSourceXPath() override {
-    xpath_prefix=this->GetParent()->GetDataSourceXPath();
+  virtual std::string getDataSourceXPath() override {
+    xpath_prefix=this->getParent()->getDataSourceXPath();
     xpath_prefix+="/DataSource";
     xpath_prefix+="[@Name=\""+name+"\"]";
     
@@ -124,7 +124,7 @@ public:
     return 0;
   }
   
-  virtual std::string ClassName() const override { return "DataSource"; };
+  virtual std::string getClassName() const override { return "DataSource"; };
   
 };
 

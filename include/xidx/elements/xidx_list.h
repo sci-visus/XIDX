@@ -61,7 +61,7 @@ public:
     it = map.begin();
   }
 
-  std::shared_ptr<Parsable> GetNext(){
+  std::shared_ptr<Parsable> getNext(){
     if(it == map.end())
       return NULL;
     else{

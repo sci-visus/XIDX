@@ -57,7 +57,7 @@ public:
     assert(data_items.size() >= 1);
     std::shared_ptr<DataItem> physical = data_items[0];
     
-    physical->dimensions = ToIndexVector(string_format("%d", dims));
+    physical->dimensions = toIndexVector(string_format("%d", dims));
     
     for(int i=0; i< dims; i++){
       physical->text += std::to_string(phy_hyperslab[i]) +" ";
@@ -68,7 +68,7 @@ public:
     return 0;
   }
   
-  virtual const IndexSpace& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& getLinearizedIndexSpace() override{
     values_vector.resize(count);
     
     for(int i=0; i< count; i++){
@@ -77,25 +77,25 @@ public:
     return values_vector;
   };
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  virtual xmlNodePtr serialize(xmlNode* parent, const char* text=NULL) override{
     assert(data_items.size() >= 1);
     type = DomainType::HYPER_SLAB_DOMAIN_TYPE;
-    xmlNodePtr domain_ptr = Domain::Serialize(parent);
+    xmlNodePtr domain_ptr = Domain::serialize(parent);
 
     return domain_ptr;
   };
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
+  virtual int deserialize(xmlNodePtr node, Parsable* _parent) override{
     assert(data_items.size() >= 1);
-    SetParent(_parent);
+    setParent(_parent);
     std::shared_ptr<DataItem> physical = data_items[0];
     
     for (xmlNode* cur_node = node->children->next; cur_node; cur_node = cur_node->next) {
       //for (xmlNode* inner_node = cur_node->children->next; inner_node; inner_node = inner_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
           
-          if(IsNodeName(cur_node, "DataItem")){
-            physical->Deserialize(cur_node, this);
+          if(isNodeName(cur_node, "DataItem")){
+            physical->deserialize(cur_node, this);
           }
         }
       //}
@@ -123,7 +123,7 @@ public:
     return 0;
   };
   
-  virtual std::string ClassName() const override { return "HyperSlabDomain"; };
+  virtual std::string getClassName() const override { return "HyperSlabDomain"; };
   
 private:
   double start = 0;

@@ -51,7 +51,7 @@ public:
     EDGE_CENTER = 4
   };
   
-  static inline const char* ToString(CenterType v)
+  static inline const char* toString(CenterType v)
   {
     switch (v)
     {
@@ -82,18 +82,18 @@ public:
   }
   
   Variable(Parsable* _parent){
-    SetParent(_parent);
+    setParent(_parent);
   }
   
 //  Variable(const Variable* v){
-//    SetParent(v->GetParent());
+//    setParent(v->getParent());
 //    attributes = v->attributes;
 //    center_type = v->center_type;
 //    data_items = v->data_items;
 //  }
 //
 //  Variable(const Variable& v){
-//    SetParent(v.GetParent());
+//    setParent(v.getParent());
 //    attributes = v.attributes;
 //    center_type = v.center_type;
 //    data_items = v.data_items;
@@ -105,23 +105,23 @@ public:
   // }
 
   // std::string get_dtype_str(){
-  //   std::string numberType = ToString(data.numberType); 
+  //   std::string numberType = toString(data.numberType); 
   //   std::transform(numberType.begin(), numberType.end(), numberType.begin(), ::tolower);
   //   int n_bytes = stoi(data.precision)*8;
   //   return string_format("%d*%s%d",get_n_components(),numberType.c_str(),n_bytes);
   // }
 
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  virtual xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
     xmlNodePtr variable_node = xmlNewChild(parent, NULL, BAD_CAST "Variable", NULL);
     xmlNewProp(variable_node, BAD_CAST "Name", BAD_CAST name.c_str());
     //if(center_type != defaults::VARIABLE_CENTER_TYPE)
-    xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST ToString(center_type));
+    xmlNewProp(variable_node, BAD_CAST "Center", BAD_CAST toString(center_type));
 
     for(auto item: data_items)
-      xmlNodePtr data_node = item->Serialize(variable_node);
+      xmlNodePtr data_node = item->serialize(variable_node);
 
     for(auto& curr_att : attributes){
-      xmlNodePtr info_node = curr_att->Serialize(variable_node);
+      xmlNodePtr info_node = curr_att->serialize(variable_node);
     }
 
     return variable_node;
@@ -178,7 +178,7 @@ public:
   //   return 0;
   // }
   
-  virtual int AddValues(std::vector<double> vals){
+  virtual int addValues(std::vector<double> vals){
     int stride = vals.size();
     
     if(data_items.size()==0){
@@ -187,25 +187,25 @@ public:
     }
     
     for(auto v:vals)
-      data_items[0]->AddValue(v, stride);
+      data_items[0]->addValue(v, stride);
     
     return 0;
   }
   
-  virtual int AddValue(double v){
+  virtual int addValue(double v){
     if(data_items.size()==0){
       data_items.push_back(std::make_shared<DataItem>(this));
       data_items[0]->format_type = DataItem::FormatType::XML_FORMAT;
     }
     
-    data_items[0]->AddValue(v);
+    data_items[0]->addValue(v);
     
     return 0;
   }
   
-  const std::vector<double>& GetValues(int axis=0) const{
+  const std::vector<double>& getValues(int axis = 0) const{
     if(data_items.size() > axis){
-      return data_items[axis]->GetValues();
+      return data_items[axis]->getValues();
     }
     else
       fprintf(stderr, "Axis %d does not exist", axis);
@@ -213,47 +213,47 @@ public:
     return std::vector<double>();
   }
   
-  virtual size_t GetVolume() const{
+  virtual size_t getVolume() const{
     size_t total = 1;
     for(auto& item: this->data_items)
-        total *= item->GetVolume();
+        total *= item->getVolume();
     return total;
   }
   
-  virtual int AddAttribute(std::string name, std::string value){
+  virtual int addAttribute(std::string name, std::string value){
     std::shared_ptr<Attribute> att(new Attribute(name, value));
     attributes.push_back(att);
     return 0;
   }
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    if(!IsNodeName(node,"Variable"))
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    if(!isNodeName(node,"Variable"))
       return -1;
 
-    SetParent(_parent);
+    setParent(_parent);
     
-    assert(GetParent()!=nullptr);
+    assert(getParent()!=nullptr);
     
-    name = xidx::GetProperty(node, "Name");
+    name = xidx::getProp(node, "Name");
 
-    const char* center_type_value = GetProperty(node, "Center");
+    const char* center_type_value = getProp(node, "Center");
     if(center_type_value != NULL){
       for(int t=CenterType::NODE_CENTER; t <= EDGE_CENTER; t++)
-        if (strcmp(center_type_value, ToString(static_cast<CenterType>(t)))==0)
+        if (strcmp(center_type_value, toString(static_cast<CenterType>(t)))==0)
             center_type = static_cast<CenterType>(t);
     }
     else
       center_type = defaults::VARIABLE_CENTER_TYPE;
 
     for (xmlNode* inner_node = node->children->next; inner_node; inner_node = inner_node->next) {
-      if(IsNodeName(inner_node, "Attribute")){
+      if(isNodeName(inner_node, "Attribute")){
         std::shared_ptr<Attribute> att(new Attribute);
-        att->Deserialize(inner_node, this);
+        att->deserialize(inner_node, this);
         attributes.push_back(att);
       }
-      if(IsNodeName(inner_node, "DataItem")){
+      if(isNodeName(inner_node, "DataItem")){
         std::shared_ptr<DataItem> ditem(new DataItem(this));
-        ditem->Deserialize(inner_node, ditem->GetParent());
+        ditem->deserialize(inner_node, ditem->getParent());
         data_items.push_back(ditem);
       }
     }
@@ -261,25 +261,25 @@ public:
     return 0;
   };
   
-  virtual std::vector<std::shared_ptr<Attribute>> GetAttributes() const { return attributes; }
+  virtual std::vector<std::shared_ptr<Attribute>> getAttributes() const { return attributes; }
   
-  virtual int AddAttribute(const std::shared_ptr<Attribute>& att){ attributes.push_back(att); return 0; }
+  virtual int addAttribute(const std::shared_ptr<Attribute>& att){ attributes.push_back(att); return 0; }
   
-  virtual int AddAttribute(const std::vector<std::shared_ptr<Attribute>>& atts){
+  virtual int addAttribute(const std::vector<std::shared_ptr<Attribute>>& atts){
     attributes.insert(attributes.end(), atts.begin(), atts.end());
     return 0;
   }
   
-  virtual std::vector<std::shared_ptr<DataItem> > GetDataItems() const { return data_items; }
+  virtual std::vector<std::shared_ptr<DataItem> > getDataItems() const { return data_items; }
   
-  virtual int AddDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
+  virtual int addDataItem(const std::shared_ptr<DataItem>& di){ data_items.push_back(di); return 0; }
   
-  virtual int AddDataItem(const std::vector<std::shared_ptr<DataItem> >& dis){
+  virtual int addDataItem(const std::vector<std::shared_ptr<DataItem> >& dis){
     data_items.insert(data_items.end(), dis.begin(), dis.end());
     return 0;
   }
   
-  virtual std::string ClassName() const override { return "Variable"; };
+  virtual std::string getClassName() const override { return "Variable"; };
 
 };
 }

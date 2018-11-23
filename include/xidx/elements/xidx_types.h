@@ -62,7 +62,7 @@ public:
     UINT_NUMBER_TYPE = 4
   };
   
-  static inline const char* ToString(NumberType v)
+  static inline const char* toString(NumberType v)
   {
     switch (v)
     {
@@ -122,7 +122,7 @@ static inline std::string& trim(std::string& str, const std::string& chars = "\t
 	return ltrim(rtrim(str, chars), chars);
 }
   
-inline std::string ToString(const std::vector<xidx::INDEX_TYPE>& vec){
+inline std::string toString(const std::vector<xidx::INDEX_TYPE>& vec){
   std::string str="";
   for(auto& v: vec)
     str+=std::to_string(v)+" ";
@@ -131,7 +131,7 @@ inline std::string ToString(const std::vector<xidx::INDEX_TYPE>& vec){
 }
   
 
-inline std::vector<INDEX_TYPE> ToIndexVector(std::string s){
+inline std::vector<INDEX_TYPE> toIndexVector(std::string s){
   std::vector<INDEX_TYPE> vec;
   
   std::string delimiter = " ";

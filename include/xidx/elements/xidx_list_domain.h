@@ -70,23 +70,23 @@ public:
     values_vector = d->values_vector;
   }
   
-  int AddDomainItems(std::vector<T> vals){
+  int addDomainItems(std::vector<T> vals){
     values_vector.insert(values_vector.end(), vals.begin(), vals.end());
     bound_size = vals.size();
     
     return 0;
   }
   
-  int AddDomainItem(T phy){
+  int addDomainItem(T phy){
     values_vector.push_back(phy);
     return 0;
   }
   
-  virtual const IndexSpace& GetLinearizedIndexSpace() override{
+  virtual const IndexSpace& getLinearizedIndexSpace() override{
     return values_vector;
   };
   
-  virtual xmlNodePtr Serialize(xmlNode* parent, const char* text=NULL) override{
+  virtual xmlNodePtr serialize(xmlNode *parent, const char *text = NULL) override{
     assert(data_items.size() >= 1);
     auto physical = data_items[0];
     physical->text="";
@@ -101,17 +101,17 @@ public:
     }
     
     trim(physical->text);
-    xmlNodePtr domain_node = Domain::Serialize(parent, text);
+    xmlNodePtr domain_node = Domain::serialize(parent, text);
       
     return domain_node;
   }
   
-  virtual int Deserialize(xmlNodePtr node, Parsable* _parent) override{
-    Domain::Deserialize(node, _parent);
+  virtual int deserialize(xmlNodePtr node, Parsable *_parent) override{
+    Domain::deserialize(node, _parent);
     
-    SetParent(_parent);
+    setParent(_parent);
   
-    assert(GetParent()!=nullptr);
+    assert(getParent()!=nullptr);
       
     int count = data_items.size();
   
@@ -120,7 +120,7 @@ public:
       
       assert(item->dimensions.size()>0);
       
-      size_t length = item->GetVolume();
+      size_t length = item->getVolume();
 
       values_vector.resize(length);
       
@@ -139,7 +139,7 @@ public:
     return 0;
   }
   
-  virtual std::string ClassName() const override { return "ListDomain"; };
+  virtual std::string getClassName() const override { return "ListDomain"; };
   
 };
 

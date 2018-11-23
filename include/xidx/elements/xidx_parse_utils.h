@@ -60,7 +60,7 @@ namespace xidx{
       return std::string(buf.get(), buf.get() + size);
   }
   
-  int CreateNewDoc(xmlDocPtr& doc, xmlNodePtr& root_node)
+  int createNewDoc(xmlDocPtr &doc, xmlNodePtr &root_node)
   {
     /*
      * Creates a new document, a node and set it as a root node
@@ -81,7 +81,7 @@ namespace xidx{
     return 0;
   }
   
-  int SaveDoc(const std::string& file_path, const xmlDocPtr& doc) 
+  int saveDoc(const std::string &file_path, const xmlDocPtr &doc)
   {
     /*
      * Dumping document to stdio or file
