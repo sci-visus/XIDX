@@ -92,8 +92,9 @@ public:
     LIBXML_TEST_VERSION;
     
     createNewDoc(doc, root_node);
-    
-    root_group->serialize(root_node);
+
+    if(root_group != nullptr)
+      root_group->serialize(root_node);
     
     saveDoc(file_path, doc);
     
