@@ -54,7 +54,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   std::dynamic_pointer_cast<TemporalHyperSlabDomain>(time_dom)->setDomain(n_dims, phy_time);
   
   // Set the time group domain to use the time domain we just created
-  time_group->SetDomain(time_dom);
+  time_group->setDomain(time_dom);
   
   ////////////////////////////////////////////////////////////
   //
@@ -78,7 +78,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   ret = space_dom->SetGeometry(Geometry::GeometryType::ORIGIN_DXDYDZ_GEOMETRY_TYPE, n_dims, o, d);
   
   // Set the domain for the spatial group
-  grid->SetDomain(space_dom);
+  grid->setDomain(space_dom);
   
   // add some variables to the spatial group
   for(int i=0; i < n_attributes; i++){
@@ -91,7 +91,7 @@ int write_temporal_hyperslab_reg_grid(const char* filepath, int n_attributes, in
   time_group->addGroup(grid);
   
   // Set the root group of the metadata
-  meta.SetRootGroup(time_group);
+  meta.setRootGroup(time_group);
   // Write to disk
   meta.save();
   
@@ -127,7 +127,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   std::dynamic_pointer_cast<TemporalListDomain>(time_dom)->addDomainItems({float(100),float(200)});
   
   // Set the time group domain to use the time domain we just created
-  time_group->SetDomain(time_dom);
+  time_group->setDomain(time_dom);
   
   ///////////////////////////////////////////////////////////////
   //
@@ -172,7 +172,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   time_group->addGroup(geo_vars);
   
   // Set the root group of the metadata
-  meta.SetRootGroup(time_group);
+  meta.setRootGroup(time_group);
   // Write to disk
   meta.save();
   
@@ -200,7 +200,7 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   }
   
   // Set the time group domain to use the time domain we just created
-  time_group->SetDomain(time_dom);
+  time_group->setDomain(time_dom);
   
   ///////////////////////////////////////////////////////////////
   //
@@ -236,7 +236,7 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   time_group->addGroup(rect_grid_vars);
   
   // Set the root group of the metadata
-  meta.SetRootGroup(time_group);
+  meta.setRootGroup(time_group);
   // Write to disk
   meta.save();
 
@@ -266,7 +266,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
   }
   
   // Set the time group domain to use the time domain we just created
-  time_group->SetDomain(time_dom);
+  time_group->setDomain(time_dom);
   
   // Create a grid and group of variables for every timestep
   for(int t=0; t < n_timesteps; t++){
@@ -290,7 +290,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     ret = space_dom->SetGeometry(Geometry::GeometryType::RECT_GEOMETRY_TYPE, n_dims, box_phy);
     
     // Set the domain for the spatial group
-    grid->SetDomain(space_dom);
+    grid->setDomain(space_dom);
     
     // add some variables to the spatial group
     for(int i=0; i < n_attributes; i++){
@@ -302,7 +302,7 @@ int write_time_varying(const char* filepath, int n_attributes, int n_timesteps){
     time_group->addGroup(grid);
   }
 
-  meta.SetRootGroup(time_group);
+  meta.setRootGroup(time_group);
   meta.save();
   
   printf("%zu timeteps written in %s\n", meta.getNumberOfGroups(), filepath);

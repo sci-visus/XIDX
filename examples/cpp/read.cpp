@@ -63,11 +63,11 @@ int main(int argc, char** argv){
   for(auto& att: domain->getAttributes())
     printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
   
-  int group_count=0;
+  int t_count=0;
   for(auto t : domain->getLinearizedIndexSpace()){
     printf("Timestep %f\n", t);
 
-    auto& grid = root_group->getGroup(group_count++);
+    auto& grid = root_group->getGroup(t_count++);
     std::shared_ptr<Domain> domain = grid->getDomain();
     
     printf("\tGrid Domain[%s]:\n", Domain::toString(domain->type));

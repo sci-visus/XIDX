@@ -131,7 +131,7 @@ public:
   
   inline std::shared_ptr<Domain> getDomain() { return domain; }
   
-  inline int SetDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
+  inline int setDomain(std::shared_ptr<Domain> _domain) { domain = _domain; return 0; }
   
   std::shared_ptr<Variable> addVariable(const char *name, XidxDataType::NumberType numberType,
                                         const short bit_precision,
@@ -204,7 +204,7 @@ public:
     
     std::shared_ptr<Variable> var(new Variable(this));
     var->name = name;
-    SetDomain(domain);
+    setDomain(domain);
     var->addDataItem(item);
     
     var->addAttribute(atts);

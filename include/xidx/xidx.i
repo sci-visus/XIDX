@@ -14,7 +14,7 @@
 #include "xidx.h"
 
 using namespace xidx;
-  
+
 %}
 
 %include exception.i
@@ -101,9 +101,9 @@ using namespace xidx;
 
 %}
 
-%typemap(out) std::shared_ptr<xidx::Domain> xidx::Group::GetDomain {
-  std::string lookup_typename = result->ClassName();
-  
+%typemap(out) std::shared_ptr<xidx::Domain> xidx::Group::getDomain {
+  std::string lookup_typename = result->getClassName();
+
   if(lookup_typename=="ListDomain"){
     lookup_typename = "_p_std__shared_ptrT_xidx__ListDomainT_double_t_t";
     swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
