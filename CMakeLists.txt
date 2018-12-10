@@ -118,8 +118,39 @@ if(BUILD_PYTHON_WRAPPER)
     include(${SWIG_USE_FILE})
 
     # Include python
-    find_package(PythonLibs REQUIRED)
-    include(FindPythonInterp)
+    if (NOT DEFINED PYTHON_VERSION)
+        set(PYTHON_VERSION 3)
+    endif()
+
+    find_package(PythonInterp ${PYTHON_VERSION} REQUIRED)
+    find_package(PythonLibs   ${PYTHON_VERSION} REQUIRED)
+    message(STATUS "PYTHON_EXECUTABLE   ${PYTHON_EXECUTABLE}")
+    message(STATUS "PYTHON_LIBRARY      ${PYTHON_LIBRARY}")
+    message(STATUS "PYTHON_INCLUDE_DIR  ${PYTHON_INCLUDE_DIR}")
+
+    if (WIN32)
+        list(LENGTH PYTHON_LIBRARY __n__)
+        if (${__n__} EQUAL 1)
+            set(PYTHON_DEBUG_LIBRARY     ${PYTHON_LIBRARY})
+            set(PYTHON_RELEASE_LIBRARY   ${PYTHON_LIBRARY})
+        else()
+            # differentiate debug from release
+            # example debug;aaaa;optimized;bbb
+            list(FIND PYTHON_LIBRARY optimized __index__)
+            if (${__index__} EQUAL -1)
+                MESSAGE(ERROR "Problem with find python")
+            endif()
+            math(EXPR __next_index__ "${__index__}+1")
+            list(GET PYTHON_LIBRARY ${__next_index__} PYTHON_RELEASE_LIBRARY)
+
+            list(FIND PYTHON_LIBRARY debug __index__)
+            if (${__index__} EQUAL -1)
+                MESSAGE(ERROR "Problem with find python")
+            endif()
+            math(EXPR __next_index__ "${__index__}+1")
+            list(GET PYTHON_LIBRARY ${__next_index__} PYTHON_DEBUG_LIBRARY)
+        endif()
+    endif()
     include_directories(${PYTHON_INCLUDE_PATH})
 
     set(CMAKE_SWIG_FLAGS "")

@@ -4,9 +4,8 @@ environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   CMAKE_GENERATOR: Visual Studio 15 2017 Win64
   matrix:
-  - PYTHON: C:/Python37-x64/python.exe 
-    PYTHON_VERSION: 3.7
-    PYTHON_ARCH: 32
+  - PYTHON_EXECUTABLE: C:/Python37-x64/python.exe 
+    PYTHON_VERSION: 37
 
 # branches to build
 branches:
