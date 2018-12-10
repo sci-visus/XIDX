@@ -2,6 +2,9 @@ version: '{build}'
 
 # https://www.appveyor.com/docs/build-environment/#build-worker-images
 image: Visual Studio 2017
+
+environment:
+  matrix:
   - PYTHON: C:/Python37-x64/python.exe 
       PYTHON_VERSION: 3.7
       PYTHON_ARCH: 32
