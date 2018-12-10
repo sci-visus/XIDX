@@ -86,8 +86,8 @@ public:
   
   class defaults{
   public:
-    constexpr static const char* DATAITEM_BIT_PRECISION = "32";
-    constexpr static const char* DATAITEM_N_COMPONENTS = "1";
+    static const char* DATAITEM_BIT_PRECISION(){ return "32"; }
+    static const char* DATAITEM_N_COMPONENTS() { return "1";  }
     static const DataItem::FormatType DATAITEM_FORMAT_TYPE = DataItem::FormatType::XML_FORMAT;
     static const XidxDataType::NumberType DATAITEM_NUMBER_TYPE = XidxDataType::NumberType::FLOAT_NUMBER_TYPE;
     static const Endianess::EndianType DATAITEM_ENDIAN_TYPE = Endianess::EndianType::LITTLE_ENDIANESS;
@@ -109,8 +109,8 @@ public:
   int setDefaults(){
     format_type=defaults::DATAITEM_FORMAT_TYPE;
     number_type=defaults::DATAITEM_NUMBER_TYPE;
-    bit_precision=defaults::DATAITEM_BIT_PRECISION;
-    n_components=defaults::DATAITEM_N_COMPONENTS;
+    bit_precision=defaults::DATAITEM_BIT_PRECISION();
+    n_components=defaults::DATAITEM_N_COMPONENTS();
     endian_type=defaults::DATAITEM_ENDIAN_TYPE;
     data_source=nullptr;
     return 0;
@@ -185,7 +185,7 @@ public:
       xmlNewProp(data_node, BAD_CAST "Format", BAD_CAST toString(format_type));
     
       xmlNewProp(data_node, BAD_CAST "NumberType", BAD_CAST XidxDataType::toString(number_type));
-    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION) != 0 || format_type == FormatType::IDX_FORMAT)
+    if(strcmp(bit_precision.c_str(), defaults::DATAITEM_BIT_PRECISION()) != 0 || format_type == FormatType::IDX_FORMAT)
       xmlNewProp(data_node, BAD_CAST "BitPrecision", BAD_CAST bit_precision.c_str());
     if(endian_type != defaults::DATAITEM_ENDIAN_TYPE)
       xmlNewProp(data_node, BAD_CAST "Endian", BAD_CAST Endianess::toString(endian_type));
@@ -193,7 +193,7 @@ public:
     if(dimensions.size())
       xmlNewProp(data_node, BAD_CAST "Dimensions", BAD_CAST xidx::toString(dimensions).c_str());
 
-    if(n_components != defaults::DATAITEM_N_COMPONENTS)
+    if(n_components != defaults::DATAITEM_N_COMPONENTS())
       xmlNewProp(data_node, BAD_CAST "ComponentNumber", BAD_CAST n_components.c_str());
 
     if(data_source != nullptr)
@@ -268,13 +268,13 @@ public:
     
     const char* val_precision = xidx::getProp(node, "BitPrecision");
     if(val_precision == NULL)
-      bit_precision = defaults::DATAITEM_BIT_PRECISION;
+      bit_precision = defaults::DATAITEM_BIT_PRECISION();
     else 
       bit_precision = val_precision;
 
     const char* val_components = xidx::getProp(node, "ComponentNumber");
     if(val_components == NULL)
-      n_components = defaults::DATAITEM_N_COMPONENTS;
+      n_components = defaults::DATAITEM_N_COMPONENTS();
     else 
       n_components = val_components;
 
