@@ -17,8 +17,8 @@ branches:
 install:
   - choco install -y --allow-empty-checksums swig 
 
-#init:
-#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 before_build:
 - set PATH=C:/Python37-x64/;%PATH%

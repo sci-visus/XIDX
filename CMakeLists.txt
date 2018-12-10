@@ -225,7 +225,7 @@ if(BUILD_PYTHON_WRAPPER)
 
     endif()
 
-    set(PYTHON_EXECUTABLE python3)
+    #set(PYTHON_EXECUTABLE python3)
 
     if (WIN32)
         set(PYTHON_SDIST_FORMAT zip)
