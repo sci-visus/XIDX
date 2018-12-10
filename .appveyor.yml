@@ -2,6 +2,12 @@ version: '{build}'
 
 # https://www.appveyor.com/docs/build-environment/#build-worker-images
 image: Visual Studio 2017
+  - PYTHON: C:/Python37-x64/python.exe 
+      PYTHON_VERSION: 3.7
+      PYTHON_ARCH: 32
+#  - PYTHON: C:/Python36-x64/python.exe 
+#      PYTHON_VERSION: 3.6
+#      PYTHON_ARCH: 32
 
 # branches to build
 branches:
@@ -22,6 +28,5 @@ before_build:
 
 build_script:
 - cmake ../ -DBUILD_PYTHON_WRAPPER=ON
-- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-#- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
 - devenv /build Release XIDX.sln 
