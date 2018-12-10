@@ -10,6 +10,9 @@ branches:
     - master
     - /.*/
 
+install:
+  - choco install -y --allow-empty-checksums swig 
+
 #init:
 #  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
@@ -18,6 +21,6 @@ before_build:
 - cd build
 
 build_script:
-- cmake ../ -DBUILD_PYTHON_WRAPPER=OFF 
+- cmake ../ -DBUILD_PYTHON_WRAPPER=ON
 - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
 - devenv /build Release XIDX.sln 
