@@ -22,5 +22,6 @@ before_build:
 
 build_script:
 - cmake ../ -DBUILD_PYTHON_WRAPPER=ON
-- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+#- call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
 - devenv /build Release XIDX.sln 
