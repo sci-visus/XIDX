@@ -17,8 +17,8 @@ branches:
 install:
   - choco install -y --allow-empty-checksums swig 
 
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 before_build:
 - set PATH=C:/Python37-x64/;%PATH%
@@ -26,6 +26,7 @@ before_build:
 - cd build
 
 build_script:
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 - cmake ../ -DBUILD_PYTHON_WRAPPER=ON
 - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 - devenv /build Release XIDX.sln 
