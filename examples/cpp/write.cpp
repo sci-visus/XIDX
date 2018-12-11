@@ -160,7 +160,7 @@ int write_temporal_list_multiaxis(const char* filepath, int n_attributes, int n_
   std::shared_ptr<Group> geo_vars(new Group("geo_vars", Group::GroupType::SPATIAL_GROUP_TYPE, geo_dom));
   
   // Create and add a variable to the group
-  std::shared_ptr<Variable> temp = geo_vars->addVariable("geo_temperature", XidxDataType::FLOAT_32);
+  std::shared_ptr<Variable> temp = geo_vars->addVariable("geo_temperature", XidxDataType::FLOAT_32());
   if(!temp)
     printf("error\n");
   
@@ -220,7 +220,7 @@ int write_temporal_list_binary_axis(const char* filepath, int n_attributes, int 
   std::shared_ptr<DataSource> rect_grid_file(new DataSource("grid_data", "file_path"));
   
   // Create a DataItem which describes the content of the data
-  DataItem file_item(DataItem::FormatType::BINARY_FORMAT, XidxDataType::FLOAT_64, rect_grid_file, file_dom.get());
+  DataItem file_item(DataItem::FormatType::BINARY_FORMAT, XidxDataType::FLOAT_64(), rect_grid_file, file_dom.get());
   
   // Create a geometry which will point to the file
   Geometry file_geom(Geometry::GeometryType::XY_GEOMETRY_TYPE, file_item);

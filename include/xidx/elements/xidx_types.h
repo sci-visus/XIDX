@@ -77,14 +77,15 @@ public:
   
 public:
   // TODO add vector types
-  constexpr static const char* FLOAT_32="1*float32";
-  constexpr static const char* FLOAT_64="1*float64";
-  constexpr static const char* INT_32="1*int32";
-  constexpr static const char* UINT_32="1*uint32";
-  constexpr static const char* INT_16="1*int16";
-  constexpr static const char* UINT_16="1*int16";
-  constexpr static const char* INT_8="1*int8";
-  constexpr static const char* UINT_8="1*uint8";
+
+  static const char* FLOAT_32() { return "1*float32"; }
+  static const char* FLOAT_64() { return"1*float64"; }
+  static const char* INT_32() { return"1*int32"; }
+  static const char* UINT_32() { return"1*uint32"; }
+  static const char* INT_16() { return"1*int16"; }
+  static const char* UINT_16() { return"1*int16"; }
+  static const char* INT_8() { return"1*int8"; }
+  static const char* UINT_8() { return"1*uint8"; }
   
   int n_components;
   NumberType type;
