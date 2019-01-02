@@ -125,6 +125,12 @@ using namespace xidx;
     auto smartresult = GetNewDomainPtr<xidx::SpatialDomain>($1);
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), outtype, SWIG_POINTER_OWN);
   }
+  else if(lookup_typename=="HyperSlabDomain"){
+    lookup_typename = "_p_std__shared_ptrT_xidx__HyperSlabDomain_t";
+    swig_type_info * const outtype = SWIG_TypeQuery(lookup_typename.c_str());
+    auto smartresult = GetNewDomainPtr<xidx::HyperSlabDomain>($1);
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(smartresult), outtype, SWIG_POINTER_OWN);
+  }
 
 }
 
@@ -152,14 +158,14 @@ using namespace xidx;
 %include <elements/xidx_attribute.h>
 %include <elements/xidx_dataitem.h>
 %include <elements/xidx_domain.h>
-%include <elements/xidx_spatial_domain.h>
-%include <elements/xidx_hyperslab_domain.h>
-%include <elements/xidx_list_domain.h>
-%include <elements/xidx_multiaxis_domain.h>
-
 %include <elements/xidx_types.h>
 %include <elements/xidx_geometry.h>
 %include <elements/xidx_topology.h>
+%include <elements/xidx_spatial_domain.h>
+%include <elements/xidx_list_domain.h>
+%include <elements/xidx_hyperslab_domain.h>
+%include <elements/xidx_multiaxis_domain.h>
+
 %include <elements/xidx_group.h>
 %include <elements/xidx_variable.h>
 %include <elements/xidx_attribute.h>

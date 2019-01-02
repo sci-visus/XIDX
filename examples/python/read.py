@@ -20,7 +20,7 @@ root_group = metadata.getRootGroup()
 # get domain of the group
 domain = root_group.getDomain()
 
-print ("Time Domain[",Domain.toString(domain.type),"]:")
+print ("Time Domain[",Domain.toString(domain.getType()),"]:")
 
 # print attributes if any
 for att in domain.getAttributes():
@@ -38,16 +38,18 @@ for t in domain.getLinearizedIndexSpace():
   # get domain of current grid
   grid_domain = grid.getDomain()
 
-  print ("\tGrid Domain[", Domain.toString(grid_domain.type), "]")
+  print ("\tGrid Domain[", Domain.toString(grid_domain.getType()), "]")
 
   # print attributes if any
   for att in grid_domain.getAttributes():
     print ("\t\tAttribute:", att.name, "Value:", att.value)
 
-  if(grid_domain.type == Domain.SPATIAL_DOMAIN_TYPE):
-    print ("\tTopology", Topology.toString(grid_domain.topology.type), "volume ", grid_domain.getVolume())
-    print ("\tGeometry", Geometry.toString(grid_domain.geometry.type))
-  elif(grid_domain.type == Domain.MULTIAXIS_DOMAIN_TYPE):
+  if(grid_domain.getType() == Domain.SPATIAL_DOMAIN_TYPE):
+    topology =  grid_domain.topology
+    geometry = grid_domain.geometry
+    print ("\tTopology", Topology.toString(topology.type), "volume ", grid_domain.getVolume())
+    print ("\tGeometry", Geometry.toString(geometry.type))
+  elif(grid_domain.getType() == Domain.MULTIAXIS_DOMAIN_TYPE):
     # loop over the axis
     for a in range(0,grid_domain.getNumberOfAxis()):
       # get axis

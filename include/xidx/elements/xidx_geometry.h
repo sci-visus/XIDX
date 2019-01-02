@@ -124,6 +124,8 @@ public:
   }
   
   virtual std::string getClassName() const override { return "Geometry"; };
+
+  ~Geometry(){}
 };
 
 }

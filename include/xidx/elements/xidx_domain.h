@@ -61,6 +61,7 @@ protected:
   std::vector<std::shared_ptr<Attribute>> attributes;
   // TODO this should be part of the IndexSpace definition
   int bound_size = 1;
+  DomainType type;
   
 public:
   
@@ -75,8 +76,9 @@ public:
   Domain(std::string _name) {
     name=_name;
   };
-  
-  DomainType type;
+
+  DomainType getType() { return type; }
+
   std::vector<std::shared_ptr<DataItem> > data_items;
 
   int addDataItem(std::shared_ptr<DataItem> item){

@@ -124,7 +124,11 @@ public:
   };
   
   virtual std::string getClassName() const override { return "HyperSlabDomain"; };
-  
+
+  //TODO swig does not allsee these inherited function so rewrite
+  Domain::DomainType getType() { return type; }
+  std::vector<std::shared_ptr<Attribute>> getAttributes() const{ return attributes; }
+
 private:
   double start = 0;
   double step  = 0;

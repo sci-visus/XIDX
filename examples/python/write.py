@@ -56,7 +56,7 @@ geo_dom.addAxis(longitude_axis)
 geo_vars = Group("geo_vars", Group.SPATIAL_GROUP_TYPE, geo_dom);
   
 # create and add a variable to the group
-temp = geo_vars.addVariable("geo_temperature", XidxDataType.FLOAT_32);
+temp = geo_vars.addVariable("geo_temperature", XidxDataType.FLOAT_32());
   
 # add attribute to the variable (key-value) pairs
 temp.addAttribute("unit", "Celsius");

@@ -59,7 +59,7 @@ int main(int argc, char** argv){
   
   std::shared_ptr<TemporalListDomain> domain = std::static_pointer_cast<TemporalListDomain>(time_domain);
   
-  printf("Time Domain[%s]:\n", Domain::toString(domain->type));
+  printf("Time Domain[%s]:\n", Domain::toString(domain->getType()));
   for(auto& att: domain->getAttributes())
     printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
   
@@ -70,17 +70,17 @@ int main(int argc, char** argv){
     auto& grid = root_group->getGroup(t_count++);
     std::shared_ptr<Domain> domain = grid->getDomain();
     
-    printf("\tGrid Domain[%s]:\n", Domain::toString(domain->type));
+    printf("\tGrid Domain[%s]:\n", Domain::toString(domain->getType()));
     
     for(auto& att: domain->getAttributes())
       printf("\t\tAttribute %s value %s\n", att->name.c_str(), att->value.c_str());
     
-    if(domain->type == Domain::DomainType::SPATIAL_DOMAIN_TYPE){
+    if(domain->getType() == Domain::DomainType::SPATIAL_DOMAIN_TYPE){
       std::shared_ptr<SpatialDomain> sdom = std::dynamic_pointer_cast<SpatialDomain>(domain);
       printf("\tTopology %s volume %lu\n", Topology::toString(sdom->topology.type), sdom->getVolume());
       printf("\tGeometry %s", Geometry::toString(sdom->geometry.type));
     }
-    else if(domain->type == Domain::DomainType::MULTIAXIS_DOMAIN_TYPE)
+    else if(domain->getType() == Domain::DomainType::MULTIAXIS_DOMAIN_TYPE)
     {
       std::shared_ptr<MultiAxisDomain> mdom = std::dynamic_pointer_cast<MultiAxisDomain>(domain);
       for(int a=0; a < mdom->getNumberOfAxis(); a++){
