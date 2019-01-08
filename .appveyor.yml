@@ -33,11 +33,7 @@ before_build:
 
 build_script:
 #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-- cmake -G "%CMAKE_GENERATOR%" ^
-	-DCMAKE_TOOLCHAIN_FILE="%CMAKE_TOOLCHAIN_FILE%" ^
-	-DVCPKG_TARGET_TRIPLET="%VCPKG_TARGET_TRIPLET%" ^
-  -DPYTHON_EXECUTABLE=%PYTHON_EXECUTABLE% ^
-	../
+- cmake -G "%CMAKE_GENERATOR%" -DCMAKE_TOOLCHAIN_FILE="%CMAKE_TOOLCHAIN_FILE%" -DVCPKG_TARGET_TRIPLET="%VCPKG_TARGET_TRIPLET%" -DPYTHON_EXECUTABLE=%PYTHON_EXECUTABLE% ../
 #- cmake ../ -DBUILD_PYTHON_WRAPPER=ON -DPYTHON_EXECUTABLE="C:/Python37/python.exe" -DPYTHON_INCLUDE_DIR="C:/Python37/include"
 - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 - cmake --build . --target ALL_BUILD --config Release
