@@ -40,37 +40,37 @@ find_package(LibXml2)
 if(LIBXML2_FOUND)
   include_directories(${LIBXML2_INCLUDE_DIR})
 elseif(WIN32)
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/libxml2.zip)
-    message("Downloading libxml2...")
-    file(DOWNLOAD https://www.zlatkovic.com/pub/libxml/libxml2-2.7.8.win32.zip ${CMAKE_BINARY_DIR}/libxml2.zip)
-  endif()
+#  if(NOT EXISTS ${CMAKE_BINARY_DIR}/libxml2.zip)
+#    message("Downloading libxml2...")
+#    file(DOWNLOAD https://www.zlatkovic.com/pub/libxml/libxml2-2.7.8.win32.zip ${CMAKE_BINARY_DIR}/libxml2.zip)
+#  endif()
 
   if(NOT EXISTS ${CMAKE_BINARY_DIR}/libxml2)
     message("Extracting libxml2...")
     execute_process(
-      COMMAND powershell -c "expand-archive -path 'libxml2.zip' -destinationpath 'libxml2'"
+      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/libxml2-2.9.3-win32-x86_64.zip' -destinationpath 'libxml2'"
     )
   endif()
 
-  set(LIBXML2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libxml2/libxml2-2.7.8.win32/include")
-  set(LIBXML2_LIBRARIES "${CMAKE_BINARY_DIR}/libxml2/libxml2-2.7.8.win32/lib/libxml2.lib")
+  set(LIBXML2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libxml2/include")
+  set(LIBXML2_LIBRARIES "${CMAKE_BINARY_DIR}/libxml2/lib/libxml2.a")
 
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
 
 if(WIN32)
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/iconv.zip)
-    message("Downloading libiconv...")
-    file(DOWNLOAD ftp://xmlsoft.org/libxml2/win32/iconv-1.9.2.win32.zip ${CMAKE_BINARY_DIR}/iconv.zip)
-  endif()
+#  if(NOT EXISTS ${CMAKE_BINARY_DIR}/iconv.zip)
+#    message("Downloading libiconv...")
+#    file(DOWNLOAD ftp://xmlsoft.org/libxml2/win32/iconv-1.9.2.win32.zip ${CMAKE_BINARY_DIR}/iconv.zip)
+#  endif()
 
   if(NOT EXISTS ${CMAKE_BINARY_DIR}/iconv)
     message("Extracting libiconv...")
     execute_process(
-      COMMAND powershell -c "expand-archive -path 'iconv.zip' -destinationpath 'iconv'"
+      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/iconv-1.14-win32-x86_64.zip' -destinationpath 'iconv'"
     )
   endif()
-  include_directories(${CMAKE_BINARY_DIR}/iconv/iconv-1.9.2.win32/include)
+  include_directories(${CMAKE_BINARY_DIR}/iconv/include)
 endif()
 
 # Create library
