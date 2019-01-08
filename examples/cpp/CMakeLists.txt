@@ -1,3 +1,4 @@
+include_directories(${LIBXML2_INCLUDE_DIR})
 
 add_executable(validate validate.cpp)
 

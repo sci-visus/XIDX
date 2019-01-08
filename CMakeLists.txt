@@ -45,31 +45,49 @@ elseif(WIN32)
 #    file(DOWNLOAD https://www.zlatkovic.com/pub/libxml/libxml2-2.7.8.win32.zip ${CMAKE_BINARY_DIR}/libxml2.zip)
 #  endif()
 
+  if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+	set(LIBXML2_FILENAME "libxml2-2.9.3-win32-x86_64")
+	message("Using libxml2 for Win64")
+  else()
+	set(LIBXML2_FILENAME "libxml2-2.9.3-win32-x86")
+	message("Using libxml2 for Win32")
+  endif()
+  
   if(NOT EXISTS ${CMAKE_BINARY_DIR}/libxml2)
     message("Extracting libxml2...")
     execute_process(
-      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/libxml2-2.9.3-win32-x86_64.zip' -destinationpath 'libxml2'"
+      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/${LIBXML2_FILENAME}.zip' -destinationpath 'libxml2'"
     )
   endif()
 
-  set(LIBXML2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libxml2/libxml2-2.9.3-win32-x86_64/include")
-  set(LIBXML2_LIBRARIES "${CMAKE_BINARY_DIR}/libxml2/libxml2-2.9.3-win32-x86_64/lib/libxml2.a")
-
-  include_directories(${LIBXML2_INCLUDE_DIR})
+  set(LIBXML2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libxml2/${LIBXML2_FILENAME}/include/libxml2")
+  set(LIBXML2_LIBRARIES "${CMAKE_BINARY_DIR}/libxml2/${LIBXML2_FILENAME}/lib/libxml2.dll.a")
+  
+  
+  set(LIBXML2_FOUND 1)
+  
 endif()
+
+include_directories(${LIBXML2_INCLUDE_DIR})
 
 if(WIN32)
 #  if(NOT EXISTS ${CMAKE_BINARY_DIR}/iconv.zip)
 #    message("Downloading libiconv...")
 #    file(DOWNLOAD ftp://xmlsoft.org/libxml2/win32/iconv-1.9.2.win32.zip ${CMAKE_BINARY_DIR}/iconv.zip)
 #  endif()
+  if("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+	set(ICONV_FILENAME "iconv-1.14-win32-x86_64")
+  else()
+	set(ICONV_FILENAME "iconv-1.14-win32-x86")
+  endif()
+  
   if(NOT EXISTS ${CMAKE_BINARY_DIR}/iconv)
     message("Extracting libiconv...")
     execute_process(
-      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/iconv-1.14-win32-x86_64.zip' -destinationpath 'iconv'"
+      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/${ICONV_FILENAME}.zip' -destinationpath 'iconv'"
     )
   endif()
-  include_directories(${CMAKE_BINARY_DIR}/iconv/iconv-1.14-win32-x86_64/include)
+  include_directories(${CMAKE_BINARY_DIR}/iconv/${ICONV_FILENAME}/include)
 endif()
 
 # Create library
