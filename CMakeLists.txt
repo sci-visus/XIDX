@@ -41,14 +41,14 @@ if(LIBXML2_FOUND)
   include_directories(${LIBXML2_INCLUDE_DIR})
 elseif(WIN32)
 
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/libxml2)
+  if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2)
     message("Extracting libxml2...")
     execute_process(
-      COMMAND powershell -c "expand-archive -path '${PROJECT_SOURCE_DIR}/external/libxml2.zip' -destinationpath 'libxml2'"
+      COMMAND powershell -c "expand-archive -path '${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2.zip' -destinationpath '${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2'"
     )
   endif()
-  add_subdirectory("${CMAKE_BINARY_DIR}/libxml2")
-  set(LIBXML2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libxml2/libxml2/include")
+  add_subdirectory("external/libxml2")
+  set(LIBXML2_INCLUDE_DIR "external/libxml2/libxml2/include")
   set(LIBXML2_LIBRARIES xml2) 
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
