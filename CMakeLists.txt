@@ -34,13 +34,14 @@ endif()
 
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
-# Dependencies
-find_package(LibXml2)
-
-if(LIBXML2_FOUND)
-  include_directories(${LIBXML2_INCLUDE_DIR})
-elseif(WIN32)
-
+# Dependencies: libxml2 w/o iconv
+# On windows we directly include the src 
+if(NOT WIN32)
+  find_package(LibXml2 REQUIRED)
+  if(LIBXML2_FOUND)
+    include_directories(${LIBXML2_INCLUDE_DIR})
+  endif()
+else()
   if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2)
     message("Extracting libxml2...")
     execute_process(
