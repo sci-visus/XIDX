@@ -52,12 +52,13 @@ else()
   target_include_directories(xml2 PUBLIC "external/libxml2/libxml2/include")
 
   if(XIDX_IS_SUBMODULE)
-      set(LIBXML2_INCLUDE_DIR "external/libxml2/libxml2/include" PARENT_SCOPE )
+      set(LIBXML2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2/libxml2/include" PARENT_SCOPE )
+	  set(LIBXML2_LIBRARIES xml2 PARENT_SCOPE)
   else()
-      set(LIBXML2_INCLUDE_DIR "external/libxml2/libxml2/include")
+       set(LIBXML2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/libxml2/libxml2/include")
+	   set(LIBXML2_LIBRARIES xml2) 
   endif()
 
-  set(LIBXML2_LIBRARIES xml2) 
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
 
@@ -67,7 +68,6 @@ target_include_directories(xidx INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         )
-
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
